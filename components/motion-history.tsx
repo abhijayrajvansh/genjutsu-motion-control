@@ -206,12 +206,11 @@ function MotionCard({
         </details>
       )}
       <small className="real-label">
-        Real Kie generation
         {job.creditsConsumed !== undefined
-          ? ` · ${job.creditsConsumed} credits consumed`
+          ? `Kie cost: ${formatCredits(job.creditsConsumed)} credits`
           : job.estimatedCredits !== undefined
-            ? ` · estimated ${formatCredits(job.estimatedCredits)} Kie credits`
-            : ""}
+            ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`
+            : "Kie cost: unavailable"}
       </small>
       {job.taskId && <small className="task-id">Kie task: {job.taskId}</small>}
       {job.error && <p className="error">{job.error}</p>}
