@@ -834,6 +834,22 @@ em {
   color: var(--muted-foreground);
   white-space: pre-wrap;
 }
+.job-prompt-details {
+  margin-top: 12px;
+}
+.job-prompt-details > summary {
+  width: fit-content;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+.job-prompt-details > summary:hover {
+  color: var(--foreground);
+}
+.job-prompt-details > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
 .demo-label {
   display: block;
   margin-top: 12px;

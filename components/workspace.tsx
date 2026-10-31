@@ -356,7 +356,12 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                               </button>
                             )
                           )}
-                          {j.prompt && <p className="job-prompt">{j.prompt}</p>}
+                          {j.prompt && (
+                            <details className="job-prompt-details">
+                              <summary>Show prompt</summary>
+                              <p className="job-prompt">{j.prompt}</p>
+                            </details>
+                          )}
                           <small className="demo-label">
                             Demo preview · original uploaded media
                           </small>

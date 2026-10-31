@@ -199,7 +199,12 @@ function MotionCard({
           preload="metadata"
         />
       )}
-      {job.prompt && <p className="job-prompt">{job.prompt}</p>}
+      {job.prompt && (
+        <details className="job-prompt-details">
+          <summary>Show prompt</summary>
+          <p className="job-prompt">{job.prompt}</p>
+        </details>
+      )}
       <small className="real-label">
         Real Kie generation
         {job.creditsConsumed !== undefined
