@@ -666,6 +666,20 @@ em {
   margin-bottom: 8px;
   line-height: 20px;
 }
+.file-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.file-heading .file-label {
+  margin-bottom: 0;
+}
+.file-heading > .text-button {
+  flex-shrink: 0;
+  line-height: 20px;
+}
 .file-label small {
   font-weight: 400;
 }

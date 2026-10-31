@@ -406,8 +406,15 @@ export function FilePicker({
   }
   return (
     <div className="file-picker">
-      <div className="file-label">
-        {label} {hint && <small>{hint}</small>}
+      <div className="file-heading">
+        <div className="file-label">
+          {label} {hint && <small>{hint}</small>}
+        </div>
+        {asset && (
+          <button type="button" className="text-button" aria-label={`Remove ${label}`} onClick={() => onPick(null)}>
+            Remove
+          </button>
+        )}
       </div>
       <button
         type="button"
@@ -455,13 +462,6 @@ export function FilePicker({
           <Button type="button" secondary onClick={browse}>
             Replace
           </Button>
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => onPick(null)}
-          >
-            Remove
-          </button>
         </div>
       )}
       {asset && previewing && (
