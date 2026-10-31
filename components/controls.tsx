@@ -170,11 +170,14 @@ export function Modal({
   title,
   children,
   onClose,
+  closeLabel = "Cancel",
 }: {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
+  closeLabel?: string;
 }) {
+  const titleId = useId();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -185,6 +188,7 @@ export function Modal({
     <dialog
       ref={ref}
       className="modal"
+      aria-labelledby={titleId}
       onCancel={onClose}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -200,9 +204,9 @@ export function Modal({
       }}
     >
       <div className="between modal-heading">
-        <h2>{title}</h2>
-        <Button secondary onClick={onClose}>
-          Cancel
+        <h2 id={titleId}>{title}</h2>
+        <Button type="button" secondary onClick={onClose}>
+          {closeLabel}
         </Button>
       </div>
       {children}
@@ -212,9 +216,11 @@ export function Modal({
 export function AssetPreview({
   asset,
   controls = false,
+  autoPlay = false,
 }: {
   asset: Asset;
   controls?: boolean;
+  autoPlay?: boolean;
 }) {
   const [url, setUrl] = useState("");
   useEffect(() => {
@@ -226,9 +232,21 @@ export function AssetPreview({
   }, [asset]);
   if (!url) return null;
   return asset.type.startsWith("video/") ? (
-    <video src={url} controls={controls} muted={!controls} preload="metadata" />
+    <video
+      src={url}
+      aria-label={asset.name}
+      controls={controls}
+      autoPlay={autoPlay}
+      muted={!controls}
+      playsInline
+      preload="metadata"
+    />
   ) : asset.type.startsWith("audio/") ? (
-    <audio src={url} controls />
+    controls ? (
+      <audio src={url} aria-label={asset.name} controls autoPlay={autoPlay} />
+    ) : (
+      <span>Audio file</span>
+    )
   ) : (
     <img src={url} alt={asset.name} />
   );
@@ -251,6 +269,7 @@ export function FilePicker({
   onError?: (s: string) => void;
 }) {
   const [open, setOpen] = useState(false),
+    [previewing, setPreviewing] = useState(false),
     [saved, setSaved] = useState<Asset[]>([]),
     [error, setError] = useState(""),
     [drag, setDrag] = useState(false);
@@ -312,7 +331,8 @@ export function FilePicker({
       <button
         type="button"
         className={`drop-zone ${drag ? "dragging" : ""} ${asset ? "has-file" : ""} ${simple ? "simple" : ""}`}
-        onClick={browse}
+        aria-label={asset ? `Preview ${label}: ${asset.name}` : undefined}
+        onClick={() => (asset ? setPreviewing(true) : void browse())}
         onDragOver={(e) => {
           e.preventDefault();
           setDrag(true);
@@ -330,7 +350,11 @@ export function FilePicker({
           <>
             <AssetPreview asset={asset} />
             <span>{asset.name}</span>
-            <small>Click to replace</small>
+            <small>
+              {asset.type.startsWith("video/")
+                ? "Click to play"
+                : "Click to preview"}
+            </small>
           </>
         ) : simple ? (
           "Choose a clip"
@@ -339,13 +363,43 @@ export function FilePicker({
         )}
       </button>
       {asset && (
-        <button
-          type="button"
-          className="text-button remove"
-          onClick={() => onPick(null)}
+        <div className="file-actions">
+          <Button type="button" secondary onClick={() => setPreviewing(true)}>
+            {asset.type.startsWith("video/")
+              ? "Play video"
+              : asset.type.startsWith("audio/")
+                ? "Play audio"
+                : "Preview image"}
+          </Button>
+          <Button type="button" secondary onClick={browse}>
+            Replace
+          </Button>
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => onPick(null)}
+          >
+            Remove
+          </button>
+        </div>
+      )}
+      {asset && previewing && (
+        <Modal
+          title={asset.name}
+          closeLabel="Close"
+          onClose={() => setPreviewing(false)}
         >
-          Remove
-        </button>
+          <div className="full-preview input-preview">
+            <AssetPreview
+              asset={asset}
+              controls
+              autoPlay={
+                asset.type.startsWith("video/") ||
+                asset.type.startsWith("audio/")
+              }
+            />
+          </div>
+        </Modal>
       )}
       {error && !open && (
         <p role="alert" className="error">

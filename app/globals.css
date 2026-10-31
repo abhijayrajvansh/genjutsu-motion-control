@@ -1144,3 +1144,39 @@ body {
   display: block;
   margin-top: 8px;
 }
+.file-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.file-actions .button {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.file-actions > .text-button {
+  margin-left: auto;
+  align-self: center;
+}
+.input-preview {
+  margin-bottom: 0;
+}
+.input-preview img,
+.input-preview video {
+  display: block;
+  margin: auto;
+  max-height: 68vh;
+  object-fit: contain;
+}
+.input-preview audio {
+  width: 100%;
+}
+.modal-heading h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.modal-heading > .button {
+  flex-shrink: 0;
+}
