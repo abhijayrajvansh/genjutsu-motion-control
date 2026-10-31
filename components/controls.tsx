@@ -438,11 +438,6 @@ export function FilePicker({
           <>
             <AssetPreview asset={asset} />
             <span>{asset.name}</span>
-            <small>
-              {asset.type.startsWith("video/")
-                ? "Click to play"
-                : "Click to preview"}
-            </small>
           </>
         ) : simple ? (
           "Choose a clip"
