@@ -459,7 +459,7 @@ export function FilePicker({
                 ? "Play audio"
                 : "Preview image"}
           </Button>
-          <Button type="button" secondary onClick={browse}>
+          <Button type="button" secondary className="replace-file" onClick={browse}>
             Replace
           </Button>
         </div>

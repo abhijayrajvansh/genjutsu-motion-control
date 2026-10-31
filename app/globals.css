@@ -1433,6 +1433,9 @@ body {
   padding: 4px 10px;
   font-size: 12px;
 }
+.file-actions .replace-file {
+  margin-left: auto;
+}
 .file-actions > .text-button {
   margin-left: auto;
   align-self: center;
