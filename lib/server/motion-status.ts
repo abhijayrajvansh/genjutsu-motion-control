@@ -2,6 +2,7 @@ import "server-only";
 import { motionModel, MotionState } from "@/lib/motion-models";
 import { ApiError, kie, redact } from "./kie";
 import { StoredMotionJob, updateJob } from "./motion-store";
+import { providerVideoPoster } from "./video-trim";
 export async function refreshJob(job: StoredMotionJob, key: string) {
   if (!job.taskId || job.state === "success" || job.state === "fail")
     return job;
@@ -11,6 +12,7 @@ export async function refreshJob(job: StoredMotionJob, key: string) {
     resultJson?: string;
     failMsg?: string;
     creditsConsumed?: number;
+    param?: string;
   }>("/api/v1/jobs/recordInfo?taskId=" + encodeURIComponent(job.taskId), key);
   if (task.model && task.model !== motionModel(job.model).kieModel)
     throw new ApiError("The Kie task model does not match this job.", 409);
@@ -47,8 +49,12 @@ export async function refreshJob(job: StoredMotionJob, key: string) {
         502,
       );
   }
+  const shouldRecoverPreview = !job.previewImage && !job.previewAttempted && typeof task.param === "string" && task.state !== "success" && task.state !== "fail";
+  const previewImage = shouldRecoverPreview ? await providerVideoPoster(task.param!) : job.previewImage;
   const updated = {
     ...job,
+    previewImage,
+    previewAttempted: job.previewAttempted || shouldRecoverPreview,
     state: task.state as MotionState,
     updated: Date.now(),
     resultUrls: resultUrls.length ? resultUrls : job.resultUrls,

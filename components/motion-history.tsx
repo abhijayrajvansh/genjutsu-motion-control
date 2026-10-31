@@ -6,6 +6,7 @@ import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
 import { GenerationTime } from "./generation-time";
 import { FavoriteButton } from "./favorite-button";
+import { RenderPreview } from "./render-preview";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
 export function MotionHistory({ showEmpty = true, favorites, favoritesOnly, onToggleFavorite }: {
   showEmpty?: boolean;
@@ -197,12 +198,7 @@ function MotionCard({
         <FavoriteButton active={favorite} onClick={onToggleFavorite} />
       </div>
       {pending.includes(job.state) && (
-        <div className="processing">
-          <span className="spinner" />
-          {job.state === "uploading" || job.state === "submitting"
-            ? "Uploading / submitting to Kie…"
-            : "Your video is rendering on Kie. You can leave and return."}
-        </div>
+        <RenderPreview image={job.previewImage} state={job.state} />
       )}
       {job.state === "success" && job.resultUrls?.[0] && (
         <video
@@ -220,7 +216,7 @@ function MotionCard({
         </details>
       )}
       <small className="real-label">
-        {job.creditsConsumed !== undefined
+        {job.creditsConsumed !== undefined && !pending.includes(job.state)
           ? `Kie cost: ${formatCredits(job.creditsConsumed)} credits`
           : job.estimatedCredits !== undefined
             ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`

@@ -992,7 +992,7 @@ em {
   margin-left: auto;
   align-self: center;
 }
-.processing {
+.processing:not(.job-status) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1399,6 +1399,146 @@ body {
   margin-top: 16px;
   border-radius: 8px;
   background: #000;
+}
+.render-preview {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: 420px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-top: 16px;
+  background: radial-gradient(ellipse at 30% 20%, #574532, #19191d 70%);
+  color: #fff;
+}
+.render-first-frame,
+.render-frost,
+.render-sparkles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.render-first-frame {
+  object-fit: cover;
+  transform: scale(1.06);
+}
+.render-frost {
+  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, #15121a45, #15121a70 45%, #0e0c14d9);
+}
+.render-light-sweep {
+  position: absolute;
+  inset: -40% -80%;
+  background: linear-gradient(110deg, transparent 35%, #ffdda11a 48%, #ffffff12 50%, transparent 65%);
+  animation: render-sweep 7s ease-in-out infinite;
+}
+.render-sparkles > span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  color: #ffe9ba;
+  filter: drop-shadow(0 0 5px #ffcf80);
+  animation: render-sparkle 5s ease-in-out infinite;
+  opacity: 0;
+}
+.render-sparkles > span:nth-child(3n) {
+  width: 4px;
+  height: 4px;
+  color: #fff;
+}
+.render-sparkles svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.render-preview-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
+  text-shadow: 0 2px 16px #0008;
+}
+.render-preview-message strong {
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.render-preview-message > span {
+  color: #ffffffb3;
+  font-size: 12px;
+}
+.render-orbit {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 6px;
+  border: 1px solid #ffffff26;
+  border-top-color: #ffdfaa;
+  border-right-color: #ffdfaa66;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  animation: spin 3s linear infinite;
+}
+.render-orbit > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: #fff0cf;
+  box-shadow: 0 0 18px #ffdc9b99;
+  transform: rotate(45deg);
+}
+.render-preview-bottom {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+  font-size: 10px;
+  color: #ffffff99;
+}
+.render-activity {
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #ffffff1a;
+}
+.render-activity > span {
+  display: block;
+  height: 100%;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, #ffdda1, transparent);
+  animation: render-activity 2.6s ease-in-out infinite;
+}
+@keyframes render-sparkle {
+  0%, 100% { opacity: 0; transform: translateY(12px) scale(0.4) rotate(0); }
+  35%, 60% { opacity: 0.8; }
+  80% { opacity: 0; transform: translateY(-24px) scale(1.1) rotate(45deg); }
+}
+@keyframes render-sweep {
+  0%, 100% { transform: translateX(-15%) rotate(-8deg); opacity: 0.3; }
+  50% { transform: translateX(15%) rotate(8deg); opacity: 0.9; }
+}
+@keyframes render-activity {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(390%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .render-sparkles > span,
+  .render-light-sweep,
+  .render-orbit,
+  .render-activity > span {
+    animation: none;
+  }
+  .render-sparkles > span { opacity: 0.4; }
 }
 .real-label {
   display: block;

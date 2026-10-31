@@ -45,6 +45,8 @@ FFmpeg/ffprobe must be installed and on the server's PATH. Files are decoded loc
 
 ## Persistence and failure handling
 
+Pending cards show an animated, blurred first-frame preview. New submissions save a small JPEG extracted from the selected clip in the local job record. Older pending tasks attempt a one-time recovery from Kie's task parameters, limited to provider media hosts; if the input is unavailable, they use an ambient animated background. Queued/rendering cards display the reviewed estimate until actual credits are reported for a finished task. Motion effects stop when the browser requests reduced motion.
+
 Real task metadata is saved atomically in the ignored `.data/motion/` directory on this computer. It includes the provider task ID, prompt, settings, status and result URLs, never the API key. Files are private to the OS user, and API access is scoped by a SHA-256 fingerprint of the configured key. This is local development persistence, not a production database or multi-user account service.
 
 Kie keeps rendering when the tab closes. Reconnect using the same key to recover history and resume status polling. Result media remains on the provider until downloaded; its URL can expire. Back up `.data` if you need to retain task records; do not publish it.

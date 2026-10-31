@@ -19,7 +19,7 @@ import {
   validId,
 } from "@/lib/server/motion-store";
 import { inspectFile } from "@/lib/server/media-validation";
-import { trimDrivingVideo } from "@/lib/server/video-trim";
+import { trimDrivingVideo, videoPoster } from "@/lib/server/video-trim";
 import {
   motionModel,
   MOTION_MODELS,
@@ -188,6 +188,8 @@ export async function POST(req: Request) {
       mode,
       label: model.label,
       selection: prepared.selection,
+      previewImage: await videoPoster(prepared.file),
+      previewAttempted: true,
       prompt,
       seconds: model.id === "kling" ? media.duration : seconds,
       resolution,

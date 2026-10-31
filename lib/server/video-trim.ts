@@ -9,6 +9,68 @@ import { ApiError } from "./kie";
 import { inspectFile } from "./media-validation";
 
 const execute = promisify(execFile);
+export async function providerVideoPoster(param: string): Promise<string | undefined> {
+  try {
+    const parameters = JSON.parse(param);
+    const input = typeof parameters.input === "string" ? JSON.parse(parameters.input) : parameters.input;
+    const videoUrl = input?.reference_video_urls?.[0] ?? input?.video_urls?.[0];
+    if (typeof videoUrl !== "string") return undefined;
+    let url = new URL(videoUrl);
+    const limit = 200 * 1024 * 1024;
+    const signal = AbortSignal.timeout(20000);
+    for (let redirect = 0; redirect < 4; redirect++) {
+      const allowedHost = url.hostname === "kieai.redpandaai.co" || url.hostname === "aiquickdraw.com" || url.hostname.endsWith(".aiquickdraw.com");
+      if (url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443") || !allowedHost)
+        return undefined;
+      const response = await fetch(url, { redirect: "manual", signal });
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        const location = response.headers.get("location");
+        await response.body?.cancel();
+        if (!location) return undefined;
+        url = new URL(location, url);
+        continue;
+      }
+      if (!response.ok || !response.body || Number(response.headers.get("content-length")) > limit) {
+        await response.body?.cancel();
+        return undefined;
+      }
+      const reader = response.body.getReader();
+      const chunks: Uint8Array<ArrayBuffer>[] = [];
+      let size = 0;
+      while (true) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        size += chunk.value.byteLength;
+        if (size > limit) { await reader.cancel(); return undefined; }
+        chunks.push(new Uint8Array(chunk.value));
+      }
+      return await videoPoster(new File(chunks, "provider-clip.mp4", { type: "video/mp4" }));
+    }
+  } catch {
+    // Expired or unavailable inputs use the animated fallback instead.
+  }
+  return undefined;
+}
+
+export async function videoPoster(file: File): Promise<string | undefined> {
+  const directory = await mkdtemp(path.join(tmpdir(), "aiorbust-poster-"));
+  try {
+    const input = path.join(directory, "input");
+    const output = path.join(directory, "poster.jpg");
+    await writeFile(input, new Uint8Array(await file.arrayBuffer()), { mode: 0o600 });
+    await execute("ffmpeg", [
+      "-hide_banner", "-loglevel", "error", "-nostdin", "-i", input,
+      "-frames:v", "1", "-vf", "scale=480:-2", "-q:v", "5", output,
+    ], { timeout: 20000, maxBuffer: 1024 * 1024 });
+    return `data:image/jpeg;base64,${(await readFile(output)).toString("base64")}`;
+  } catch {
+    // A missing preview must not prevent an otherwise valid generation.
+    return undefined;
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
 export async function trimDrivingVideo(file: File, modelId: string, start: number, end: number) {
   const model = motionModel(modelId);
   const seconds = end - start;
