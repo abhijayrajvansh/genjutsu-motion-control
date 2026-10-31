@@ -177,9 +177,6 @@ export function KieConnection() {
           {error}
         </p>
       )}
-      <small>
-        Connection checks are free. Generating a video uses your Kie balance.
-      </small>
     </section>
   );
 }
