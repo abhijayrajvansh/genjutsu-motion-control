@@ -1187,3 +1187,28 @@ body {
 .choices label.choice-disabled:hover {
   border-color: #262626;
 }
+.generation-cost {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #f67f1b66;
+  background: #f67f1b0a;
+  border-radius: 10px;
+}
+.generation-cost > .between {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.generation-cost strong {
+  color: #f89722;
+  font-size: 16px;
+}
+.generation-cost .text-button {
+  display: block;
+  margin-top: 8px;
+}
+.generation-cost small a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

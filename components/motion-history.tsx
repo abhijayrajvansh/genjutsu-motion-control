@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { formatCredits } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
@@ -203,7 +204,9 @@ function MotionCard({
         Real Kie generation
         {job.creditsConsumed !== undefined
           ? ` · ${job.creditsConsumed} credits consumed`
-          : ""}
+          : job.estimatedCredits !== undefined
+            ? ` · estimated ${formatCredits(job.estimatedCredits)} Kie credits`
+            : ""}
       </small>
       {job.taskId && <small className="task-id">Kie task: {job.taskId}</small>}
       {job.error && <p className="error">{job.error}</p>}

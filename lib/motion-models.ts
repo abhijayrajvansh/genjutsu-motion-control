@@ -112,6 +112,8 @@ export type MotionJob = {
   seconds: number;
   resolution: string;
   creditsConsumed?: number;
+  estimatedCredits?: number;
+  pricingCheckedAt?: string;
 };
 export function motionModel(id: string) {
   const model = MOTION_MODELS.find((m) => m.id === id);

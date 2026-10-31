@@ -17,6 +17,8 @@ import {
   Select,
   useSaved,
 } from "./controls";
+import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
+import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { KieConnection, useKie } from "./kie-connection";
 export function MotionWorkflow({
   initialVideo,
@@ -70,6 +72,38 @@ export function MotionWorkflow({
     model.minSeconds,
     Math.min(model.maxSeconds, seconds),
   );
+  const pricing = useMotionPricing(model.id);
+  const videoLength = useVideoLength(video);
+  const imageCount =
+    Number(!!image) +
+    extras.filter(Boolean).length +
+    Number(mode === "first-frame" && !!firstFrame);
+  const referenceSeconds = videoLength?.seconds;
+  const videoLimit =
+    model.id === "kling" && orientation === "image" ? 10 : model.maxReference;
+  const inputError =
+    referenceSeconds &&
+    (referenceSeconds < model.minReference - 0.04 ||
+      referenceSeconds > videoLimit + 0.04)
+      ? `Driving video must be ${model.minReference}–${videoLimit} seconds for ${model.label}.`
+      : referenceSeconds &&
+          model.id === "wan" &&
+          referenceSeconds + duration > 30.04
+        ? "Driving video plus output duration must not exceed 30 seconds."
+        : null;
+  const cost =
+    pricing.card && referenceSeconds && !inputError
+      ? estimateMotionCost(
+          pricing.card,
+          selectedResolution,
+          duration,
+          referenceSeconds,
+          imageCount,
+        )
+      : null;
+  const costProblem = pricing.error || inputError || videoLength?.error;
+  const insufficient =
+    cost !== null && kie.balance !== null && kie.balance < cost.total;
   function changeModel(id: string) {
     const next = motionModel(id);
     setSaved(id);
@@ -135,6 +169,14 @@ export function MotionWorkflow({
       setError("Fill or remove every extra reference image.");
       return;
     }
+    if (!cost) {
+      setError("Wait for the total-credit estimate before generating.");
+      return;
+    }
+    if (insufficient) {
+      setError("Your Kie balance is below this generation’s estimated total.");
+      return;
+    }
     submitting.current = true;
     setBusy(true);
     setStage(
@@ -153,6 +195,7 @@ export function MotionWorkflow({
     body.set("resolution", selectedResolution);
     body.set("audio", String(audio));
     body.set("orientation", orientation);
+    body.set("maxEstimatedCredits", String(cost.total));
     for (const a of [image, ...extras])
       if (a) body.append("images", a.blob, a.name);
     body.set("video", video.blob, video.name);
@@ -380,9 +423,84 @@ export function MotionWorkflow({
           for this model. Results can take several minutes.
         </small>
       </div>
+      <section
+        className="generation-cost"
+        aria-live="polite"
+        aria-label="Generation cost"
+      >
+        <div className="between">
+          <span>Estimated total</span>
+          <strong>
+            {cost
+              ? `${formatCredits(cost.total)} Kie credits`
+              : costProblem
+                ? "Unavailable"
+                : video
+                  ? "Calculating…"
+                  : "Add a driving video"}
+          </strong>
+        </div>
+        {cost && (
+          <>
+            <small>
+              Output: {formatCredits(cost.outputCredits)} credits
+              {pricing.card?.billsReferenceVideo
+                ? ` · Driving video: ${formatCredits(cost.referenceCredits)} credits`
+                : ""}
+              {cost.imageCredits
+                ? ` · Images: ${formatCredits(cost.imageCredits)} credits`
+                : ""}
+            </small>
+            <small>
+              {cost.outputSeconds}s output
+              {pricing.card?.billsReferenceVideo
+                ? ` + ${cost.referenceSeconds}s driving video`
+                : ""}
+              . Fractional seconds are rounded up for this estimate. Final Kie
+              billing can differ.
+            </small>
+          </>
+        )}
+        {pricing.card && (
+          <small>
+            <a href={pricing.card.sourceUrl} target="_blank" rel="noreferrer">
+              Kie pricing
+            </a>{" "}
+            checked {new Date(pricing.card.checkedAt).toLocaleTimeString()}.
+          </small>
+        )}
+        {pricing.error && (
+          <div className="error" role="alert">
+            {pricing.error}
+            <button
+              type="button"
+              className="text-button"
+              onClick={pricing.refresh}
+            >
+              Refresh pricing
+            </button>
+          </div>
+        )}
+        {inputError && (
+          <small className="error" role="alert">
+            {inputError}
+          </small>
+        )}
+        {videoLength?.error && (
+          <small className="error">{videoLength.error}</small>
+        )}
+        {insufficient && (
+          <small className="error">
+            Not enough Kie credits. Balance: {formatCredits(kie.balance!)} ·
+            Estimated total: {formatCredits(cost!.total)}.
+          </small>
+        )}
+      </section>
       <Button
         disabled={
           busy ||
+          !cost ||
+          insufficient ||
           !kie.connected ||
           !image ||
           !video ||
@@ -391,7 +509,13 @@ export function MotionWorkflow({
       >
         {busy
           ? "Uploading / submitting…"
-          : `Generate${model.id === "kling" ? "" : ` ${duration}s video`}`}
+          : cost
+            ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatCredits(cost.total)} Kie credits`
+            : costProblem
+              ? "Generate — estimate unavailable"
+              : video
+                ? "Calculating total credits…"
+                : "Generate — add a driving video"}
       </Button>
       {stage && (
         <p className="motion-stage" role="status">

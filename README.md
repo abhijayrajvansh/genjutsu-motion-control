@@ -21,6 +21,8 @@ Motion Control now has a real Kie integration: file uploads, provider task creat
 
 Enter your key in **Motion Control → Kie API connection → Connect Kie**, or configure `KIE_API_KEY` in `.env.local` and restart the server. The key is never committed or written into job records. **Load 2-second trial** prepares a small Wan 3 render; generating it uses your real Kie credits.
 
+The Generate button shows a live **total Kie-credit estimate**, including billable input-video time. Current published prices are refreshed automatically; the backend rechecks the estimate and balance before submitting. Final provider billing may differ.
+
 See [Kie configuration, trial and API details](docs/KIE-MOTION.md). FFmpeg/ffprobe must be on PATH for upload validation. A live paid render still requires a funded key and is not verified until that trial completes.
 
 ## Included

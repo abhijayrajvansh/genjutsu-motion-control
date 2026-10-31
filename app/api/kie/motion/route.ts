@@ -1,3 +1,5 @@
+import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
+import { currentMotionPricing } from "@/lib/server/motion-pricing";
 import {
   apiKey,
   ApiError,
@@ -132,10 +134,33 @@ export async function POST(req: Request) {
       throw new ApiError(
         "Kling image orientation accepts a driving video up to 10 seconds.",
       );
-    const balance = await kie<number>("/api/v1/chat/credit", key);
-    if (balance <= 0)
+    const pricing = await currentMotionPricing(model.id);
+    const cost = estimateMotionCost(
+      pricing,
+      resolution,
+      seconds,
+      media.duration,
+      images.length + Number(mode === "first-frame"),
+    );
+    const quoted = Number(form.get("maxEstimatedCredits"));
+    if (
+      !form.has("maxEstimatedCredits") ||
+      !Number.isFinite(quoted) ||
+      quoted <= 0
+    )
       throw new ApiError(
-        "Your Kie account has no credits. Top up before generating.",
+        "Refresh the total-credit estimate before generating.",
+        409,
+      );
+    if (cost.total > quoted + 0.001)
+      throw new ApiError(
+        `The total estimate is now ${formatCredits(cost.total)} Kie credits. Refresh pricing and review the total before generating.`,
+        409,
+      );
+    const balance = await kie<number>("/api/v1/chat/credit", key);
+    if (balance < cost.total)
+      throw new ApiError(
+        `Not enough Kie credits: balance ${formatCredits(balance)}, estimated total ${formatCredits(cost.total)}.`,
         402,
       );
     stored = {
@@ -147,6 +172,8 @@ export async function POST(req: Request) {
       prompt,
       seconds: model.id === "kling" ? media.duration : seconds,
       resolution,
+      estimatedCredits: cost.total,
+      pricingCheckedAt: pricing.checkedAt,
       created: Date.now(),
       updated: Date.now(),
       state: "uploading",
