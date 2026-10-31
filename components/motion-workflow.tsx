@@ -410,16 +410,6 @@ export function MotionWorkflow({
           minimum. The provider may retain its original audio.
         </small>
       )}
-      <div className="trial-panel">
-        <small>
-          Generate uploads the selected files to Kie and starts one paid render.
-          Review{" "}
-          <a href="https://kie.ai/pricing" target="_blank" rel="noreferrer">
-            Kie pricing
-          </a>{" "}
-          for this model. Results can take several minutes.
-        </small>
-      </div>
       <section
         className="generation-cost"
         aria-live="polite"
