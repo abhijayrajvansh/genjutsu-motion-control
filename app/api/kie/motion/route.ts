@@ -19,6 +19,7 @@ import {
   validId,
 } from "@/lib/server/motion-store";
 import { inspectFile } from "@/lib/server/media-validation";
+import { trimDrivingVideo } from "@/lib/server/video-trim";
 import {
   motionModel,
   MOTION_MODELS,
@@ -131,7 +132,15 @@ export async function POST(req: Request) {
     }
     if (mode === "first-frame" && firstFrame instanceof File)
       await inspectFile(firstFrame, model.id, false);
-    const media = await inspectFile(video, model.id, true);
+    const hasSelection = form.has("trimStart") || form.has("trimEnd");
+    if (hasSelection && (!form.has("trimStart") || !form.has("trimEnd")))
+      throw new ApiError("Supply both start and end times.");
+    const prepared = hasSelection
+      ? await trimDrivingVideo(video, model.id, Number(form.get("trimStart")), Number(form.get("trimEnd")))
+      : { file: video, media: await inspectFile(video, model.id, true), selection: undefined };
+    const media = prepared.media;
+    if (hasSelection && seconds !== Math.round(prepared.selection!.end - prepared.selection!.start))
+      throw new ApiError("Output duration must match the selected input segment.");
     for (const image of images) await inspectFile(image, model.id, false);
     if (model.id === "wan" && media.duration + seconds > 30.04)
       throw new ApiError(
@@ -178,6 +187,7 @@ export async function POST(req: Request) {
       model: model.id,
       mode,
       label: model.label,
+      selection: prepared.selection,
       prompt,
       seconds: model.id === "kling" ? media.duration : seconds,
       resolution,
@@ -215,7 +225,7 @@ export async function POST(req: Request) {
       mode === "first-frame" && firstFrame instanceof File
         ? await upload(firstFrame)
         : undefined;
-    const videoUrl = await upload(video);
+    const videoUrl = await upload(prepared.file);
     stored = { ...stored, state: "submitting", updated: Date.now() };
     await updateJob(stored);
     const payload = motionPayload({

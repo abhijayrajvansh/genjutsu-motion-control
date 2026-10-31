@@ -97,6 +97,7 @@ export type MotionState =
   | "submission_unknown";
 export type MotionMode = "reference" | "first-frame";
 export type MotionJob = {
+  selection?: { start: number; end: number; sourceSeconds: number };
   mode?: MotionMode;
   needsRecovery?: boolean;
   id: string;

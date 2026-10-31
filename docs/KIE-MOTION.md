@@ -4,11 +4,13 @@
 
 Open http://127.0.0.1:3107/generations and select **Motion Control**.
 
-Paste your key from https://kie.ai/api-key into **Kie API connection**, then click **Connect Kie**. The connection check reads your credit balance and does not start a render. The key stays in page memory; after a reload, reconnect to resume polling. It is not written into local job files, browser storage, source control, or logs.
+Paste your key from https://kie.ai/api-key into **Kie API**, then click **Connect**. The connection check reads your credit balance and does not start a render. The key stays in page memory; after a reload, reconnect to resume polling. It is not written into local job files, browser storage, source control, or logs.
 
 For persistent configuration, copy `.env.example` to `.env.local`, set `KIE_API_KEY`, and restart `npm start` or `npm run dev`. Never prefix it with `NEXT_PUBLIC_`. Do not send the key in chat. The server key is never returned to the browser.
 
 ## Small trial
+
+The trial button is below the image/video uploaders. Mode uses a custom dropdown; First frame + reference is currently disabled as under construction.
 
 Click **Load 2-second trial**. This selects Wan 3, 480p, a two-second output, audio off, and public example media from Kie's own documentation. No generation starts when loading files or checking the balance.
 
@@ -18,6 +20,14 @@ The included input video was trimmed from Kie's example to exactly 2.000 seconds
 
 - https://static.aiquickdraw.com/tools/example/1767694885407_pObJoMcy.png
 - https://static.aiquickdraw.com/tools/example/1767525918769_QyvTNib2.mp4
+
+## Input clip editor
+
+Upload an MP4/MOV source up to 200 MB, then scrub its local preview and set Start/End. The selected length uses whole seconds within the current model's limits; Start can be positioned to hundredths of a second. Output duration matches that selected length. Moving Start repositions the segment while retaining its length; End changes its length. The browser preview stops at the end of the selection.
+
+Generate sends the original source and `trimStart`/`trimEnd` to the local server. FFmpeg accurately seeks and re-encodes only that interval to H.264 MP4 at 30 fps, retaining audio when present. The server validates the trimmed file and recalculates pricing from its actual duration before any provider upload or task creation. Only the trimmed file is uploaded to Kie. Temporary source/trim files are removed after processing. Older requests without selection fields keep their existing whole-clip behavior.
+
+Verified a four-second selection from a 20-second source in the browser with live cost updates. An actual FFmpeg trim of a red/blue fixture confirmed the selected starting content and three-second duration. Invalid ranges and mismatched output durations were rejected by the local API; underquoted totals returned 409, and the correctly quoted request stopped at the free authentication check using a dummy key. No paid render was started.
 
 ## Supported mappings
 
@@ -29,7 +39,7 @@ The included input video was trimmed from Kie's example to exactly 2.000 seconds
 | Seedance 2.5 | `bytedance/seedance-2-5` | 4–30 s | 2–30 s |
 | Kling 2.6 Motion Control | `kling-2.6/motion-control` | follows usable input, minimum 3 s | 3–30 s; 10 s max for image orientation |
 
-The first four models use reference-to-video generation guided by the editable prompt. Exact motion transfer quality is model-dependent; Kling is the dedicated motion-control endpoint. The original Aiorbust GPU model is not mapped to a different provider model under the same name. Both original UI modes are exposed. **Reference image + video** uses identity images with the driving video. **First frame + reference** additionally requires a corrected opening image and sends references in the fixed order: identity, corrected opening, additional identity references. The server adds opening-frame instructions while retaining the driving video. This is prompt-guided reference generation, not a pixel-exact locked first-frame parameter. No `first_frame_url` is combined with `reference_video_urls`. Kling accepts only one image, so the two-image mode is disabled for Kling and rejected server-side. No Gemini/xAI prompt-writing integration is claimed.
+The first four models use reference-to-video generation guided by the editable prompt. Exact motion transfer quality is model-dependent; Kling is the dedicated motion-control endpoint. The original Aiorbust GPU model is not mapped to a different provider model under the same name. The Mode dropdown exposes both labels, but First frame + reference is currently disabled. **Reference image + video** uses identity images with the driving video. **First frame + reference** additionally requires a corrected opening image and sends references in the fixed order: identity, corrected opening, additional identity references. The server adds opening-frame instructions while retaining the driving video. This is prompt-guided reference generation, not a pixel-exact locked first-frame parameter. No `first_frame_url` is combined with `reference_video_urls`. Kling accepts only one image, so the two-image mode is disabled for Kling and rejected server-side. No Gemini/xAI prompt-writing integration is claimed.
 
 FFmpeg/ffprobe must be installed and on the server's PATH. Files are decoded locally before upload; MIME types, sizes, dimensions, aspect ratios, durations, codecs and relevant frame-rate limits are checked. Output settings are restricted per model. H3 always generates audio and bills reference-video duration in addition to output duration. Seedance's audio switch controls newly generated audio, not copying the original soundtrack.
 

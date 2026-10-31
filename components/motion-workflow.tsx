@@ -19,6 +19,8 @@ import {
 } from "./controls";
 import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
+import { VideoClipEditor } from "./video-clip-editor";
+import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieConnection, KieRequestError, useKie } from "./kie-connection";
 export function MotionWorkflow({
   initialVideo,
@@ -48,7 +50,6 @@ export function MotionWorkflow({
   }
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
   const [resolution, setResolution] = useState("480p"),
-    [seconds, setSeconds] = useState(2),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
     [image, setImage] = useState<Asset | null>(null),
@@ -66,24 +67,28 @@ export function MotionWorkflow({
   )
     ? resolution
     : model.resolutions[0];
-  const duration = Math.max(
-    model.minSeconds,
-    Math.min(model.maxSeconds, seconds),
-  );
   const pricing = useMotionPricing(model.id);
   const videoLength = useVideoLength(video);
+  const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection } | null>(null);
+  const sourceSeconds = videoLength?.seconds ?? 0;
+  const minimumClip = Math.max(model.minSeconds, model.minReference);
+  const maximumClip = Math.min(model.maxSeconds, model.maxReference, model.id === "kling" && orientation === "image" ? 10 : Infinity);
+  const clip = sourceSeconds > 0
+    ? videoSelection(sourceSeconds, minimumClip, maximumClip, clipDraft && clipDraft.assetId === video?.id ? clipDraft.selection : undefined)
+    : null;
+  const referenceSeconds = clip ? Math.round((clip.end - clip.start) * 1000000) / 1000000 : null;
+  const duration = referenceSeconds ? Math.round(referenceSeconds) : model.minSeconds;
   const imageCount =
     Number(!!image) +
     extras.filter(Boolean).length +
     Number(mode === "first-frame" && !!firstFrame);
-  const referenceSeconds = videoLength?.seconds;
   const videoLimit =
     model.id === "kling" && orientation === "image" ? 10 : model.maxReference;
   const inputError =
     referenceSeconds &&
-    (referenceSeconds < model.minReference - 0.04 ||
+    (referenceSeconds < minimumClip - 0.000001 ||
       referenceSeconds > videoLimit + 0.04)
-      ? `Driving video must be ${model.minReference}–${videoLimit} seconds for ${model.label}.`
+      ? `Select ${minimumClip}–${videoLimit} seconds for ${model.label}.`
       : referenceSeconds &&
           model.id === "wan" &&
           referenceSeconds + duration > 30.04
@@ -106,7 +111,6 @@ export function MotionWorkflow({
     const next = motionModel(id);
     setSaved(id);
     setResolution(next.resolutions[0]);
-    setSeconds(next.minSeconds);
     if (id === "kling") setSavedMode("reference");
     setExtras([]);
     setError("");
@@ -138,6 +142,8 @@ export function MotionWorkflow({
       setFirstFrame(null);
       setImage(assets[0]);
       setVideo(assets[1]);
+      setClipDraft(null);
+      setAudio(false);
       setStage(
         "Trial ready: Wan 3 · 2 seconds · 480p · audio off. Connect Kie, then generate once.",
       );
@@ -168,7 +174,7 @@ export function MotionWorkflow({
       setError("Fill or remove every extra reference image.");
       return;
     }
-    if (!cost) {
+    if (!clip || !cost) {
       setError("Wait for the total-credit estimate before generating.");
       return;
     }
@@ -179,7 +185,7 @@ export function MotionWorkflow({
     submitting.current = true;
     setBusy(true);
     setStage(
-      "Validating files, uploading to Kie, and submitting one generation…",
+      "Trimming your selection, validating files, and submitting one generation…",
     );
     const id = crypto.randomUUID();
     setLastId(id);
@@ -191,6 +197,8 @@ export function MotionWorkflow({
       body.set("firstFrame", firstFrame.blob, firstFrame.name);
     body.set("prompt", prompt);
     body.set("seconds", String(duration));
+    body.set("trimStart", String(clip.start));
+    body.set("trimEnd", String(clip.end));
     body.set("resolution", selectedResolution);
     body.set("audio", String(audio));
     body.set("orientation", orientation);
@@ -238,16 +246,6 @@ export function MotionWorkflow({
         onChange={changeModel}
       />
       <KieConnection />
-      <div className="trial-panel">
-        <strong>Small trial</strong>
-        <small>
-          Load a public Kie example image and a two-second motion clip. Nothing
-          is submitted until you press Generate.
-        </small>
-        <Button type="button" secondary disabled={busy} onClick={trial}>
-          Load 2-second trial
-        </Button>
-      </div>
       <Choices
         className="resolution-choices"
         label="Resolution"
@@ -255,7 +253,7 @@ export function MotionWorkflow({
         value={selectedResolution}
         onChange={setResolution}
       />
-      {model.id === "kling" ? (
+      {model.id === "kling" && (
         <Choices
           label="Character orientation"
           options={[
@@ -273,27 +271,8 @@ export function MotionWorkflow({
           value={orientation}
           onChange={setOrientation}
         />
-      ) : (
-        <label className="field">
-          <span className="between">
-            Output duration <small>{duration} s</small>
-          </span>
-          <input
-            aria-label="Output duration"
-            type="range"
-            min={model.minSeconds}
-            max={model.maxSeconds}
-            value={duration}
-            onChange={(e) => setSeconds(+e.target.value)}
-          />
-          <small>
-            {model.id === "wan"
-              ? "Two seconds is the shortest trial."
-              : "This model starts at four seconds."}
-          </small>
-        </label>
       )}
-      <Choices
+      <Select
         label="Mode"
         value={mode}
         onChange={changeMode}
@@ -301,11 +280,10 @@ export function MotionWorkflow({
           {
             value: "reference",
             label: "Reference image + video",
-            hint: "The person comes from your image. Garments, camera, scene and timing come from the video.",
           },
           {
             value: "first-frame",
-            label: "First frame + reference",
+            label: "First frame + reference · Under construction",
             hint: "Under construction. This mode is temporarily unavailable.",
             disabled: true,
           },
@@ -319,61 +297,75 @@ export function MotionWorkflow({
           </small>
         </div>
       )}
-      <FilePicker
-        label={
-          mode === "first-frame"
-            ? "Reference image (identity)"
-            : "Reference image"
-        }
-        hint={`${model.id === "kling" ? "PNG or JPEG" : "PNG, JPEG or WebP"} · up to ${model.imageMB} MB`}
-        accept={model.id === "kling" ? "image/png,image/jpeg" : IMAGE_TYPES}
-        asset={image}
-        onPick={setImage}
-      />
-      {mode === "first-frame" && (
-        <FilePicker
-          label="First frame"
-          hint={`Already corrected · required · up to ${model.imageMB} MB`}
-          accept={IMAGE_TYPES}
-          asset={firstFrame}
-          onPick={setFirstFrame}
-        />
-      )}
-      {extras.map((a, i) => (
-        <div key={i}>
+      <div className="motion-input-grid">
+        <div className="motion-image-input">
           <FilePicker
-            label={`Reference image ${i + (mode === "first-frame" ? 3 : 2)}`}
-            asset={a}
-            onPick={(v) =>
-              setExtras((xs) => xs.map((x, k) => (i === k ? v : x)))
+            label={
+              mode === "first-frame"
+                ? "Reference image (identity)"
+                : "Reference image"
             }
+            hint={`${model.id === "kling" ? "PNG or JPEG" : "PNG, JPEG or WebP"} · up to ${model.imageMB} MB`}
+            accept={model.id === "kling" ? "image/png,image/jpeg" : IMAGE_TYPES}
+            asset={image}
+            onPick={setImage}
           />
-          <button
-            type="button"
-            className="text-button"
-            onClick={() => setExtras((xs) => xs.filter((_, k) => k !== i))}
-          >
-            Remove reference
-          </button>
+          {mode === "first-frame" && (
+            <FilePicker
+              label="First frame"
+              hint={`Already corrected · required · up to ${model.imageMB} MB`}
+              accept={IMAGE_TYPES}
+              asset={firstFrame}
+              onPick={setFirstFrame}
+            />
+          )}
+          {extras.map((a, i) => (
+            <div key={i}>
+              <FilePicker
+                label={`Reference image ${i + (mode === "first-frame" ? 3 : 2)}`}
+                asset={a}
+                onPick={(v) =>
+                  setExtras((xs) => xs.map((x, k) => (i === k ? v : x)))
+                }
+              />
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => setExtras((xs) => xs.filter((_, k) => k !== i))}
+              >
+                Remove reference
+              </button>
+            </div>
+          ))}
+          {extras.length < model.maxImages - (mode === "first-frame" ? 2 : 1) && (
+            <button
+              type="button"
+              className="text-button"
+              disabled={busy}
+              onClick={() => setExtras((xs) => [...xs, null])}
+            >
+              + Add another reference image
+            </button>
+          )}
         </div>
-      ))}
-      {extras.length < model.maxImages - (mode === "first-frame" ? 2 : 1) && (
-        <button
-          type="button"
-          className="text-button"
-          disabled={busy}
-          onClick={() => setExtras((xs) => [...xs, null])}
-        >
-          + Add another reference image
-        </button>
+        <div>
+          <FilePicker
+            label="Driving video"
+            hint="MP4 or MOV · up to 200 MB"
+            accept="video/mp4,video/quicktime"
+            asset={video}
+            onPick={setVideo}
+          />
+        </div>
+      </div>
+      <Button type="button" secondary disabled={busy} onClick={trial}>
+        Load 2-second trial
+      </Button>
+      {video && clip && sourceSeconds > 0 && (
+        <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
+          minimum={minimumClip} maximum={maximumClip} disabled={busy}
+          onChange={(selection) => setClipDraft({ assetId: video.id, selection })} />
       )}
-      <FilePicker
-        label="Driving video"
-        hint={`MP4 or MOV · ${model.minReference}–${model.maxReference} seconds · up to ${model.videoMB} MB`}
-        accept="video/mp4,video/quicktime"
-        asset={video}
-        onPick={setVideo}
-      />
       <Prompt
         value={prompt}
         onChange={setPrompt}

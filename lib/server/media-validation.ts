@@ -7,7 +7,7 @@ import path from "node:path";
 import { motionModel } from "@/lib/motion-models";
 import { ApiError } from "./kie";
 const execute = promisify(execFile);
-export async function inspectFile(file: File, modelId: string, video: boolean) {
+export async function inspectFile(file: File, modelId: string, video: boolean, options: { sourceVideo?: boolean } = {}) {
   const model = motionModel(modelId),
     types = video
       ? ["video/mp4", "video/quicktime"]
@@ -20,7 +20,7 @@ export async function inspectFile(file: File, modelId: string, video: boolean) {
         ? "Use an MP4 or MOV driving video."
         : "Unsupported reference image format.",
     );
-  const limit = (video ? model.videoMB : model.imageMB) * 1024 * 1024;
+  const limit = (video ? options.sourceVideo ? 200 : model.videoMB : model.imageMB) * 1024 * 1024;
   if (!file.size || file.size > limit)
     throw new ApiError(
       `${video ? "Video" : "Image"} must be smaller than ${limit / 1024 / 1024} MB.`,
@@ -83,8 +83,8 @@ export async function inspectFile(file: File, modelId: string, video: boolean) {
         throw new ApiError("Use an MP4/MOV encoded as H.264 or H.265.");
       if (
         !Number.isFinite(duration) ||
-        duration < model.minReference - 0.04 ||
-        duration > model.maxReference + 0.04
+        duration <= 0 ||
+        (!options.sourceVideo && (duration < model.minReference - 0.04 || duration > model.maxReference + 0.04))
       )
         throw new ApiError(
           `Driving video must be ${model.minReference}–${model.maxReference} seconds for ${model.label}.`,

@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Button, TextField } from "./controls";
+import { Button } from "./controls";
 export class KieRequestError extends Error {
   code?: string;
   generationStarted?: boolean;
@@ -116,57 +116,25 @@ export function KieConnection() {
     }
   }
   return (
-    <section className="kie-connection">
+    <section className="kie-connection kie-compact">
       <div className="between">
-        <h3>Kie API connection</h3>
-        <span
-          className={kie.connected ? "connected-label" : "disconnected-label"}
-        >
+        <h3>Kie API</h3>
+        <span className={kie.connected ? "connected-label" : "disconnected-label"}>
           {kie.connected ? "Connected" : "Not connected"}
+          {kie.balance !== null ? ` · ${kie.balance.toLocaleString()} credits` : ""}
         </span>
       </div>
-      {!kie.configured && (
-        <TextField
-          label="Kie API key"
-          type="password"
-          placeholder="Paste your key"
-          autoComplete="off"
-          spellCheck={false}
-          value={kie.key}
-          onChange={(e) => {
-            kie.setKey(e.target.value);
-            setError("");
-          }}
-        />
-      )}
-      {kie.configured && (
-        <small>
-          A server key is configured in .env.local. Its value is never exposed
-          to your browser.
-        </small>
-      )}
-      <Button
-        secondary
-        type="button"
-        disabled={busy || (!kie.key && !kie.configured)}
-        onClick={connect}
-      >
-        {busy
-          ? "Checking…"
-          : kie.connected
-            ? "Check Kie balance"
-            : "Connect Kie"}
-      </Button>
-      {kie.balance !== null && (
-        <small className="connected-label">
-          Kie balance: {kie.balance.toLocaleString()} credits
-        </small>
-      )}
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
+      <div className="kie-key-row">
+        {!kie.configured ? (
+          <input aria-label="Kie API key" type="password" placeholder="Paste API key" autoComplete="off" spellCheck={false}
+            value={kie.key} onChange={(event) => { kie.setKey(event.target.value); setError(""); }} />
+        ) : <small>Server key configured</small>}
+        <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
+          title={kie.connected ? "Check Kie balance" : "Connect Kie"}>
+          {busy ? "…" : kie.connected ? "Check" : "Connect"}
+        </Button>
+      </div>
+      {error && <p className="error" role="alert">{error}</p>}
     </section>
   );
 }
