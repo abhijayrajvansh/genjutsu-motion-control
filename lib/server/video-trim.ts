@@ -19,7 +19,7 @@ export async function providerVideoPoster(param: string): Promise<string | undef
     const limit = 200 * 1024 * 1024;
     const signal = AbortSignal.timeout(20000);
     for (let redirect = 0; redirect < 4; redirect++) {
-      const allowedHost = url.hostname === "kieai.redpandaai.co" || url.hostname === "aiquickdraw.com" || url.hostname.endsWith(".aiquickdraw.com");
+      const allowedHost = url.hostname === "kieai.redpandaai.co" || url.hostname === "tempfile.redpandaai.co" || url.hostname === "aiquickdraw.com" || url.hostname.endsWith(".aiquickdraw.com");
       if (url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443") || !allowedHost)
         return undefined;
       const response = await fetch(url, { redirect: "manual", signal });
