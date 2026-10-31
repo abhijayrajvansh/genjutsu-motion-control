@@ -359,9 +359,11 @@ export function MotionWorkflow({
             </button>
           )}
         </div>
-        <button type="button" className="text-button trial-text-button" disabled={busy} onClick={trial}>
-          Load 2-second trial
-        </button>
+        {(!image || !video) && (
+          <button type="button" className="text-button trial-text-button" disabled={busy} onClick={trial}>
+            Load 2-second trial
+          </button>
+        )}
       </div>
       {video && clip && sourceSeconds > 0 && (
         <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
