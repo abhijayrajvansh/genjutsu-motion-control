@@ -554,10 +554,6 @@ export function MotionWorkflow({
         </div>
       )}
       {lastId && <small>Local job ID: {lastId}</small>}
-      <small>
-        Jobs are saved on this computer and continue on Kie after you close this
-        page. Download completed results before the provider’s links expire.
-      </small>
     </form>
   );
 }
