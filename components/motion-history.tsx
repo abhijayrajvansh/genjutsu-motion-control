@@ -212,7 +212,13 @@ function MotionCard({
             ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`
             : "Kie cost: unavailable"}
       </small>
-      {job.taskId && <small className="task-id">Kie task: {job.taskId}</small>}
+      {job.taskId && (
+        <small className="task-id" title={job.taskId}>
+          id: {job.taskId.length > 8
+            ? `${job.taskId.slice(0, 2)}....${job.taskId.slice(-6)}`
+            : job.taskId}
+        </small>
+      )}
       {job.error && <p className="error">{job.error}</p>}
       {(job.state === "submission_unknown" || job.needsRecovery) && (
         <div className="recover-task">
