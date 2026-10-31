@@ -507,27 +507,31 @@ export function MotionWorkflow({
           </small>
         )}
       </section>
-      <Button
-        disabled={
-          busy ||
-          !cost ||
-          insufficient ||
-          !kie.connected ||
-          !image ||
-          !video ||
-          (mode === "first-frame" && !firstFrame)
-        }
-      >
-        {busy
-          ? "Uploading / submitting…"
-          : cost
-            ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatCredits(cost.total)} Kie credits`
-            : costProblem
-              ? "Generate — estimate unavailable"
-              : video
-                ? "Calculating total credits…"
-                : "Generate — add a driving video"}
-      </Button>
+      <div className="motion-submit-bar">
+        <div className="motion-submit-inner">
+          <Button
+            disabled={
+              busy ||
+              !cost ||
+              insufficient ||
+              !kie.connected ||
+              !image ||
+              !video ||
+              (mode === "first-frame" && !firstFrame)
+            }
+          >
+            {busy
+              ? "Uploading / submitting…"
+              : cost
+                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatCredits(cost.total)} Kie credits`
+                : costProblem
+                  ? "Generate — estimate unavailable"
+                  : video
+                    ? "Calculating total credits…"
+                    : "Generate — add a driving video"}
+          </Button>
+        </div>
+      </div>
       {stage && (
         <p className="motion-stage" role="status">
           {stage}
