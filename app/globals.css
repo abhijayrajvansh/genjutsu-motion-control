@@ -376,6 +376,18 @@ em {
 .history-column h2 {
   margin-bottom: 16px;
 }
+.history-column {
+  position: relative;
+}
+.history-column::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -20px;
+  width: 1px;
+  background: var(--border);
+}
 .empty-history {
   border: 1px dashed var(--border-strong);
   border-radius: 6px;
@@ -952,6 +964,14 @@ footer a:hover {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+  .history-column::before {
+    top: -20px;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+  }
   .tabs button {
     white-space: nowrap;
   }
@@ -1215,7 +1235,8 @@ body:has(.motion-submit-bar) {
 }
 .motion-submit-bar {
   position: fixed;
-  inset: auto 0 0;
+  inset: auto auto 0 0;
+  width: calc(50% - 156px);
   z-index: 20;
   border-top: 1px solid var(--border);
   background: var(--background);
@@ -1223,9 +1244,9 @@ body:has(.motion-submit-bar) {
   box-shadow: 0 -4px 20px var(--shadow);
 }
 .motion-submit-inner {
-  max-width: 1024px;
-  margin: auto;
-  padding: 12px 16px;
+  max-width: 356px;
+  margin-left: auto;
+  padding: 12px 20px 12px 16px;
 }
 .motion-submit-inner > .button {
   width: 320px;
@@ -1233,6 +1254,14 @@ body:has(.motion-submit-bar) {
   min-height: 48px;
 }
 @media (max-width: 1023px) {
+  .motion-submit-bar {
+    width: 100%;
+  }
+  .motion-submit-inner {
+    max-width: 1024px;
+    margin: auto;
+    padding: 12px 16px;
+  }
   .motion-submit-inner > .button {
     width: 100%;
   }
