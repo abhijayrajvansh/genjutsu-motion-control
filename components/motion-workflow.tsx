@@ -33,10 +33,7 @@ export function MotionWorkflow({
     "clone.motion.kie-mode",
     "reference",
   );
-  const mode: MotionMode =
-    savedMode === "first-frame" && model.maxImages > 1
-      ? "first-frame"
-      : "reference";
+  const mode = (savedMode === "reference" ? savedMode : "reference") as MotionMode;
   const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
   const promptKey = `${model.id}:${mode}`;
   const prompt = promptDrafts[promptKey] ?? defaultMotionPrompt(model.id, mode);
@@ -308,11 +305,8 @@ export function MotionWorkflow({
           {
             value: "first-frame",
             label: "First frame + reference",
-            hint:
-              model.id === "kling"
-                ? "Needs two images. Choose Wan, Official H3 or Seedance to use this mode."
-                : "Supply an already-corrected opening frame and a separate identity image. The clip is guided to continue from the opening.",
-            disabled: model.id === "kling",
+            hint: "Under construction. This mode is temporarily unavailable.",
+            disabled: true,
           },
         ]}
       />

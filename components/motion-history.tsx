@@ -5,8 +5,14 @@ import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
 import { GenerationTime } from "./generation-time";
+import { FavoriteButton } from "./favorite-button";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
-export function MotionHistory({ showEmpty = true }: { showEmpty?: boolean }) {
+export function MotionHistory({ showEmpty = true, favorites, favoritesOnly, onToggleFavorite }: {
+  showEmpty?: boolean;
+  favorites: string[];
+  favoritesOnly: boolean;
+  onToggleFavorite: (id: string) => void;
+}) {
   const { connected, request, revision } = useKie(),
     [jobs, setJobs] = useState<MotionJob[]>([]),
     [error, setError] = useState(""),
@@ -56,6 +62,7 @@ export function MotionHistory({ showEmpty = true }: { showEmpty?: boolean }) {
       clearInterval(timer);
     };
   }, [connected, request, revision, refresh]);
+  const visibleJobs = favoritesOnly ? jobs.filter((job) => favorites.includes(job.id)) : jobs;
   return (
     <div className="motion-history">
       {!connected ? (
@@ -63,10 +70,9 @@ export function MotionHistory({ showEmpty = true }: { showEmpty?: boolean }) {
           Connect your Kie API key in Motion Control to view and resume real
           generations.
         </div>
-      ) : !jobs.length && showEmpty ? (
+      ) : !visibleJobs.length && showEmpty ? (
         <div className="empty-history">
-          No Kie generations yet. Load the two-second trial or upload your own
-          reference image and driving video.
+          {favoritesOnly ? "No favorites yet. Use the star on a generation to save it here." : "No Kie generations yet. Load the two-second trial or upload your own reference image and driving video."}
         </div>
       ) : null}
       {error && (
@@ -85,10 +91,12 @@ export function MotionHistory({ showEmpty = true }: { showEmpty?: boolean }) {
       )}
       <div className="job-list">
         {connected &&
-          jobs.map((job) => (
+          visibleJobs.map((job) => (
             <MotionCard
               key={job.id}
               job={job}
+              favorite={favorites.includes(job.id)}
+              onToggleFavorite={() => onToggleFavorite(job.id)}
               onChange={() => setRefresh((r) => r + 1)}
             />
           ))}
@@ -99,9 +107,13 @@ export function MotionHistory({ showEmpty = true }: { showEmpty?: boolean }) {
 function MotionCard({
   job,
   onChange,
+  favorite,
+  onToggleFavorite,
 }: {
   job: MotionJob;
   onChange: () => void;
+  favorite: boolean;
+  onToggleFavorite: () => void;
 }) {
   const { request } = useKie(),
     [error, setError] = useState(""),
@@ -168,7 +180,7 @@ function MotionCard({
       <div className="between">
         <div>
           <strong>
-            {job.label} · {job.resolution}
+            {(job.taskId || job.id).slice(0, 10)}
           </strong>
           <small>
             {job.mode === "first-frame"
@@ -178,11 +190,12 @@ function MotionCard({
         </div>
         <GenerationTime created={job.created} />
       </div>
-      <span
-        className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}
-      >
-        {stateLabels[job.state]}
-      </span>
+      <div className="job-card-tools">
+        <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
+          {stateLabels[job.state]}
+        </span>
+        <FavoriteButton active={favorite} onClick={onToggleFavorite} />
+      </div>
       {pending.includes(job.state) && (
         <div className="processing">
           <span className="spinner" />
@@ -213,13 +226,6 @@ function MotionCard({
             ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`
             : "Kie cost: unavailable"}
       </small>
-      {job.taskId && (
-        <small className="task-id" title={job.taskId}>
-          id: {job.taskId.length > 8
-            ? `${job.taskId.slice(0, 2)}....${job.taskId.slice(-6)}`
-            : job.taskId}
-        </small>
-      )}
       {job.error && <p className="error">{job.error}</p>}
       {(job.state === "submission_unknown" || job.needsRecovery) && (
         <div className="recover-task">

@@ -5,6 +5,7 @@ import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
 import { KieProvider } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
 import { GenerationTime } from "./generation-time";
+import { FavoriteButton } from "./favorite-button";
 import { ThemeToggle } from "./theme-toggle";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
@@ -36,6 +37,20 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [motionAsset, setMotionAsset] = useState<Asset | null>(null),
     [ready, setReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
+  const [savedFavorites, setSavedFavorites] = useSaved("clone.generations.favorites", "[]");
+  let favoriteIds: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(savedFavorites);
+    if (Array.isArray(parsed)) favoriteIds = parsed.filter((id): id is string => typeof id === "string");
+  } catch {
+    // Ignore an invalid saved preference.
+  }
+  const favoritesOnly = historyView === "favorites";
+  const visibleJobs = favoritesOnly ? jobs.filter((job) => favoriteIds.includes(job.id)) : jobs;
+  function toggleFavorite(id: string) {
+    setSavedFavorites(JSON.stringify(favoriteIds.includes(id) ? favoriteIds.filter((value) => value !== id) : [...favoriteIds, id]));
+  }
   useEffect(() => {
     // Hydrate local-only workspace settings after server rendering.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -321,25 +336,42 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
               </section>
               <section className="history-column">
                 <h2>Your generations</h2>
-                <MotionHistory showEmpty={jobs.length === 0} />
-                {jobs.length > 0 && (
+                <div className="tabs history-tabs" role="tablist" aria-label="Generation history"
+                  onKeyDown={(event) => {
+                    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                    event.preventDefault();
+                    const next = event.key === "Home" ? "all" : event.key === "End" ? "favorites" : favoritesOnly ? "all" : "favorites";
+                    setHistoryView(next);
+                    document.getElementById(`history-tab-${next}`)?.focus();
+                  }}
+                >
+                  {[["all", "All generations"], ["favorites", "Favorites"]].map(([value, label]) => (
+                    <button type="button" key={value} role="tab" id={`history-tab-${value}`} aria-selected={(favoritesOnly ? "favorites" : "all") === value} aria-controls="history-panel" tabIndex={(favoritesOnly ? "favorites" : "all") === value ? 0 : -1} onClick={() => setHistoryView(value)}>{label}</button>
+                  ))}
+                </div>
+                <div id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${favoritesOnly ? "favorites" : "all"}`}>
+                <MotionHistory showEmpty={visibleJobs.length === 0} favorites={favoriteIds} favoritesOnly={favoritesOnly} onToggleFavorite={toggleFavorite} />
+                {visibleJobs.length > 0 && (
                   <div className="job-list">
-                    {jobs.map((j) => {
+                    {visibleJobs.map((j) => {
                       const a = assets.find((x) => x.id === j.assetId);
                       return (
                         <article key={j.id} className="job-card">
                           <div className="between">
                             <div>
-                              <strong>{j.model}</strong>
+                              <strong>{j.id.slice(0, 10)}</strong>
                               <small>
                                 {j.kind}
                               </small>
                             </div>
                             <GenerationTime created={j.created} />
                           </div>
+                          <div className="job-card-tools">
                           <span className={`job-status ${j.status}`}>
                             {j.status === "processing" ? "Processing…" : "Ready"}
                           </span>
+                          <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
+                          </div>
                           {j.status === "processing" ? (
                             <div className="processing">
                               <span className="spinner" />
@@ -397,6 +429,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                     })}
                   </div>
                 )}
+                </div>
               </section>
             </div>
           </div>
