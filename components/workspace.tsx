@@ -258,42 +258,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                 .
               </span>
             </div>
-            <section className="account-callout">
-              <h2>Bring your own kie.ai or WaveSpeed account</h2>
-              <p>
-                Official H3, Seedance 2.0, Seedance 2.5 and Wan 3 render on your
-                own account rather than ours. They are the two hosts worth
-                using:{" "}
-                <strong>
-                  cheaper per render than the big platforms, and uncensored
-                </strong>{" "}
-                — which for most of what gets made here is the difference
-                between a result and a refusal. You pay them directly for the
-                render, and we charge nothing on top for Seedance or Wan.
-              </p>
-              <div className="signup-links">
-                <a
-                  className="button"
-                  href="https://kie.ai"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Sign up at kie.ai
-                </a>
-                <a
-                  className="button secondary"
-                  href="https://wavespeed.ai"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Sign up at WaveSpeed
-                </a>
-              </div>
-              <small>
-                Either works — you only need one. Your key is used to start the
-                render and is never stored on our side.
-              </small>
-            </section>
             {demo && (
               <div className="demo-notice" role="status">
                 Demo mode · Previews use your original uploads. No AI rendering
