@@ -13,6 +13,14 @@ Open http://127.0.0.1:3107/generations. The root URL redirects there.
 
 For a production preview: `npm run build`, then `npm start`.
 
+## Real Motion Control with Kie
+
+Motion Control now has a real Kie integration: file uploads, provider task creation, polling, errors, result playback and MP4 downloads. Supports Wan 3, Official H3, Seedance 2.0/2.5 and Kling 2.6 Motion Control. Local real-job metadata persists in the ignored `.data/motion/` directory. The other tabs still use the original local demo behavior.
+
+Enter your key in **Motion Control → Kie API connection → Connect Kie**, or configure `KIE_API_KEY` in `.env.local` and restart the server. The key is never committed or written into job records. **Load 2-second trial** prepares a small Wan 3 render; generating it uses your real Kie credits.
+
+See [Kie configuration, trial and API details](docs/KIE-MOTION.md). FFmpeg/ffprobe must be on PATH for upload validation. A live paid render still requires a funded key and is not verified until that trial completes.
+
 ## Included
 
 - The dark generation workspace, original logo and locally served Inter font.
@@ -25,7 +33,7 @@ For a production preview: `npm run build`, then `npm start`.
 
 ## Boundaries
 
-This is an independent interface recreation, not the original source code or service. No original backend, account data, GPU infrastructure, model weights, billing, authentication, or production database is included. AI rendering, voice extraction/change, upscaling, frame-rate interpolation, and premium pages need service implementations. Premium navigation leads to local explanatory pages rather than a fabricated working backend. API key inputs stay in memory and are never transmitted. LoRA management currently selects a filename for the local session; no training or model loading occurs.
+This is an independent interface recreation, not the original source code or service. No original backend, account data, GPU infrastructure, model weights, billing, authentication, or production database is included. AI rendering outside the Motion Control tab, voice extraction/change, upscaling, frame-rate interpolation, and premium pages need service implementations. Premium navigation leads to local explanatory pages rather than a fabricated working backend. Motion Control sends its key only through the local server to Kie’s API/upload service. Other tabs’ key fields remain unconnected. LoRA management currently selects a filename for the local session; no training or model loading occurs.
 
 Video trimming uses Chrome/Edge MediaRecorder and exports WebM in real time. Frame extraction and phone-photo processing use canvas. Browser storage is local to the selected browser and origin; use the same URL consistently (`localhost` and `127.0.0.1` have separate storage).
 

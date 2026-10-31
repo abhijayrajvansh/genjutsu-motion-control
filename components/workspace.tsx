@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
+import { KieProvider } from "./kie-connection";
+import { MotionHistory } from "./motion-history";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
   ImageForm,
@@ -22,6 +24,13 @@ const characters = [
 ];
 const tabs = ["Motion Control", "Video Gen", "Images", "Tools"];
 export function Workspace({ section = "generations" }: { section?: string }) {
+  return (
+    <KieProvider>
+      <WorkspaceContent section={section} />
+    </KieProvider>
+  );
+}
+function WorkspaceContent({ section = "generations" }: { section?: string }) {
   const [tab, setTab] = useSaved("clone.generations.section", "Motion Control"),
     [menu, setMenu] = useState(""),
     [demo, setDemo] = useState(false),
@@ -303,23 +312,13 @@ export function Workspace({ section = "generations" }: { section?: string }) {
         {section === "generations" ? (
           <div className="dashboard">
             <div className="retention-notice">
-              <strong>
-                Everything you generate is deleted from the platform after 1
-                day.
-              </strong>{" "}
+              <strong>Download the videos you want to keep.</strong>{" "}
               <span>
-                Anything made on your own kie or WaveSpeed key stays in your
-                logs there, at{" "}
+                Kie uploads are temporary, and result links can expire. Real job
+                records are saved on this computer. Your Kie renders also appear
+                in{" "}
                 <a href="https://kie.ai/logs" target="_blank" rel="noreferrer">
                   kie.ai/logs
-                </a>{" "}
-                and{" "}
-                <a
-                  href="https://wavespeed.ai/history"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  wavespeed.ai/history
                 </a>
                 .
               </span>
@@ -439,12 +438,8 @@ export function Workspace({ section = "generations" }: { section?: string }) {
               </section>
               <section className="history-column">
                 <h2>Your generations</h2>
-                {!jobs.length ? (
-                  <div className="empty-history">
-                    No generations yet. Upload a reference image and a driving
-                    video to start one.
-                  </div>
-                ) : (
+                <MotionHistory showEmpty={jobs.length === 0} />
+                {jobs.length > 0 && (
                   <div className="job-list">
                     {jobs.map((j) => {
                       const a = assets.find((x) => x.id === j.assetId);
@@ -614,10 +609,11 @@ function SecondaryPage({
             development and review. It is not the original Aiorbust service.
           </p>
           <p>
-            Files and generation previews stay in this browser’s IndexedDB. API
-            key fields are held in memory and are never sent to a provider.
-            External signup and community links open the named third-party
-            services.
+            Files and generation previews stay in this browser’s IndexedDB.
+            Motion Control sends selected media and your key through the local
+            server to Kie when you connect or generate. Other API key fields are
+            held in memory. External signup and community links open the named
+            third-party services.
           </p>
           <p>
             For the original service’s policies, visit{" "}

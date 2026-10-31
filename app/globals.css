@@ -1070,3 +1070,77 @@ body {
     min-height: 36px;
   }
 }
+.kie-connection,
+.trial-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff03;
+}
+.kie-connection h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+.connected-label {
+  font-size: 12px;
+  color: #86efac;
+}
+.disconnected-label {
+  font-size: 12px;
+  color: #a3a3a3;
+}
+.trial-panel strong {
+  font-size: 14px;
+}
+.trial-panel {
+  border-color: #f67f1b33;
+}
+.motion-stage {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #fff9;
+  overflow-wrap: anywhere;
+}
+.motion-history {
+  margin-bottom: 20px;
+}
+.real-result {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  margin-top: 16px;
+  border-radius: 8px;
+  background: #000;
+}
+.real-label {
+  display: block;
+  color: #86efac;
+  margin-top: 12px;
+}
+.task-id {
+  display: block;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+  font-family: monospace;
+}
+.job-status.failed {
+  color: #fca5a5;
+  background: #ef444422;
+}
+.recover-task {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+.recover-task a {
+  text-decoration: underline;
+}
+.motion-history .error .text-button {
+  display: block;
+  margin-top: 8px;
+}

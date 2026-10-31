@@ -33,3 +33,20 @@ The replica runs entirely locally. IndexedDB stores uploads and preview jobs. Mo
 - Runtime dependency audit reported zero vulnerabilities; the development lint dependency tree has moderate advisories.
 
 Build, TypeScript, lint, and media check outcomes are recorded in the task completion message. Provider-backed operations were not tested because no provider is connected.
+
+## Kie Motion Control integration update
+
+The Motion Control tab now implements live Kie uploads, task creation, status polling, provider errors, real output playback and MP4 downloads. Job records persist privately under `.data/motion/`; this is local development storage. See `KIE-MOTION.md` for model mappings and configuration.
+
+Verification completed without a funded key:
+
+- Production build, TypeScript and ESLint passed.
+- All five model payloads and output-duration bounds checked; Wan resolution casing and Kling reference parameter names verified.
+- Real Kie credit endpoint rejected a dummy key, with the error displayed in the browser and no paid render created.
+- Unauthorized, cross-origin, unsupported model, invalid duration, invalid dimensions and malformed upload requests rejected.
+- Disposable on-disk job metadata read back through the real API; fingerprint isolation checked.
+- A repeated local request ID returned the existing job without calling the provider again.
+- Download handler streamed a real public sample MP4 with attachment headers; a private-network result URL was blocked.
+- Browser loaded the trial image and a verified 2.000-second H.264 clip, switched H3 to its correct four-second minimum/768P resolution, then returned to Wan 3 at 2s/480p with audio off.
+
+The real paid render and generated output quality remain pending the user's funded Kie key. No live-generation success is claimed from the disposable metadata fixture. That fixture was removed after verification. The user-facing page is left ready for key entry.

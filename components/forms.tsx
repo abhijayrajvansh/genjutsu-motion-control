@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Asset } from "@/lib/storage";
+import { MotionWorkflow } from "./motion-workflow";
 import { trimVideo } from "@/lib/media";
 import {
   ApiKey,
@@ -28,25 +29,6 @@ export type FormProps = {
   onSubmit: (s: Submission) => Promise<void>;
   busy: boolean;
 };
-const modes = [
-  {
-    value: "reference",
-    label: "Reference image + video",
-    hint: "The person comes from your image. Garments, camera, scene and timing all come from the video.",
-  },
-  {
-    value: "first",
-    label: "First frame + reference",
-    hint: "You supply an already-corrected opening frame, and the clip continues from it. Needs a second picture.",
-  },
-];
-const models = [
-  "MiniMax H3 Aiorbust 3.0",
-  "MiniMax Official H3",
-  "Seedance 2.0",
-  "Seedance 2.5",
-  "Wan 3",
-];
 const ratios = [
   { value: "auto", label: "Automatic" },
   { value: "9:16", label: "9:16 — vertical" },
@@ -72,182 +54,7 @@ export function Retention({ image = false }: { image?: boolean }) {
   );
 }
 export function MotionForm(p: FormProps & { initialVideo?: Asset | null }) {
-  const [model, setModel] = useSaved("clone.motion.model", models[0]),
-    [mode, setMode] = useSaved("clone.motion.mode", "reference");
-  const [host, setHost] = useState("kie"),
-    [resolution, setResolution] = useState("720p"),
-    [audio, setAudio] = useState("keep"),
-    [writer, setWriter] = useState("Gemini"),
-    [duration, setDuration] = useState(6),
-    [prompt, setPrompt] = useState(""),
-    [image, setImage] = useState<Asset | null>(null),
-    [video, setVideo] = useState<Asset | null>(p.initialVideo ?? null),
-    [first, setFirst] = useState<Asset | null>(null),
-    [extras, setExtras] = useState<(Asset | null)[]>([]),
-    [error, setError] = useState("");
-  const own = model !== models[0],
-    seed = model.startsWith("Seedance"),
-    multi = seed || model === "Wan 3";
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!image || !video) return;
-    if (mode === "first" && !multi && !first) {
-      setError("Add the corrected first frame.");
-      return;
-    }
-    if (!p.demo) {
-      setError(
-        "This local clone has no rendering provider connected. Enable demo mode in the account menu to preview a generation without sending files or keys.",
-      );
-      return;
-    }
-    setError("");
-    await p.onSubmit({ model, kind: "Motion Control", prompt, asset: video });
-  }
-  return (
-    <form className="generation-form" onSubmit={submit}>
-      <Select
-        label="Model"
-        options={models}
-        value={model}
-        onChange={setModel}
-        hint={
-          own
-            ? model === models[1]
-              ? "MiniMax’s own API, on your key and your balance."
-              : model === "Seedance 2.5"
-                ? "The same, up to 30 seconds."
-                : "Your key and your balance. Up to 15 seconds."
-            : "Our GPUs, paid for in credits."
-        }
-      />
-      <Available />
-      {own && (
-        <>
-          <ApiKey host={host} onHostChange={setHost} />
-          <Choices
-            label="Resolution"
-            options={["1080p", "720p", "480p"]}
-            value={resolution}
-            onChange={setResolution}
-          />
-        </>
-      )}
-      {seed && (
-        <Choices
-          label="Audio"
-          options={[
-            {
-              value: "keep",
-              label: "Keep the video's audio",
-              hint: "The original dialogue and room sound, with the new subject lip-synced to it.",
-            },
-            {
-              value: "new",
-              label: "Generate new audio",
-              hint: "The model composes a soundtrack of its own. The original is not used.",
-            },
-          ]}
-          value={audio}
-          onChange={setAudio}
-        />
-      )}
-      {!multi && (
-        <Choices label="Mode" options={modes} value={mode} onChange={setMode} />
-      )}
-      <FilePicker
-        label={
-          mode === "first" && !multi
-            ? "Reference image (identity)"
-            : "Reference image"
-        }
-        hint="PNG, JPEG or WebP"
-        asset={image}
-        onPick={setImage}
-      />
-      {multi && (
-        <>
-          {extras.map((a, i) => (
-            <div key={i}>
-              <FilePicker
-                label={`Reference image ${i + 2}`}
-                asset={a}
-                onPick={(v) =>
-                  setExtras(extras.map((x, k) => (k === i ? v : x)))
-                }
-              />
-              <button
-                type="button"
-                className="text-button"
-                onClick={() => setExtras(extras.filter((_, k) => k !== i))}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          {extras.length < 3 && (
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => setExtras([...extras, null])}
-            >
-              + Add another reference image
-            </button>
-          )}
-        </>
-      )}
-      {mode === "first" && !multi && (
-        <FilePicker
-          label="First frame"
-          hint="Already corrected"
-          asset={first}
-          onPick={setFirst}
-        />
-      )}
-      <FilePicker
-        label="Driving video"
-        hint="MP4, MOV or WebM — up to 15 seconds"
-        accept={VIDEO_TYPES}
-        asset={video}
-        onPick={setVideo}
-      />
-      {multi ? (
-        <Prompt
-          value={prompt}
-          onChange={setPrompt}
-          hint="Edit it for this model, or leave it empty to use the default."
-        />
-      ) : (
-        <Choices
-          label="Prompt written by"
-          options={["Gemini", "xAI"]}
-          value={writer}
-          onChange={setWriter}
-        />
-      )}
-      {own && !seed && <Duration value={duration} onChange={setDuration} />}
-      <Button
-        disabled={
-          p.busy ||
-          !image ||
-          !video ||
-          (!own && (!p.demo || p.credits < 10)) ||
-          (mode === "first" && !multi && !first)
-        }
-      >
-        {p.busy ? "Starting…" : "Generate"}
-      </Button>
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-      <small>
-        A generation takes several minutes. You can close this tab — the job
-        keeps running and will be here when you come back. <Retention />
-      </small>
-    </form>
-  );
+  return <MotionWorkflow initialVideo={p.initialVideo} />;
 }
 export function VideoForm(p: FormProps) {
   const [model, setModel] = useSaved("clone.video.model", "Wan 3"),
