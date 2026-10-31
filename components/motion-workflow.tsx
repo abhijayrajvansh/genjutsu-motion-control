@@ -19,7 +19,7 @@ import {
 } from "./controls";
 import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
-import { KieConnection, useKie } from "./kie-connection";
+import { KieConnection, KieRequestError, useKie } from "./kie-connection";
 export function MotionWorkflow({
   initialVideo,
 }: {
@@ -60,7 +60,8 @@ export function MotionWorkflow({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [stage, setStage] = useState(""),
-    [lastId, setLastId] = useState<string | null>(null);
+    [lastId, setLastId] = useState<string | null>(null),
+    [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false),
     kie = useKie();
   const selectedResolution = (model.resolutions as readonly string[]).includes(
@@ -153,6 +154,7 @@ export function MotionWorkflow({
     e.preventDefault();
     if (submitting.current) return;
     setError("");
+    setReloadNeeded(false);
     if (!kie.connected) {
       setError("Connect your Kie API key first.");
       return;
@@ -212,9 +214,18 @@ export function MotionWorkflow({
       setError(
         e instanceof Error ? e.message : "Could not submit this generation.",
       );
-      setStage(
-        "No automatic retry was made. Check Your generations and Kie logs before resubmitting.",
-      );
+      if (e instanceof KieRequestError && e.generationStarted === false) {
+        setLastId(null);
+        setStage(
+          "No paid generation was started. Your files and settings are still here.",
+        );
+        if (e.code === "CLIENT_UPDATE_REQUIRED") setReloadNeeded(true);
+        if (e.code === "PRICE_CHANGED") pricing.refresh();
+      } else {
+        setStage(
+          "No automatic retry was made. Check Your generations and Kie logs before resubmitting.",
+        );
+      }
       kie.changed();
     } finally {
       setBusy(false);
@@ -526,6 +537,21 @@ export function MotionWorkflow({
         <p className="error" role="alert">
           {error}
         </p>
+      )}
+      {reloadNeeded && (
+        <div className="trial-panel">
+          <Button
+            type="button"
+            secondary
+            onClick={() => window.location.reload()}
+          >
+            Reload latest version
+          </Button>
+          <small>
+            Uploaded files remain in the library. Reconnect your session key
+            after reloading if prompted.
+          </small>
+        </div>
       )}
       {lastId && <small>Local job ID: {lastId}</small>}
       <small>

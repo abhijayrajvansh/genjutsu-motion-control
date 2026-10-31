@@ -61,6 +61,17 @@ export async function POST(req: Request) {
       if (!(e instanceof ApiError) || e.status !== 404) throw e;
     }
 
+    if (!form.has("maxEstimatedCredits")) {
+      return json(
+        {
+          error:
+            "This tab is running an older version without total-credit estimates. Reload the page, reconnect Kie if prompted, and review the credits on the Generate button. No paid generation was started.",
+          code: "CLIENT_UPDATE_REQUIRED",
+          generationStarted: false,
+        },
+        409,
+      );
+    }
     const requestedModel = String(form.get("model") || "");
     if (!MOTION_MODELS.some((model) => model.id === requestedModel))
       throw new ApiError("Choose a supported Kie motion model.");
@@ -143,18 +154,16 @@ export async function POST(req: Request) {
       images.length + Number(mode === "first-frame"),
     );
     const quoted = Number(form.get("maxEstimatedCredits"));
-    if (
-      !form.has("maxEstimatedCredits") ||
-      !Number.isFinite(quoted) ||
-      quoted <= 0
-    )
-      throw new ApiError(
-        "Refresh the total-credit estimate before generating.",
-        409,
-      );
+    if (!Number.isFinite(quoted) || quoted <= 0)
+      throw new ApiError("A valid total-credit estimate is required.");
     if (cost.total > quoted + 0.001)
-      throw new ApiError(
-        `The total estimate is now ${formatCredits(cost.total)} Kie credits. Refresh pricing and review the total before generating.`,
+      return json(
+        {
+          error: `The total estimate is now ${formatCredits(cost.total)} Kie credits. Refresh pricing and review the total before generating. No paid generation was started.`,
+          code: "PRICE_CHANGED",
+          generationStarted: false,
+          estimatedCredits: cost.total,
+        },
         409,
       );
     const balance = await kie<number>("/api/v1/chat/credit", key);
@@ -261,10 +270,16 @@ export async function POST(req: Request) {
         /* Preserve the original error and never resubmit automatically. */
       }
       return json(
-        { error: stored.error, job: publicJob(stored) },
+        {
+          error: stored.error,
+          job: publicJob(stored),
+          ...(!submitted ? { generationStarted: false } : {}),
+        },
         e instanceof ApiError ? e.status : 500,
       );
     }
-    return errorResponse(e);
+    const response = errorResponse(e);
+    const data = await response.json();
+    return json({ ...data, generationStarted: false }, response.status);
   }
 }

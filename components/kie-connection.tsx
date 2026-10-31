@@ -7,6 +7,18 @@ import {
   useState,
 } from "react";
 import { Button, TextField } from "./controls";
+export class KieRequestError extends Error {
+  code?: string;
+  generationStarted?: boolean;
+  constructor(
+    public status: number,
+    data: { error?: unknown; code?: unknown; generationStarted?: boolean },
+  ) {
+    super(typeof data.error === "string" ? data.error : "The request failed.");
+    this.code = typeof data.code === "string" ? data.code : undefined;
+    this.generationStarted = data.generationStarted;
+  }
+}
 type Connection = {
   key: string;
   setKey: (key: string) => void;
@@ -33,7 +45,7 @@ export function KieProvider({ children }: { children: React.ReactNode }) {
         cache: "no-store",
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "The request failed.");
+      if (!response.ok) throw new KieRequestError(response.status, data);
       return data as T;
     },
     [key],
