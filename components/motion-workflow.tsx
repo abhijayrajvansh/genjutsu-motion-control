@@ -337,16 +337,6 @@ export function MotionWorkflow({
               </button>
             </div>
           ))}
-          {extras.length < model.maxImages - (mode === "first-frame" ? 2 : 1) && (
-            <button
-              type="button"
-              className="text-button"
-              disabled={busy}
-              onClick={() => setExtras((xs) => [...xs, null])}
-            >
-              + Add another reference image
-            </button>
-          )}
         </div>
         <div>
           <FilePicker
@@ -358,9 +348,23 @@ export function MotionWorkflow({
           />
         </div>
       </div>
-      <Button type="button" secondary disabled={busy} onClick={trial}>
-        Load 2-second trial
-      </Button>
+      <div className="motion-input-actions">
+        <div>
+          {extras.length < model.maxImages - (mode === "first-frame" ? 2 : 1) && (
+            <button
+              type="button"
+              className="text-button"
+              disabled={busy}
+              onClick={() => setExtras((xs) => [...xs, null])}
+            >
+              + Add another reference image
+            </button>
+          )}
+        </div>
+        <button type="button" className="text-button trial-text-button" disabled={busy} onClick={trial}>
+          Load 2-second trial
+        </button>
+      </div>
       {video && clip && sourceSeconds > 0 && (
         <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
           minimum={minimumClip} maximum={maximumClip} disabled={busy}

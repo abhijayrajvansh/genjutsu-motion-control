@@ -1249,6 +1249,17 @@ body {
   flex-direction: column;
   gap: 10px;
 }
+.motion-input-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+  margin-top: -10px;
+}
+.motion-input-actions .trial-text-button {
+  justify-self: end;
+  text-align: right;
+}
 .motion-input-grid .file-label small {
   display: block;
   margin-top: 3px;
