@@ -305,7 +305,6 @@ export function MotionWorkflow({
                 ? "Reference image (identity)"
                 : "Reference image"
             }
-            hint={`${model.id === "kling" ? "PNG or JPEG" : "PNG, JPEG or WebP"} · up to ${model.imageMB} MB`}
             accept={model.id === "kling" ? "image/png,image/jpeg" : IMAGE_TYPES}
             asset={image}
             onPick={setImage}
@@ -341,7 +340,6 @@ export function MotionWorkflow({
         <div>
           <FilePicker
             label="Driving video"
-            hint="MP4 or MOV · up to 200 MB"
             accept="video/mp4,video/quicktime"
             asset={video}
             onPick={setVideo}
