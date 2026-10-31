@@ -168,7 +168,7 @@ function MotionCard({
       <div className="between">
         <div>
           <strong>
-            {job.label} · {job.seconds}s · {job.resolution}
+            {job.label} · {job.resolution}
           </strong>
           <small>
             {job.mode === "first-frame"
