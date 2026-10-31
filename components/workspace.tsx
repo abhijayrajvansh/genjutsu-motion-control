@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
 import { KieProvider } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
+import { GenerationTime } from "./generation-time";
 import { ThemeToggle } from "./theme-toggle";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
@@ -13,7 +14,7 @@ import {
   ToolsForm,
   VideoForm,
 } from "./forms";
-const tabs = ["Motion Control", "Video Gen", "Images", "Tools"];
+const tabs = ["Motion Control"];
 export function Workspace({ section = "generations" }: { section?: string }) {
   return (
     <KieProvider>
@@ -22,7 +23,8 @@ export function Workspace({ section = "generations" }: { section?: string }) {
   );
 }
 function WorkspaceContent({ section = "generations" }: { section?: string }) {
-  const [tab, setTab] = useSaved("clone.generations.section", "Motion Control"),
+  const [savedTab, setTab] = useSaved("clone.generations.section", "Motion Control"),
+    tab = tabs.includes(savedTab) ? savedTab : tabs[0],
     [menu, setMenu] = useState(""),
     [demo, setDemo] = useState(false),
     [credits, setCredits] = useState(0),
@@ -330,16 +332,14 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                             <div>
                               <strong>{j.model}</strong>
                               <small>
-                                {j.kind} ·{" "}
-                                {new Date(j.created).toLocaleString()}
+                                {j.kind}
                               </small>
                             </div>
-                            <span className={`job-status ${j.status}`}>
-                              {j.status === "processing"
-                                ? "Processing…"
-                                : "Ready"}
-                            </span>
+                            <GenerationTime created={j.created} />
                           </div>
+                          <span className={`job-status ${j.status}`}>
+                            {j.status === "processing" ? "Processing…" : "Ready"}
+                          </span>
                           {j.status === "processing" ? (
                             <div className="processing">
                               <span className="spinner" />
@@ -408,10 +408,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
           />
         )}
       </main>
-      <footer>
-        <Link href="/terms">Terms of use</Link> ·{" "}
-        <Link href="/privacy">Privacy policy</Link>
-      </footer>
       {notice && (
         <div className="toast" role="status">
           <span>{notice}</span>

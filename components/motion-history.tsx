@@ -4,6 +4,7 @@ import { formatCredits } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
+import { GenerationTime } from "./generation-time";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
 export function MotionHistory({ showEmpty = true }: { showEmpty?: boolean }) {
   const { connected, request, revision } = useKie(),
@@ -172,16 +173,16 @@ function MotionCard({
           <small>
             {job.mode === "first-frame"
               ? "First frame + reference"
-              : "Reference image + video"}{" "}
-            · {new Date(job.created).toLocaleString()}
+              : "Reference image + video"}
           </small>
         </div>
-        <span
-          className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}
-        >
-          {stateLabels[job.state]}
-        </span>
+        <GenerationTime created={job.created} />
       </div>
+      <span
+        className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}
+      >
+        {stateLabels[job.state]}
+      </span>
       {pending.includes(job.state) && (
         <div className="processing">
           <span className="spinner" />

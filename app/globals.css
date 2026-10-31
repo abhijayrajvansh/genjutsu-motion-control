@@ -254,9 +254,9 @@ em {
 }
 .main-content {
   width: 100%;
-  padding: 32px var(--workspace-gutter) 48px;
+  padding: 32px var(--workspace-gutter) 16px;
   margin: auto;
-  min-height: calc(100vh - 200px);
+  min-height: calc(100dvh - 62px);
 }
 .dashboard {
   display: flex;
@@ -402,9 +402,23 @@ em {
   padding: 12px;
 }
 .history-column .job-card > .between {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: flex-start;
   gap: 8px;
+}
+.generation-time {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.history-column .job-card > .job-status {
+  display: inline-block;
+  margin-top: 8px;
 }
 .history-column .job-actions .button {
   width: 100%;
@@ -1281,7 +1295,10 @@ body {
   background: var(--muted);
 }
 body:has(.motion-submit-bar) {
-  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(73px + env(safe-area-inset-bottom, 0px));
+}
+body:has(.motion-submit-bar) .main-content {
+  min-height: calc(100dvh - 135px - env(safe-area-inset-bottom, 0px));
 }
 .motion-submit-bar {
   position: fixed;

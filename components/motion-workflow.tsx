@@ -239,12 +239,7 @@ export function MotionWorkflow({
         options={MOTION_MODELS.map((m) => ({ value: m.id, label: m.label }))}
         value={model.id}
         onChange={changeModel}
-        hint="Real generation on your Kie key and balance. No Aiorbust credits required."
       />
-      <small>
-        The original “MiniMax H3 Aiorbust 3.0” needs its own GPU workflow and is
-        not a Kie model. Official H3 is available here.
-      </small>
       <KieConnection />
       <div className="trial-panel">
         <strong>Small trial</strong>
