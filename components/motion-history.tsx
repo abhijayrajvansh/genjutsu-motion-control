@@ -262,14 +262,6 @@ function MotionCard({
             <Button disabled={busy} onClick={download}>
               {busy ? "Downloading…" : "Download video"}
             </Button>
-            <a
-              className="button secondary"
-              href={job.resultUrls?.[0]}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open original ↗
-            </a>
           </>
         )}
         <Button secondary onClick={onChange} disabled={busy}>
