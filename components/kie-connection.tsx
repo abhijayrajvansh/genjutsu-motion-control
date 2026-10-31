@@ -137,16 +137,6 @@ export function KieConnection() {
             kie.setKey(e.target.value);
             setError("");
           }}
-          hint={
-            <>
-              Get your key from{" "}
-              <a href="https://kie.ai/api-key" target="_blank" rel="noreferrer">
-                kie.ai/api-key
-              </a>
-              . It stays in memory for this page and is sent only to this local
-              server and Kie’s API/upload service.
-            </>
-          }
         />
       )}
       {kie.configured && (
