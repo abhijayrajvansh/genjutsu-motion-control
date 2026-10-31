@@ -1,0 +1,470 @@
+"use client";
+import { useEffect, useId, useRef, useState } from "react";
+import { Asset, records, saveRecord } from "@/lib/storage";
+export const IMAGE_TYPES = "image/png,image/jpeg,image/webp";
+export const VIDEO_TYPES = "video/mp4,video/quicktime,video/webm";
+export type Option = string | { value: string; label: string; hint?: string };
+export function useSaved(
+  key: string,
+  initial: string,
+): [string, (v: string) => void] {
+  const [value, setValue] = useState(initial);
+  useEffect(() => {
+    const v = localStorage.getItem(key);
+    // Hydrate the saved browser preference after server rendering.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (v) setValue(v);
+  }, [key]);
+  return [
+    value,
+    (v: string) => {
+      setValue(v);
+      localStorage.setItem(key, v);
+    },
+  ];
+}
+export function Button({
+  children,
+  secondary = false,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { secondary?: boolean }) {
+  return (
+    <button
+      {...props}
+      className={`button ${secondary ? "secondary" : ""} ${props.className ?? ""}`}
+    >
+      {children}
+    </button>
+  );
+}
+export function Select({
+  label,
+  options,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string;
+  options: Option[];
+  value: string;
+  onChange: (v: string) => void;
+  hint?: React.ReactNode;
+}) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <select value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === "string" ? o : o.value;
+          return (
+            <option key={v} value={v}>
+              {typeof o === "string" ? o : o.label}
+            </option>
+          );
+        })}
+      </select>
+      {hint && <small>{hint}</small>}
+    </label>
+  );
+}
+export function Choices({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: Option[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const id = useId();
+  return (
+    <fieldset className="choices">
+      <legend>{label}</legend>
+      <div>
+        {options.map((o) => {
+          const v = typeof o === "string" ? o : o.value;
+          return (
+            <label key={v} className={value === v ? "selected" : ""}>
+              <span>
+                <input
+                  type="radio"
+                  name={id}
+                  checked={value === v}
+                  onChange={() => onChange(v)}
+                />
+                {typeof o === "string" ? o : o.label}
+              </span>
+              {typeof o !== "string" && o.hint && <small>{o.hint}</small>}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+export function TextField({
+  label,
+  hint,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  hint?: React.ReactNode;
+}) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      <input {...props} />
+      {hint && <small>{hint}</small>}
+    </label>
+  );
+}
+export function Prompt({
+  value,
+  onChange,
+  hint = "Sent as you wrote it. Refer to your pictures in order — the first is @image1, the second @image2.",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  hint?: string;
+}) {
+  return (
+    <label className="field">
+      <span>Prompt</span>
+      <textarea
+        rows={5}
+        maxLength={4000}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <small>{hint}</small>
+    </label>
+  );
+}
+export function Duration({
+  value,
+  onChange,
+  max = 15,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  max?: number;
+}) {
+  return (
+    <label className="field">
+      <span className="between">
+        Duration <small>{value} s</small>
+      </span>
+      <input
+        type="range"
+        min={1}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(+e.target.value)}
+      />
+    </label>
+  );
+}
+export function Modal({
+  title,
+  children,
+  onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    el?.showModal();
+    return () => el?.close();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      className="modal"
+      onCancel={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          const r = e.currentTarget.getBoundingClientRect();
+          if (
+            e.clientX < r.left ||
+            e.clientX > r.right ||
+            e.clientY < r.top ||
+            e.clientY > r.bottom
+          )
+            onClose();
+        }
+      }}
+    >
+      <div className="between modal-heading">
+        <h2>{title}</h2>
+        <Button secondary onClick={onClose}>
+          Cancel
+        </Button>
+      </div>
+      {children}
+    </dialog>
+  );
+}
+export function AssetPreview({
+  asset,
+  controls = false,
+}: {
+  asset: Asset;
+  controls?: boolean;
+}) {
+  const [url, setUrl] = useState("");
+  useEffect(() => {
+    const u = URL.createObjectURL(asset.blob);
+    // Each blob gets an owned URL, released by this effect’s cleanup.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [asset]);
+  if (!url) return null;
+  return asset.type.startsWith("video/") ? (
+    <video src={url} controls={controls} muted={!controls} preload="metadata" />
+  ) : asset.type.startsWith("audio/") ? (
+    <audio src={url} controls />
+  ) : (
+    <img src={url} alt={asset.name} />
+  );
+}
+export function FilePicker({
+  label,
+  hint,
+  accept = IMAGE_TYPES,
+  asset,
+  onPick,
+  simple = false,
+  onError,
+}: {
+  label: string;
+  hint?: string;
+  accept?: string;
+  asset: Asset | null;
+  onPick: (a: Asset | null) => void;
+  simple?: boolean;
+  onError?: (s: string) => void;
+}) {
+  const [open, setOpen] = useState(false),
+    [saved, setSaved] = useState<Asset[]>([]),
+    [error, setError] = useState(""),
+    [drag, setDrag] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+  const video = accept.startsWith("video"),
+    audio = accept.startsWith("audio");
+  const valid = (f: Blob) =>
+    accept
+      .split(",")
+      .some((t) =>
+        t.endsWith("/*")
+          ? f.type.startsWith(t.split("/")[0] + "/")
+          : t === f.type,
+      );
+  async function pick(file?: File) {
+    if (!file) return;
+    setError("");
+    if (!valid(file)) {
+      setError("Choose a supported file type.");
+      return;
+    }
+    if (file.size > 200 * 1024 * 1024) {
+      setError("Choose a file smaller than 200 MB.");
+      return;
+    }
+    try {
+      const a = {
+        id: crypto.randomUUID(),
+        name: file.name,
+        type: file.type,
+        blob: file,
+        created: Date.now(),
+      };
+      await saveRecord("assets", a);
+      onPick(a);
+      setOpen(false);
+    } catch {
+      setError("Could not save this file. Your browser storage may be full.");
+    }
+  }
+  async function browse() {
+    setOpen(true);
+    setError("");
+    try {
+      setSaved(
+        (await records<Asset>("assets"))
+          .filter((a) => valid(a.blob))
+          .sort((a, b) => b.created - a.created),
+      );
+    } catch {
+      setError("Saved files are unavailable in this browser.");
+    }
+  }
+  return (
+    <div className="file-picker">
+      <div className="file-label">
+        {label} {hint && <small>{hint}</small>}
+      </div>
+      <button
+        type="button"
+        className={`drop-zone ${drag ? "dragging" : ""} ${asset ? "has-file" : ""} ${simple ? "simple" : ""}`}
+        onClick={browse}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDrag(true);
+        }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDrag(false);
+          void pick(e.dataTransfer.files[0]).catch(() =>
+            onError?.("Could not load that file."),
+          );
+        }}
+      >
+        {asset ? (
+          <>
+            <AssetPreview asset={asset} />
+            <span>{asset.name}</span>
+            <small>Click to replace</small>
+          </>
+        ) : simple ? (
+          "Choose a clip"
+        ) : (
+          "Drop a file here, or click to choose"
+        )}
+      </button>
+      {asset && (
+        <button
+          type="button"
+          className="text-button remove"
+          onClick={() => onPick(null)}
+        >
+          Remove
+        </button>
+      )}
+      {error && !open && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      {open && (
+        <Modal
+          title={`Choose ${video ? "a video" : audio ? "an audio file" : "an image"}`}
+          onClose={() => setOpen(false)}
+        >
+          <button
+            type="button"
+            className="library-drop"
+            onClick={() => ref.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              void pick(e.dataTransfer.files[0]);
+            }}
+          >
+            <strong>Drop a file here</strong>
+            <small>or click to browse your computer</small>
+          </button>
+          <input
+            ref={ref}
+            type="file"
+            accept={accept}
+            hidden
+            onChange={(e) => void pick(e.target.files?.[0])}
+          />
+          {error && (
+            <p role="alert" className="error">
+              {error}
+            </p>
+          )}
+          <div className="between library-title">
+            Already here{" "}
+            <small>
+              {saved.length} {video ? "clips" : "pictures"}
+            </small>
+          </div>
+          {saved.length ? (
+            <div className="asset-grid">
+              {saved.map((a) => (
+                <button
+                  type="button"
+                  key={a.id}
+                  onClick={() => {
+                    onPick(a);
+                    setOpen(false);
+                  }}
+                >
+                  <AssetPreview asset={a} />
+                  <span>{a.name}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-library">
+              No files yet. Upload one to get started.
+            </p>
+          )}
+        </Modal>
+      )}
+    </div>
+  );
+}
+export function ApiKey({
+  host,
+  onHostChange,
+}: {
+  host: string;
+  onHostChange: (s: string) => void;
+}) {
+  const [keys, setKeys] = useState<Record<string, string>>({
+    kie: "",
+    wavespeed: "",
+  });
+  return (
+    <>
+      <div className="segmented">
+        {["kie", "wavespeed"].map((v) => (
+          <Button
+            key={v}
+            type="button"
+            secondary={host !== v}
+            onClick={() => onHostChange(v)}
+          >
+            {v === "kie" ? "kie.ai" : "WaveSpeed"}
+          </Button>
+        ))}
+      </div>
+      <TextField
+        label={`${host === "kie" ? "kie.ai" : "WaveSpeed"} API key`}
+        type="password"
+        autoComplete="off"
+        placeholder="Paste your key"
+        value={keys[host]}
+        onChange={(e) => setKeys({ ...keys, [host]: e.target.value })}
+        hint={
+          <>
+            From{" "}
+            <a
+              href={
+                host === "kie"
+                  ? "https://kie.ai/api-key"
+                  : "https://wavespeed.ai/accesskey"
+              }
+              target="_blank"
+              rel="noreferrer"
+            >
+              {host === "kie" ? "kie.ai/api-key" : "wavespeed.ai/accesskey"}
+            </a>
+            . Used once to start the render and never stored on our side. This
+            tab remembers it until you close it.
+          </>
+        }
+      />
+    </>
+  );
+}
