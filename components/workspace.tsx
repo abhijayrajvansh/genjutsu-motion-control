@@ -246,24 +246,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
       <main className="main-content">
         {section === "generations" ? (
           <div className="dashboard">
-            <div className="retention-notice">
-              <strong>Download the videos you want to keep.</strong>{" "}
-              <span>
-                Kie uploads are temporary, and result links can expire. Real job
-                records are saved on this computer. Your Kie renders also appear
-                in{" "}
-                <a href="https://kie.ai/logs" target="_blank" rel="noreferrer">
-                  kie.ai/logs
-                </a>
-                .
-              </span>
-            </div>
-            {demo && (
-              <div className="demo-notice" role="status">
-                Demo mode · Previews use your original uploads. No AI rendering
-                or external requests.
-              </div>
-            )}
             <div className="workspace-grid">
               <section className="controls-column">
                 <div
