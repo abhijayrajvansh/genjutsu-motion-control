@@ -677,8 +677,15 @@ em {
   margin-bottom: 0;
 }
 .file-heading > .text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   flex-shrink: 0;
   line-height: 20px;
+  color: var(--error-text);
+}
+.file-heading > .text-button:hover {
+  color: var(--error-text);
 }
 .file-label small {
   font-weight: 400;

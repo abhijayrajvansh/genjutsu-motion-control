@@ -412,6 +412,9 @@ export function FilePicker({
         </div>
         {asset && (
           <button type="button" className="text-button" aria-label={`Remove ${label}`} onClick={() => onPick(null)}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6m4-6v6" />
+            </svg>
             Remove
           </button>
         )}
