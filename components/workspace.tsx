@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
 import { KieProvider } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
+import { ThemeToggle } from "./theme-toggle";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
   ImageForm,
@@ -12,16 +13,6 @@ import {
   ToolsForm,
   VideoForm,
 } from "./forms";
-const nav = [
-  ["deploy", "Deploy"],
-  ["automations", "Automations"],
-  ["course", "Courses"],
-];
-const characters = [
-  ["training", "Training"],
-  ["dataset-creation", "Dataset Creation"],
-  ["captions", "Caption Generator"],
-];
 const tabs = ["Motion Control", "Video Gen", "Images", "Tools"];
 export function Workspace({ section = "generations" }: { section?: string }) {
   return (
@@ -171,18 +162,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
   const props = { demo, credits, busy, onSubmit: submit };
   return (
     <>
-      <div className="cost-banner">
-        Always check your RunPod and Vast.ai containers and terminate them when
-        you’re done — they keep incurring charges until you stop them.
-      </div>
-      <div className="experimental-banner">
-        <span>This platform is experimental and under active development.</span>{" "}
-        Things change constantly. If something does not work, ask in{" "}
-        <a href="https://discord.gg/aiorbust" target="_blank" rel="noreferrer">
-          our Discord
-        </a>
-        .
-      </div>
       <header className="site-header" ref={root}>
         <div className="header-inner">
           <Link href="/generations" className="brand">
@@ -196,53 +175,9 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
             >
               Easy Generations
             </Link>
-            {nav.slice(0, 2).map(([url, label]) => (
-              <Link
-                href={`/${url}`}
-                key={url}
-                className={`premium-link ${section === url ? "active" : ""}`}
-              >
-                <span>Premium</span>
-                {label}
-              </Link>
-            ))}
-            <div className="nav-group">
-              <button
-                className="premium-link character"
-                aria-expanded={menu === "characters"}
-                onClick={() =>
-                  setMenu(menu === "characters" ? "" : "characters")
-                }
-              >
-                <span>Premium</span>Character Models <Chevron />
-              </button>
-              {menu === "characters" && (
-                <div className="dropdown">
-                  {characters.map(([url, label]) => (
-                    <Link
-                      href={`/${url}`}
-                      key={url}
-                      onClick={() => setMenu("")}
-                    >
-                      {label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Link href="/course" className="premium-link">
-              <span>Premium</span>Courses
-            </Link>
-            <a
-              className="plan-pill"
-              href="https://www.skool.com/aiorbust"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Free plan <em>Upgrade</em>
-            </a>
           </nav>
           <div className="header-end">
+            <ThemeToggle />
             <button
               className="mobile-toggle"
               aria-label="Menu"
@@ -297,7 +232,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
         </div>
         {menu === "mobile" && (
           <nav className="mobile-nav">
-            {[["generations", "Easy Generations"], ...nav, ...characters].map(
+            {[["generations", "Easy Generations"]].map(
               ([url, label]) => (
                 <Link href={`/${url}`} key={url}>
                   {label}
