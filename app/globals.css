@@ -1180,3 +1180,10 @@ body {
 .modal-heading > .button {
   flex-shrink: 0;
 }
+.choices label.choice-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.choices label.choice-disabled:hover {
+  border-color: #262626;
+}

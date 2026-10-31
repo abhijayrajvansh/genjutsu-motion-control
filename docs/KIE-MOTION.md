@@ -29,7 +29,7 @@ The included input video was trimmed from Kie's example to exactly 2.000 seconds
 | Seedance 2.5 | `bytedance/seedance-2-5` | 4–30 s | 2–30 s |
 | Kling 2.6 Motion Control | `kling-2.6/motion-control` | follows usable input, minimum 3 s | 3–30 s; 10 s max for image orientation |
 
-The first four models use reference-to-video generation guided by the editable prompt. Exact motion transfer quality is model-dependent; Kling is the dedicated motion-control endpoint. The original Aiorbust GPU model is not mapped to a different provider model under the same name. First-frame-plus-reference is not exposed because the current reference endpoints do not support that exact combination. No Gemini/xAI prompt-writing integration is claimed.
+The first four models use reference-to-video generation guided by the editable prompt. Exact motion transfer quality is model-dependent; Kling is the dedicated motion-control endpoint. The original Aiorbust GPU model is not mapped to a different provider model under the same name. Both original UI modes are exposed. **Reference image + video** uses identity images with the driving video. **First frame + reference** additionally requires a corrected opening image and sends references in the fixed order: identity, corrected opening, additional identity references. The server adds opening-frame instructions while retaining the driving video. This is prompt-guided reference generation, not a pixel-exact locked first-frame parameter. No `first_frame_url` is combined with `reference_video_urls`. Kling accepts only one image, so the two-image mode is disabled for Kling and rejected server-side. No Gemini/xAI prompt-writing integration is claimed.
 
 FFmpeg/ffprobe must be installed and on the server's PATH. Files are decoded locally before upload; MIME types, sizes, dimensions, aspect ratios, durations, codecs and relevant frame-rate limits are checked. Output settings are restricted per model. H3 always generates audio and bills reference-video duration in addition to output duration. Seedance's audio switch controls newly generated audio, not copying the original soundtrack.
 
@@ -57,3 +57,10 @@ No callback URL is needed for this local preview: task status is polled every si
 ## Verification boundary
 
 TypeScript, ESLint, production build, model payload/parameter checks, local API guards, metadata recovery and browser trial preparation can be verified without a valid key. A real paid render, provider acceptance of uploaded media, and the generated video's quality must still be verified after the user configures their funded Kie key. Mocked responses are never treated as proof of a live successful generation.
+
+
+## Two-mode workflow verification
+
+The selected mode persists in localStorage and is shown on new history records. Existing records without a mode remain compatible and display as Reference image + video. Prompt drafts are kept separately per model and mode during the page session. The First frame slot uses the same upload library and preview dialog as other images. Missing frames, unsupported modes, invalid dimensions and excess image counts are rejected before any paid request. Trial loading always resets to Reference image + video.
+
+Validated model request shapes for both modes, correct reference ordering, mandatory opening-frame prompt instructions, Kling rejection, and omission of incompatible strict-first-frame API fields. Exercised the live local multipart API with missing/invalid opening images and valid public sample media; only the free authentication check was reached with a dummy key. Browser checks confirmed mode switching, draft restoration, persistence after reload, first-frame library selection and Kling's disabled mode. Production build, TypeScript and ESLint passed. A funded generation and actual first-frame adherence remain unverified until the user configures Kie.

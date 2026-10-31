@@ -6,6 +6,7 @@ import {
   motionModel,
   MOTION_MODELS,
   MotionJob,
+  MotionMode,
 } from "@/lib/motion-models";
 import {
   Button,
@@ -26,11 +27,31 @@ export function MotionWorkflow({
     model = motionModel(
       MOTION_MODELS.some((m) => m.id === saved) ? saved : "wan",
     );
+  const [savedMode, setSavedMode] = useSaved(
+    "clone.motion.kie-mode",
+    "reference",
+  );
+  const mode: MotionMode =
+    savedMode === "first-frame" && model.maxImages > 1
+      ? "first-frame"
+      : "reference";
+  const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
+  const promptKey = `${model.id}:${mode}`;
+  const prompt = promptDrafts[promptKey] ?? defaultMotionPrompt(model.id, mode);
+  function setPrompt(value: string) {
+    setPromptDrafts((drafts) => ({ ...drafts, [promptKey]: value }));
+  }
+  function changeMode(value: string) {
+    setSavedMode(value);
+    setError("");
+    setStage("");
+    setExtras([]);
+  }
+  const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
   const [resolution, setResolution] = useState("480p"),
     [seconds, setSeconds] = useState(2),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
-    [prompt, setPrompt] = useState(defaultMotionPrompt("wan")),
     [image, setImage] = useState<Asset | null>(null),
     [video, setVideo] = useState<Asset | null>(initialVideo ?? null),
     [extras, setExtras] = useState<(Asset | null)[]>([]),
@@ -54,7 +75,7 @@ export function MotionWorkflow({
     setSaved(id);
     setResolution(next.resolutions[0]);
     setSeconds(next.minSeconds);
-    setPrompt(defaultMotionPrompt(id));
+    if (id === "kling") setSavedMode("reference");
     setExtras([]);
     setError("");
   }
@@ -81,6 +102,8 @@ export function MotionWorkflow({
       }));
       for (const a of assets) await saveRecord("assets", a);
       changeModel("wan");
+      setSavedMode("reference");
+      setFirstFrame(null);
       setImage(assets[0]);
       setVideo(assets[1]);
       setStage(
@@ -104,6 +127,10 @@ export function MotionWorkflow({
       setError("Add a reference image and a driving video.");
       return;
     }
+    if (mode === "first-frame" && !firstFrame) {
+      setError("Add the corrected first frame for this mode.");
+      return;
+    }
     if (extras.some((x) => !x)) {
       setError("Fill or remove every extra reference image.");
       return;
@@ -118,6 +145,9 @@ export function MotionWorkflow({
     const body = new FormData();
     body.set("id", id);
     body.set("model", model.id);
+    body.set("mode", mode);
+    if (mode === "first-frame" && firstFrame)
+      body.set("firstFrame", firstFrame.blob, firstFrame.name);
     body.set("prompt", prompt);
     body.set("seconds", String(duration));
     body.set("resolution", selectedResolution);
@@ -216,17 +246,59 @@ export function MotionWorkflow({
           </small>
         </label>
       )}
+      <Choices
+        label="Mode"
+        value={mode}
+        onChange={changeMode}
+        options={[
+          {
+            value: "reference",
+            label: "Reference image + video",
+            hint: "The person comes from your image. Garments, camera, scene and timing come from the video.",
+          },
+          {
+            value: "first-frame",
+            label: "First frame + reference",
+            hint:
+              model.id === "kling"
+                ? "Needs two images. Choose Wan, Official H3 or Seedance to use this mode."
+                : "Supply an already-corrected opening frame and a separate identity image. The clip is guided to continue from the opening.",
+            disabled: model.id === "kling",
+          },
+        ]}
+      />
+      {mode === "first-frame" && (
+        <div className="trial-panel">
+          <small>
+            The opening frame is a visual guide. These Kie reference-video
+            endpoints do not guarantee a pixel-exact first frame.
+          </small>
+        </div>
+      )}
       <FilePicker
-        label="Reference image"
+        label={
+          mode === "first-frame"
+            ? "Reference image (identity)"
+            : "Reference image"
+        }
         hint={`${model.id === "kling" ? "PNG or JPEG" : "PNG, JPEG or WebP"} · up to ${model.imageMB} MB`}
         accept={model.id === "kling" ? "image/png,image/jpeg" : IMAGE_TYPES}
         asset={image}
         onPick={setImage}
       />
+      {mode === "first-frame" && (
+        <FilePicker
+          label="First frame"
+          hint={`Already corrected · required · up to ${model.imageMB} MB`}
+          accept={IMAGE_TYPES}
+          asset={firstFrame}
+          onPick={setFirstFrame}
+        />
+      )}
       {extras.map((a, i) => (
         <div key={i}>
           <FilePicker
-            label={`Reference image ${i + 2}`}
+            label={`Reference image ${i + (mode === "first-frame" ? 3 : 2)}`}
             asset={a}
             onPick={(v) =>
               setExtras((xs) => xs.map((x, k) => (i === k ? v : x)))
@@ -241,7 +313,7 @@ export function MotionWorkflow({
           </button>
         </div>
       ))}
-      {extras.length < model.maxImages - 1 && (
+      {extras.length < model.maxImages - (mode === "first-frame" ? 2 : 1) && (
         <button
           type="button"
           className="text-button"
@@ -261,10 +333,13 @@ export function MotionWorkflow({
       <Prompt
         value={prompt}
         onChange={setPrompt}
+        maxLength={2000}
         hint={
-          model.id === "wan"
-            ? "Image1 is your character; Video1 is the movement reference. Adjust the prompt before rendering."
-            : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
+          mode === "first-frame"
+            ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
+            : model.id === "wan"
+              ? "Image1 is your character; Video1 is the movement reference. Adjust the prompt before rendering."
+              : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
         }
       />
       {!["h3", "kling"].includes(model.id) && (
@@ -305,7 +380,15 @@ export function MotionWorkflow({
           for this model. Results can take several minutes.
         </small>
       </div>
-      <Button disabled={busy || !kie.connected || !image || !video}>
+      <Button
+        disabled={
+          busy ||
+          !kie.connected ||
+          !image ||
+          !video ||
+          (mode === "first-frame" && !firstFrame)
+        }
+      >
         {busy
           ? "Uploading / submitting…"
           : `Generate${model.id === "kling" ? "" : ` ${duration}s video`}`}

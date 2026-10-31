@@ -3,7 +3,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Asset, records, saveRecord } from "@/lib/storage";
 export const IMAGE_TYPES = "image/png,image/jpeg,image/webp";
 export const VIDEO_TYPES = "video/mp4,video/quicktime,video/webm";
-export type Option = string | { value: string; label: string; hint?: string };
+export type Option =
+  | string
+  | { value: string; label: string; hint?: string; disabled?: boolean };
 export function useSaved(
   key: string,
   initial: string,
@@ -86,12 +88,16 @@ export function Choices({
         {options.map((o) => {
           const v = typeof o === "string" ? o : o.value;
           return (
-            <label key={v} className={value === v ? "selected" : ""}>
+            <label
+              key={v}
+              className={`${value === v ? "selected" : ""} ${typeof o !== "string" && o.disabled ? "choice-disabled" : ""}`}
+            >
               <span>
                 <input
                   type="radio"
                   name={id}
                   checked={value === v}
+                  disabled={typeof o !== "string" && o.disabled}
                   onChange={() => onChange(v)}
                 />
                 {typeof o === "string" ? o : o.label}
@@ -123,18 +129,20 @@ export function TextField({
 export function Prompt({
   value,
   onChange,
+  maxLength = 4000,
   hint = "Sent as you wrote it. Refer to your pictures in order — the first is @image1, the second @image2.",
 }: {
   value: string;
   onChange: (v: string) => void;
   hint?: string;
+  maxLength?: number;
 }) {
   return (
     <label className="field">
       <span>Prompt</span>
       <textarea
         rows={5}
-        maxLength={4000}
+        maxLength={maxLength}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

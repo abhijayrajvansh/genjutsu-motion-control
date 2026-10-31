@@ -168,7 +168,12 @@ function MotionCard({
           <strong>
             {job.label} · {job.seconds}s · {job.resolution}
           </strong>
-          <small>{new Date(job.created).toLocaleString()}</small>
+          <small>
+            {job.mode === "first-frame"
+              ? "First frame + reference"
+              : "Reference image + video"}{" "}
+            · {new Date(job.created).toLocaleString()}
+          </small>
         </div>
         <span
           className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}

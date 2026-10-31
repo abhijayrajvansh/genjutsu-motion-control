@@ -15,6 +15,8 @@ For a production preview: `npm run build`, then `npm start`.
 
 ## Real Motion Control with Kie
 
+Motion Control includes **Reference image + video** and **First frame + reference** modes. The latter uses an additional corrected opening image as a prompt-guided reference on supported models; a pixel-exact opening is not guaranteed. Kling supports the single-image mode only.
+
 Motion Control now has a real Kie integration: file uploads, provider task creation, polling, errors, result playback and MP4 downloads. Supports Wan 3, Official H3, Seedance 2.0/2.5 and Kling 2.6 Motion Control. Local real-job metadata persists in the ignored `.data/motion/` directory. The other tabs still use the original local demo behavior.
 
 Enter your key in **Motion Control → Kie API connection → Connect Kie**, or configure `KIE_API_KEY` in `.env.local` and restart the server. The key is never committed or written into job records. **Load 2-second trial** prepares a small Wan 3 render; generating it uses your real Kie credits.

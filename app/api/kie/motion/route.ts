@@ -63,6 +63,20 @@ export async function POST(req: Request) {
     if (!MOTION_MODELS.some((model) => model.id === requestedModel))
       throw new ApiError("Choose a supported Kie motion model.");
     const model = motionModel(requestedModel);
+    const mode = String(form.get("mode") ?? "reference");
+    if (mode !== "reference" && mode !== "first-frame")
+      throw new ApiError("Choose a supported motion mode.");
+    const firstFrame = form.get("firstFrame");
+    if (mode === "first-frame" && model.maxImages < 2)
+      throw new ApiError(
+        "Kling supports one image. Choose Wan, Official H3 or Seedance for First frame + reference.",
+      );
+    if (mode === "first-frame" && !(firstFrame instanceof File))
+      throw new ApiError("Add the corrected first frame for this mode.");
+    if (mode === "reference" && firstFrame)
+      throw new ApiError(
+        "Switch to First frame + reference to submit a first frame.",
+      );
     const prompt = String(form.get("prompt") || "").trim(),
       seconds = Number(form.get("seconds")),
       resolution = String(form.get("resolution") || "");
@@ -84,6 +98,11 @@ export async function POST(req: Request) {
     try {
       motionPayload({
         model: model.id,
+        mode,
+        firstFrameUrl:
+          mode === "first-frame"
+            ? "https://example.com/first-frame.png"
+            : undefined,
         prompt,
         seconds,
         resolution,
@@ -97,6 +116,8 @@ export async function POST(req: Request) {
         e instanceof Error ? e.message : "Invalid model parameters.",
       );
     }
+    if (mode === "first-frame" && firstFrame instanceof File)
+      await inspectFile(firstFrame, model.id, false);
     const media = await inspectFile(video, model.id, true);
     for (const image of images) await inspectFile(image, model.id, false);
     if (model.id === "wan" && media.duration + seconds > 30.04)
@@ -121,6 +142,7 @@ export async function POST(req: Request) {
       id,
       owner,
       model: model.id,
+      mode,
       label: model.label,
       prompt,
       seconds: model.id === "kling" ? media.duration : seconds,
@@ -153,25 +175,32 @@ export async function POST(req: Request) {
     }
     const imageUrls: string[] = [];
     for (const image of images) imageUrls.push(await upload(image));
+    const firstFrameUrl =
+      mode === "first-frame" && firstFrame instanceof File
+        ? await upload(firstFrame)
+        : undefined;
     const videoUrl = await upload(video);
     stored = { ...stored, state: "submitting", updated: Date.now() };
+    await updateJob(stored);
+    const payload = motionPayload({
+      model: model.id as MotionModelId,
+      mode,
+      firstFrameUrl,
+      prompt,
+      seconds,
+      resolution,
+      orientation,
+      audio,
+      imageUrls,
+      videoUrl,
+    });
+    stored = { ...stored, prompt: payload.input.prompt as string };
     await updateJob(stored);
     submitted = true;
     const task = await kie<{ taskId: string }>("/api/v1/jobs/createTask", key, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        motionPayload({
-          model: model.id as MotionModelId,
-          prompt,
-          seconds,
-          resolution,
-          orientation,
-          audio,
-          imageUrls,
-          videoUrl,
-        }),
-      ),
+      body: JSON.stringify(payload),
     });
     if (!task.taskId)
       throw new ApiError(

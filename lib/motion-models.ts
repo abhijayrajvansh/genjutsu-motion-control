@@ -95,7 +95,9 @@ export type MotionState =
   | "success"
   | "fail"
   | "submission_unknown";
+export type MotionMode = "reference" | "first-frame";
 export type MotionJob = {
+  mode?: MotionMode;
   needsRecovery?: boolean;
   id: string;
   model: MotionModelId;
@@ -116,7 +118,12 @@ export function motionModel(id: string) {
   if (!model) throw new Error("Choose a supported Kie motion model.");
   return model;
 }
-export function defaultMotionPrompt(id: string) {
+export function defaultMotionPrompt(
+  id: string,
+  mode: MotionMode = "reference",
+) {
+  if (mode === "first-frame")
+    return "Continue naturally from the corrected opening image, following the reference video's movement and timing. Keep the identity, clothing, background and camera framing consistent with the opening image.";
   return id === "wan"
     ? "Use the character from Image1 and reproduce the motion in Video1. Preserve the clothing, background, camera framing and timing from Video1. Keep the character identity from Image1 consistent. A single continuous shot, natural movement."
     : id === "kling"
@@ -125,6 +132,8 @@ export function defaultMotionPrompt(id: string) {
 }
 export type MotionInput = {
   model: MotionModelId;
+  mode?: MotionMode;
+  firstFrameUrl?: string;
   prompt: string;
   seconds: number;
   resolution: string;
@@ -149,14 +158,39 @@ export function motionPayload(o: MotionInput) {
     throw new Error("Invalid reference image count.");
   if (!o.prompt.trim() || o.prompt.length > 2500)
     throw new Error("Prompt must contain 1–2500 characters.");
+  const mode = o.mode ?? "reference";
+  if (mode !== "reference" && mode !== "first-frame")
+    throw new Error("Choose a supported motion mode.");
+  if (mode === "first-frame" && m.maxImages < 2)
+    throw new Error(
+      "Kling accepts one reference image. Choose Wan 3, Official H3 or Seedance for First frame + reference.",
+    );
+  if (mode === "first-frame" && !o.firstFrameUrl)
+    throw new Error("Add the corrected first frame for this mode.");
+  if (mode === "reference" && o.firstFrameUrl)
+    throw new Error("A first frame belongs to First frame + reference mode.");
+  const imageUrls =
+    mode === "first-frame"
+      ? [o.imageUrls[0], o.firstFrameUrl!, ...o.imageUrls.slice(1)]
+      : o.imageUrls;
+  if (imageUrls.length > m.maxImages)
+    throw new Error(
+      `This mode accepts ${m.maxImages} total images, including the first frame.`,
+    );
+  const directive =
+    o.model === "wan"
+      ? "Image1 supplies the character identity. Image2 is the already-corrected opening frame. Begin the shot matching Image2's composition, pose, clothing and background, then continue using the motion and timing from Video1. Keep the identity from Image1 consistent."
+      : "Reference image 1 supplies the character identity. Reference image 2 is the already-corrected opening frame. Begin the shot matching reference image 2's composition, pose, clothing and background, then continue using the motion and timing from the reference video. Keep the identity from reference image 1 consistent.";
+  const prompt =
+    mode === "first-frame" ? `${directive}\n\n${o.prompt}` : o.prompt;
   const refs = {
-    reference_image_urls: o.imageUrls,
+    reference_image_urls: imageUrls,
     reference_video_urls: [o.videoUrl],
   };
   let input: Record<string, unknown>;
   if (o.model === "kling")
     input = {
-      prompt: o.prompt,
+      prompt,
       input_urls: o.imageUrls,
       video_urls: [o.videoUrl],
       mode: o.resolution,
@@ -164,7 +198,7 @@ export function motionPayload(o: MotionInput) {
     };
   else if (o.model === "h3")
     input = {
-      prompt: o.prompt,
+      prompt,
       ...refs,
       duration: o.seconds,
       resolution: o.resolution,
@@ -172,7 +206,7 @@ export function motionPayload(o: MotionInput) {
     };
   else if (o.model === "wan")
     input = {
-      prompt: o.prompt,
+      prompt,
       ...refs,
       duration: o.seconds,
       resolution: o.resolution.toUpperCase(),
@@ -181,7 +215,7 @@ export function motionPayload(o: MotionInput) {
     };
   else
     input = {
-      prompt: o.prompt,
+      prompt,
       ...refs,
       duration: o.seconds,
       resolution: o.resolution,
