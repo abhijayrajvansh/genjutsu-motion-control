@@ -52,29 +52,102 @@ export function Select({
   onChange: (v: string) => void;
   hint?: React.ReactNode;
 }) {
+  const id = useId();
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLDivElement>(null);
+  const search = useRef({ text: "", time: 0 });
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const items = options.map((option) => typeof option === "string" ? { value: option, label: option, disabled: false } : option);
+  const selected = items.findIndex((option) => option.value === value);
+  const enabled = items.map((option, index) => option.disabled ? -1 : index).filter((index) => index >= 0);
+  useEffect(() => {
+    if (!open) return;
+    function outside(event: PointerEvent) {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [open]);
+  useEffect(() => {
+    if (open) list.current?.querySelector('[data-highlighted="true"]')?.scrollIntoView({ block: "nearest" });
+  }, [open, active]);
+  function show() {
+    setActive(enabled.includes(selected) ? selected : (enabled[0] ?? 0));
+    setOpen(true);
+  }
+  function choose(index: number) {
+    if (!items[index] || items[index].disabled) return;
+    onChange(items[index].value);
+    setOpen(false);
+    trigger.current?.focus();
+  }
+  function keyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "Tab") { setOpen(false); return; }
+    if (event.key === "Escape") { event.preventDefault(); setOpen(false); return; }
+    if (["Enter", " "].includes(event.key)) {
+      event.preventDefault();
+      if (open) choose(active); else show();
+      return;
+    }
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault();
+      if (!open) { show(); return; }
+      const position = enabled.indexOf(active);
+      const next = event.key === "Home" ? enabled[0] : event.key === "End" ? enabled.at(-1) : enabled[(position + (event.key === "ArrowDown" ? 1 : -1) + enabled.length) % enabled.length];
+      if (next !== undefined) setActive(next);
+      return;
+    }
+    if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      event.preventDefault();
+      const now = Date.now();
+      search.current = { text: now - search.current.time < 700 ? search.current.text + event.key : event.key, time: now };
+      const match = enabled.find((index) => items[index].label.toLowerCase().startsWith(search.current.text.toLowerCase()));
+      if (!open) show();
+      if (match !== undefined) setActive(match);
+    }
+  }
   return (
-    <label className="field">
-      <span>{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
-        {options.map((o) => {
-          const v = typeof o === "string" ? o : o.value;
-          return (
-            <option key={v} value={v}>
-              {typeof o === "string" ? o : o.label}
-            </option>
-          );
-        })}
-      </select>
-      {hint && <small>{hint}</small>}
-    </label>
+    <div className="field" ref={root} onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false);
+    }}>
+      <span id={`${id}-label`}>{label}</span>
+      <div className="select-control">
+        <button type="button" className="select-trigger" role="combobox" ref={trigger}
+          aria-labelledby={`${id}-label`} aria-haspopup="listbox" aria-expanded={open}
+          aria-controls={`${id}-list`} aria-activedescendant={open ? `${id}-option-${active}` : undefined}
+          aria-describedby={hint ? `${id}-hint` : undefined}
+          onClick={() => open ? setOpen(false) : show()} onKeyDown={keyDown}>
+          <span>{items[selected]?.label ?? value}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+        {open && (
+          <div className="select-menu" id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`} ref={list}>
+            {items.map((option, index) => (
+              <div key={option.value} id={`${id}-option-${index}`} role="option" aria-selected={option.value === value}
+                aria-disabled={option.disabled || undefined} data-highlighted={index === active}
+                onPointerDown={(event) => event.preventDefault()}
+                onMouseEnter={() => { if (!option.disabled) setActive(index); }} onClick={() => choose(index)}>
+                <span>{option.label}</span><span aria-hidden="true">{option.value === value ? "✓" : ""}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {hint && <small id={`${id}-hint`}>{hint}</small>}
+    </div>
   );
 }
+
 export function Choices({
+  className = "",
   label,
   options,
   value,
   onChange,
 }: {
+  className?: string;
   label: string;
   options: Option[];
   value: string;
@@ -82,7 +155,7 @@ export function Choices({
 }) {
   const id = useId();
   return (
-    <fieldset className="choices">
+    <fieldset className={`choices ${className}`}>
       <legend>{label}</legend>
       <div>
         {options.map((o) => {

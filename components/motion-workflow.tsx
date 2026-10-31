@@ -248,7 +248,8 @@ export function MotionWorkflow({
           Load 2-second trial
         </Button>
       </div>
-      <Select
+      <Choices
+        className="resolution-choices"
         label="Resolution"
         options={[...model.resolutions]}
         value={selectedResolution}
