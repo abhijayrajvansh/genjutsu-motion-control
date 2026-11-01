@@ -1486,6 +1486,17 @@ body {
 .motion-input-grid .drop-zone video {
   max-height: 120px;
 }
+.motion-image-input > .file-picker:first-child .drop-zone.has-file {
+  min-height: 256px;
+}
+.motion-image-input > .file-picker:first-child .drop-zone img {
+  height: 240px;
+  max-height: 240px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  background: #000;
+}
 .clip-editor {
   display: flex;
   flex-direction: column;
