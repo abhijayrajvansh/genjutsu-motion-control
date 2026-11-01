@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
+import { formatCredits, formatMotionCredits } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
@@ -253,9 +253,9 @@ function MotionCard({
         )}
         <small className="real-label">
           {job.creditsConsumed !== undefined && !pending.includes(job.state)
-            ? `${name} cost: ${job.provider === "apimart" ? `${formatCredits(job.creditsConsumed)} credits` : formatMotionAmount(job.creditsConsumed)}`
+            ? `Cost: ${formatCredits(job.creditsConsumed)} ${name} credits`
             : job.estimatedCredits !== undefined
-              ? `${name} cost: ~${formatMotionAmount(job.estimatedCredits, job.estimatedCurrency)} (estimated)`
+              ? `Cost: ~${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency)} (estimated)`
               : `${name} cost: unavailable`}
         </small>
       </div>
