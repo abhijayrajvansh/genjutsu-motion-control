@@ -179,10 +179,18 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     video.current.currentTime = next;
     setCursor(next);
   }
-  function updateStart(start: number) {
+  function moveWindow(start: number) {
     const next = videoSelection(sourceSeconds, minimum, maximum, { start, end: start + length });
     onChange(next);
     seek(next.start);
+  }
+  function updateStart(start: number) {
+    const end = selection.end;
+    const maxLength = Math.min(maximum, Math.floor(end + 0.000001), Math.floor(sourceSeconds + 0.000001));
+    const seconds = Math.max(minimum, Math.min(Math.max(maxLength, minimum), Math.round(end - start)));
+    const nextStart = Math.max(0, end - seconds);
+    onChange({ start: nextStart, end: nextStart + seconds });
+    seek(nextStart);
   }
   function updateEnd(end: number) {
     const next = videoSelection(sourceSeconds, minimum, maximum, { start: selection.start, end });
@@ -207,7 +215,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
       const at = timeAt(pointer.clientX);
       if (mode === "start") updateStart(at);
       else if (mode === "end") updateEnd(at);
-      else if (mode === "move" && moved) updateStart(originStart + at - timeAt(originX));
+      else if (mode === "move" && moved) moveWindow(originStart + at - timeAt(originX));
       else if (mode === "seek") seek(at);
     };
     const stop = (pointer: PointerEvent) => {
@@ -297,7 +305,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
             onKeyDown={(event) => {
               if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
               event.preventDefault();
-              updateStart(selection.start + (event.key === "ArrowLeft" ? -0.1 : 0.1));
+              updateStart(selection.start + (event.key === "ArrowLeft" ? -1 : 1));
             }}
           />
           <button
@@ -330,7 +338,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
           </label>
         </div>
       </div>
-      {!compact && <small>Choose {minimum}–{maximum}s. Drag the cyan handle to move the clip, the lime handle to change its length. Length snaps to whole seconds. Only this selection is sent to Kie.</small>}
+      {!compact && <small>Choose {minimum}–{maximum}s. Drag the cyan handle to move the start, and the lime handle to move the end. Drag inside the selection to slide the whole clip. Length snaps to whole seconds. Only this selection is sent to Kie.</small>}
       {compact && <small className="clip-selection-summary">{timecode(selection.start)} → {timecode(selection.end)} · Output: {displayLength}s</small>}
       {error && <p className="error" role="alert">{error}</p>}
     </section>
