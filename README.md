@@ -62,3 +62,24 @@ Select **APIMart** in the header and connect an APIMart API key. APIMart is enab
 For media uploads, copy `.env.example` to `.env.local` and set `CLOUDINARY_URL` from Cloudinary Console → API Keys. You can instead set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` with no `CLOUDINARY_URL`. Restart the app after changing server configuration. Keep secrets server-only; never prefix them with `NEXT_PUBLIC_`. You may optionally set `APIMART_API_KEY` on the server instead of entering it in the header.
 
 See [APIMart setup, pricing and verification](docs/APIMART-MOTION.md). Live Cloudinary uploads and a funded APIMart render require configured credentials.
+
+## MiniMax H3 on a Vast.ai RTX 5090
+
+[setup-h3-vast.sh](setup-h3-vast.sh) installs the extracted RunComfy H3 + SAM3 character-swap workflow into a separate directory on a Linux RTX 5090 32GB rental. Choose an SSH-enabled Ubuntu 22.04/24.04 image with NVIDIA driver 580+, preferably 96–128GB RAM and 150–200GB persistent disk. The script does not rent an instance or manage billing.
+
+Copy the script to the rental, or clone this repository there, then run:
+
+```bash
+bash setup-h3-vast.sh plan       # No downloads or changes; works on your laptop too.
+bash setup-h3-vast.sh install    # Run on the rental; ~44GB of required model weights.
+tmux new -s h3                  # Keeps the server running if SSH disconnects.
+bash setup-h3-vast.sh start
+# In another rental SSH terminal, after the server starts:
+bash setup-h3-vast.sh check
+```
+
+From your laptop, forward the port using the SSH host/port provided by Vast.ai: `ssh -p SSH_PORT -L 8188:127.0.0.1:8188 root@SSH_HOST`. Open http://127.0.0.1:8188 and select **h3-5090-0.5mp.workflow.json** in the Workflows sidebar. Upload your character image and driving video, update the prompt, and inspect the SAM3 mask before rendering. The preset changes only resolution to 0.5MP, retaining the original 124-frame, 24fps, Normal-mode setup. The original workflow is also installed unchanged.
+
+The installer pins ComfyUI/custom nodes and PyTorch CUDA 13.0, verifies model SHA-256 checksums, resumes interrupted downloads, and preserves existing workflow edits on reruns. It uses `/workspace/minimax-h3` by default; pass the same `--root /your/persistent/path` to each command to change it. Inputs, outputs and ComfyUI settings stay under that directory. `--with-turbo` adds the optional LoRA without enabling Turbo mode. No provider API key is required; this is a standalone ComfyUI deployment, separate from the web app's provider selector.
+
+Use `--help` for all options and rental notes. The server binds to localhost by default; `--listen 0.0.0.0` exposes an unauthenticated ComfyUI server, so use SSH forwarding unless you have an authenticated proxy. Check the [official H3 license terms](https://docs.comfy.org/tutorials/video/minimax/minimax-h3) for commercial use. The exact workflow still needs its first render on the target GPU; local syntax and repository checks do not establish runtime memory/performance.
