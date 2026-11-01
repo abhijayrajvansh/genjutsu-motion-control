@@ -290,7 +290,6 @@ export function MotionWorkflow({
         body,
       });
       setStage("");
-      if (seed.trim() === "") setPlannedSeed(randomSeed());
       kie.changed();
     } catch (e) {
       setError(
@@ -496,7 +495,20 @@ export function MotionWorkflow({
       {model.id === "wan" && (
         <>
           <label className="field">
-            Seed
+            <span className="seed-row">
+              Seed
+              <button
+                type="button"
+                className="text-button"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setSeed("");
+                  setPlannedSeed(randomSeed());
+                }}
+              >
+                Randomize
+              </button>
+            </span>
             <input
               type="number"
               min={0}

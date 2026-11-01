@@ -590,6 +590,16 @@ em {
 .field > span {
   font-weight: 500;
 }
+.seed-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.seed-row .text-button {
+  font-size: 12px;
+  font-weight: 500;
+}
 .select-control {
   position: relative;
 }
