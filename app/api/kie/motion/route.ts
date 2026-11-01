@@ -199,7 +199,7 @@ export async function POST(req: Request) {
       mode,
       label: model.label,
       selection: prepared.selection,
-      previewImage: await videoPoster(prepared.file),
+      previewImage: await videoPoster(images[0]),
       previewAttempted: true,
       preserveInputAudio,
       prompt,
