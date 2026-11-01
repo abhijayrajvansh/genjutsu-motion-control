@@ -53,7 +53,7 @@ export function MotionWorkflow({
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
-    [seed, setSeed] = useState(0),
+    [seed, setSeed] = useState(""),
     [nsfwChecker, setNsfwChecker] = useState(false),
     [preserveInputAudio, setPreserveInputAudio] = useState(true),
     [image, setImage] = useState<Asset | null>(null),
@@ -412,9 +412,10 @@ export function MotionWorkflow({
               max={2147483647}
               step={1}
               value={seed}
-              onChange={(event) => setSeed(Math.max(0, Math.min(2147483647, Math.trunc(Number(event.target.value) || 0))))}
+              placeholder="Random"
+              onChange={(event) => setSeed(event.target.value)}
             />
-            <small>0 asks Kie for a random seed. Any other whole number repeats that result.</small>
+            <small>Leave empty for a new random result. Enter a whole number from 0 to 2147483647 to repeat that exact seed.</small>
           </label>
           <label className="check">
             <input

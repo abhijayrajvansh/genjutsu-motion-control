@@ -213,8 +213,10 @@ export function motionPayload(o: MotionInput) {
       aspect_ratio: "adaptive",
     };
   else if (o.model === "wan") {
-    const seed = o.seed ?? 0;
-    if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647)
+    if (
+      o.seed !== undefined &&
+      (!Number.isInteger(o.seed) || o.seed < 0 || o.seed > 2147483647)
+    )
       throw new Error("Seed must be a whole number from 0 to 2147483647.");
     input = {
       prompt,
@@ -223,7 +225,7 @@ export function motionPayload(o: MotionInput) {
       resolution: o.resolution.toUpperCase(),
       audio: o.audio,
       aspect_ratio: "adaptive",
-      seed,
+      ...(o.seed === undefined ? {} : { seed: o.seed }),
       nsfw_checker: o.nsfwChecker === true,
     };
   }

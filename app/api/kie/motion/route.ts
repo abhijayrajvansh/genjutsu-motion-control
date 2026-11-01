@@ -98,7 +98,8 @@ export async function POST(req: Request) {
     const orientation = form.get("orientation") === "image" ? "image" : "video",
       preserveInputAudio = form.get("preserveInputAudio") === "true",
       audio = !preserveInputAudio && form.get("audio") === "true",
-      seed = Number(form.get("seed") ?? 0),
+      seedRaw = String(form.get("seed") ?? "").trim(),
+      seed = seedRaw === "" ? undefined : Number(seedRaw),
       nsfwChecker = form.get("nsfwChecker") === "true";
     const images = form
         .getAll("images")
