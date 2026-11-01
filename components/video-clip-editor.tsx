@@ -66,6 +66,10 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   const [url, setUrl] = useState("");
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [clipMode, setClipMode] = useState<"full" | "trim">(() => {
+    const full = videoSelection(sourceSeconds, minimum, maximum);
+    return Math.abs(full.start - selection.start) < 0.001 && Math.abs(full.end - selection.end) < 0.001 ? "full" : "trim";
+  });
   const [error, setError] = useState("");
   const [frames, setFrames] = useState<string[]>([]);
   const [peaks, setPeaks] = useState<number[]>([]);
@@ -200,6 +204,10 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     onChange(next);
     seek(Math.max(next.start, next.end - 1 / 30));
   }
+  function chooseClipMode(next: "full" | "trim") {
+    setClipMode(next);
+    if (next === "full") onChange(videoSelection(sourceSeconds, minimum, maximum));
+  }
   function timeAt(clientX: number) {
     const rect = track.current?.getBoundingClientRect();
     if (!rect || rect.width <= 0) return 0;
@@ -291,9 +299,19 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
         <span className="clip-length">{displayLength}s selected</span>
       </div>}
       {previewContainer ? createPortal(preview, previewContainer) : preview}
-      <div className="clip-board">
+      <div className="clip-board" data-mode={clipMode}>
         <div className="clip-board-head">
-          <span>Trim</span>
+          <fieldset className="clip-mode">
+            <legend>Driving video length</legend>
+            <label>
+              <input type="radio" name={`clip-mode-${asset.id}`} value="full" checked={clipMode === "full"} disabled={disabled} onChange={() => chooseClipMode("full")} />
+              Use full video
+            </label>
+            <label>
+              <input type="radio" name={`clip-mode-${asset.id}`} value="trim" checked={clipMode === "trim"} disabled={disabled} onChange={() => chooseClipMode("trim")} />
+              Trim
+            </label>
+          </fieldset>
           {!compact && <button type="button" className="clip-play" disabled={locked} onClick={playSelection}>{playing ? "Pause" : "Play"}</button>}
           <output aria-label="Video playhead">{timecode(cursor)} <span>/ {timecode(sourceSeconds)}</span></output>
         </div>
@@ -308,7 +326,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
             const startX = startRatio * rect.width;
             const endX = endRatio * rect.width;
             const inside = x > startX + 10 && x < endX - 10;
-            beginDrag(inside ? "move" : "seek", event);
+            beginDrag(clipMode === "full" || !inside ? "seek" : "move", event);
           }}
         >
           <div className="clip-frames" aria-hidden="true">
@@ -326,7 +344,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
             className="clip-handle clip-handle-in"
             style={{ left: `${startRatio * 100}%` }}
             aria-label="Trim in"
-            disabled={locked}
+            disabled={locked || clipMode === "full"}
             onPointerDown={(event) => beginDrag("start", event)}
             onKeyDown={(event) => {
               if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -339,7 +357,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
             className="clip-handle clip-handle-out"
             style={{ left: `${endRatio * 100}%` }}
             aria-label="Trim out"
-            disabled={locked}
+            disabled={locked || clipMode === "full"}
             onPointerDown={(event) => beginDrag("end", event)}
             onKeyDown={(event) => {
               if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -354,13 +372,13 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
           <label>
             <span>In</span>
             <input type="number" aria-label="Clip start time" step={0.01} min={0} max={Math.max(0, sourceSeconds - length)} value={Number(selection.start.toFixed(2))}
-              disabled={locked} onChange={(event) => { if (event.target.value !== "") updateStart(Number(event.target.value)); }} />
+              disabled={locked || clipMode === "full"} onChange={(event) => { if (event.target.value !== "") updateStart(Number(event.target.value)); }} />
           </label>
           <strong>{displayLength}s</strong>
           <label>
             <span>Out</span>
             <input type="number" aria-label="Clip end time" step={0.01} min={selection.start + minimum} max={Math.min(sourceSeconds, selection.start + maximum)} value={Number(selection.end.toFixed(2))}
-              disabled={locked} onChange={(event) => { if (event.target.value !== "") updateEnd(Number(event.target.value)); }} />
+              disabled={locked || clipMode === "full"} onChange={(event) => { if (event.target.value !== "") updateEnd(Number(event.target.value)); }} />
           </label>
         </div>
       </div>
