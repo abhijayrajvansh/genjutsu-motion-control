@@ -348,6 +348,7 @@ export function FilePicker({
   onPreview,
   previewLabel,
   previewDisabled = false,
+  hideActions = false,
 }: {
   label: string;
   hint?: string;
@@ -360,6 +361,7 @@ export function FilePicker({
   onPreview?: () => void;
   previewLabel?: string;
   previewDisabled?: boolean;
+  hideActions?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [previewing, setPreviewing] = useState(false),
@@ -460,7 +462,7 @@ export function FilePicker({
           "Drop a file here, or click to choose"
         )}
       </button>}
-      {asset && (
+      {asset && !hideActions && (
         <div className="file-actions">
           <Button type="button" secondary disabled={previewDisabled} onClick={() => onPreview ? onPreview() : setPreviewing(true)}>
             {previewLabel ?? (asset.type.startsWith("video/")

@@ -18,7 +18,7 @@ import {
 } from "./controls";
 import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
-import { VideoClipControls, VideoClipEditor } from "./video-clip-editor";
+import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
 function randomSeed() {
@@ -72,8 +72,6 @@ export function MotionWorkflow({
     setExtras([]);
   }
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
-  const clipControls = useRef<VideoClipControls>(null);
-  const [clipPlaying, setClipPlaying] = useState(false);
   const [previewHost, setPreviewHost] = useState<HTMLDivElement | null>(null);
   const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection } | null>(null);
   const [resolution, setResolution] = useState("480p"),
@@ -134,7 +132,6 @@ export function MotionWorkflow({
     writeMotionInputs({ imageId: asset?.id ?? null });
   }
   function chooseVideo(asset: Asset | null) {
-    setClipPlaying(false);
     setVideo(asset);
     writeMotionInputs({ videoId: asset?.id ?? null, ...(asset ? {} : { clip: null }) });
   }
@@ -383,6 +380,7 @@ export function MotionWorkflow({
             accept={model.id === "kling" ? "image/png,image/jpeg" : IMAGE_TYPES}
             asset={image}
             onPick={chooseImage}
+            hideActions
           />
           {mode === "first-frame" && (
             <FilePicker
@@ -429,15 +427,12 @@ export function MotionWorkflow({
             asset={video}
             onPick={chooseVideo}
             loadedContent={video && clip && sourceSeconds > 0 ? <div ref={setPreviewHost} className="driving-preview-host" /> : undefined}
-            onPreview={clip ? () => clipControls.current?.togglePlayback() : undefined}
-            previewLabel={clipPlaying ? "Pause video" : "Play video"}
-            previewDisabled={busy || (!!clip && sourceSeconds < minimumClip)}
+            hideActions
           />
         </div>
         {video && clip && sourceSeconds > 0 && previewHost && (
           <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
-            minimum={minimumClip} maximum={maximumClip} disabled={busy} compact playbackRef={clipControls}
-            onPlaybackChange={setClipPlaying} previewContainer={previewHost}
+            minimum={minimumClip} maximum={maximumClip} disabled={busy} compact previewContainer={previewHost}
             onChange={(selection) => {
               const next = { assetId: video.id, selection };
               setClipDraft(next);

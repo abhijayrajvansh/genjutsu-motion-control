@@ -1566,6 +1566,10 @@ body {
   border: 0;
   background: transparent;
 }
+.clip-play-toggle {
+  width: 100%;
+  margin-top: 4px;
+}
 .clip-editor-inline > small,
 .clip-selection-summary {
   font-size: 10px;
