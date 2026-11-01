@@ -1,6 +1,6 @@
 "use client";
-import { useRef, useState } from "react";
-import { Asset, saveRecord } from "@/lib/storage";
+import { useEffect, useRef, useState } from "react";
+import { Asset, records, saveRecord } from "@/lib/storage";
 import {
   defaultMotionPrompt,
   motionModel,
@@ -21,6 +21,25 @@ import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipControls, VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
+const MOTION_INPUTS_KEY = "clone.motion.inputs";
+type SavedMotionInputs = {
+  imageId?: string | null;
+  videoId?: string | null;
+  firstFrameId?: string | null;
+  extraIds?: (string | null)[];
+  clip?: { assetId: string; selection: VideoSelection } | null;
+};
+function readMotionInputs(): SavedMotionInputs {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(MOTION_INPUTS_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? (parsed as SavedMotionInputs) : {};
+  } catch {
+    return {};
+  }
+}
+function writeMotionInputs(patch: SavedMotionInputs) {
+  localStorage.setItem(MOTION_INPUTS_KEY, JSON.stringify({ ...readMotionInputs(), ...patch }));
+}
 export function MotionWorkflow({
   initialVideo,
 }: {
@@ -66,6 +85,49 @@ export function MotionWorkflow({
     [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false),
     kie = useKie();
+  useEffect(() => {
+    let live = true;
+    records<Asset>("assets")
+      .then((assets) => {
+        if (!live) return;
+        const hasSaved = localStorage.getItem(MOTION_INPUTS_KEY) !== null;
+        const saved = readMotionInputs();
+        const byId = new Map(assets.map((asset) => [asset.id, asset]));
+        const newest = (kind: "image/" | "video/") =>
+          assets
+            .filter((asset) => asset.type.startsWith(kind))
+            .sort((a, b) => b.created - a.created)[0] ?? null;
+        const imageAsset = hasSaved
+          ? saved.imageId ? byId.get(saved.imageId) ?? null : null
+          : newest("image/");
+        const videoAsset = initialVideo ?? (hasSaved
+          ? saved.videoId ? byId.get(saved.videoId) ?? null : null
+          : newest("video/"));
+        setImage(imageAsset);
+        if (!initialVideo) setVideo(videoAsset);
+        if (!hasSaved) writeMotionInputs({ imageId: imageAsset?.id ?? null, videoId: videoAsset?.id ?? null });
+        setFirstFrame(saved.firstFrameId ? byId.get(saved.firstFrameId) ?? null : null);
+        setExtras((saved.extraIds ?? []).map((id) => (id ? byId.get(id) ?? null : null)));
+        if (saved.clip) setClipDraft(saved.clip);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [initialVideo]);
+  function chooseImage(asset: Asset | null) {
+    setImage(asset);
+    writeMotionInputs({ imageId: asset?.id ?? null });
+  }
+  function chooseVideo(asset: Asset | null) {
+    setClipPlaying(false);
+    setVideo(asset);
+    writeMotionInputs({ videoId: asset?.id ?? null, ...(asset ? {} : { clip: null }) });
+  }
+  function chooseFirstFrame(asset: Asset | null) {
+    setFirstFrame(asset);
+    writeMotionInputs({ firstFrameId: asset?.id ?? null });
+  }
   const has480p = (model.resolutions as readonly string[]).includes("480p");
   const selectedResolution = has480p ? "480p" : (model.resolutions as readonly string[]).includes(
     resolution,
@@ -145,9 +207,10 @@ export function MotionWorkflow({
       changeModel("wan");
       setSavedMode("reference");
       setFirstFrame(null);
-      setImage(assets[0]);
-      setVideo(assets[1]);
+      chooseImage(assets[0]);
+      chooseVideo(assets[1]);
       setClipDraft(null);
+      writeMotionInputs({ clip: null });
       setAudio(false);
       setStage(
         "Trial ready: Wan 3 · 2 seconds · 480p · audio off. Connect Kie, then generate once.",
@@ -307,7 +370,7 @@ export function MotionWorkflow({
             }
             accept={model.id === "kling" ? "image/png,image/jpeg" : IMAGE_TYPES}
             asset={image}
-            onPick={setImage}
+            onPick={chooseImage}
           />
           {mode === "first-frame" && (
             <FilePicker
@@ -315,7 +378,7 @@ export function MotionWorkflow({
               hint={`Already corrected · required · up to ${model.imageMB} MB`}
               accept={IMAGE_TYPES}
               asset={firstFrame}
-              onPick={setFirstFrame}
+              onPick={chooseFirstFrame}
             />
           )}
           {extras.map((a, i) => (
@@ -324,13 +387,23 @@ export function MotionWorkflow({
                 label={`Reference image ${i + (mode === "first-frame" ? 3 : 2)}`}
                 asset={a}
                 onPick={(v) =>
-                  setExtras((xs) => xs.map((x, k) => (i === k ? v : x)))
+                  setExtras((xs) => {
+                    const next = xs.map((x, k) => (i === k ? v : x));
+                    writeMotionInputs({ extraIds: next.map((asset) => asset?.id ?? null) });
+                    return next;
+                  })
                 }
               />
               <button
                 type="button"
                 className="text-button"
-                onClick={() => setExtras((xs) => xs.filter((_, k) => k !== i))}
+                onClick={() =>
+                  setExtras((xs) => {
+                    const next = xs.filter((_, k) => k !== i);
+                    writeMotionInputs({ extraIds: next.map((asset) => asset?.id ?? null) });
+                    return next;
+                  })
+                }
               >
                 Remove reference
               </button>
@@ -342,12 +415,16 @@ export function MotionWorkflow({
             label="Driving video"
             accept="video/mp4,video/quicktime"
             asset={video}
-            onPick={(asset) => { setClipPlaying(false); setVideo(asset); }}
+            onPick={chooseVideo}
             loadedContent={video && clip && sourceSeconds > 0 ? (
               <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
                 minimum={minimumClip} maximum={maximumClip} disabled={busy} compact playbackRef={clipControls}
                 onPlaybackChange={setClipPlaying}
-                onChange={(selection) => setClipDraft({ assetId: video.id, selection })} />
+                onChange={(selection) => {
+                  const next = { assetId: video.id, selection };
+                  setClipDraft(next);
+                  writeMotionInputs({ clip: next });
+                }} />
             ) : undefined}
             onPreview={clip ? () => clipControls.current?.togglePlayback() : undefined}
             previewLabel={clipPlaying ? "Pause video" : "Play video"}
@@ -362,7 +439,13 @@ export function MotionWorkflow({
               type="button"
               className="text-button"
               disabled={busy}
-              onClick={() => setExtras((xs) => [...xs, null])}
+              onClick={() =>
+                setExtras((xs) => {
+                  const next = [...xs, null];
+                  writeMotionInputs({ extraIds: next.map((asset) => asset?.id ?? null) });
+                  return next;
+                })
+              }
             >
               + Add another reference image
             </button>
