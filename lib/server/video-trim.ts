@@ -81,13 +81,15 @@ export async function trimDrivingVideo(file: File, modelId: string, start: numbe
   const seconds = end - start;
   if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || seconds <= 0)
     throw new ApiError("Choose a valid start and end time.");
-  if (Math.abs(seconds - Math.round(seconds)) > 0.000001)
-    throw new ApiError("The selected segment must be a whole number of seconds.");
-  if (seconds < Math.max(model.minSeconds, model.minReference) || seconds > Math.min(model.maxSeconds, model.maxReference))
+  if (seconds < Math.max(model.minSeconds, model.minReference) || seconds > Math.min(model.maxSeconds, model.maxReference) + 0.000001)
     throw new ApiError("The selected segment is outside this model’s duration limits.");
   const source = await inspectFile(file, modelId, true, { sourceVideo: true });
   if (end > source.duration + 0.000001)
     throw new ApiError("The selected end time is beyond the source video.");
+  const wholeSeconds = Math.abs(seconds - Math.round(seconds)) <= 0.000001;
+  const reachesSourceEnd = Math.abs(end - source.duration) <= 0.04;
+  if (!wholeSeconds && !reachesSourceEnd)
+    throw new ApiError("The selected segment must be a whole number of seconds.");
   const directory = await mkdtemp(path.join(tmpdir(), "aiorbust-trim-"));
   try {
     const input = path.join(directory, "source");
@@ -96,7 +98,7 @@ export async function trimDrivingVideo(file: File, modelId: string, start: numbe
     try {
       await execute("ffmpeg", [
         "-hide_banner", "-loglevel", "error", "-nostdin", "-ss", String(start), "-i", input,
-        "-t", String(Math.round(seconds)), "-map", "0:v:0", "-map", "0:a:0?",
+        "-t", seconds.toFixed(3), "-map", "0:v:0", "-map", "0:a:0?",
         "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2,fps=30", "-c:v", "libx264",
         "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac",
         "-af", "apad", "-movflags", "+faststart", output,

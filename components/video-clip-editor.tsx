@@ -191,12 +191,9 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     seek(next.start);
   }
   function updateStart(start: number) {
-    const end = selection.end;
-    const maxLength = Math.min(maximum, Math.floor(end + 0.000001), Math.floor(sourceSeconds + 0.000001));
-    const seconds = Math.max(minimum, Math.min(Math.max(maxLength, minimum), Math.round(end - start)));
-    const nextStart = Math.max(0, end - seconds);
-    onChange({ start: nextStart, end: nextStart + seconds });
-    seek(nextStart);
+    const next = videoSelection(sourceSeconds, minimum, maximum, { start, end: selection.end });
+    onChange(next);
+    seek(next.start);
   }
   function updateEnd(end: number) {
     const next = videoSelection(sourceSeconds, minimum, maximum, { start: selection.start, end });
