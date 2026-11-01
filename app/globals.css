@@ -1149,8 +1149,14 @@ em {
 .job-meta-row .real-label {
   margin-top: 0;
   margin-left: auto;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  text-align: right;
   line-height: 18px;
+}
+.generation-elapsed {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .job-meta-row .job-prompt-details > summary {
   line-height: 18px;

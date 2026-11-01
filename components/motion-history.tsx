@@ -4,7 +4,7 @@ import { formatCredits, formatMotionCredits } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
-import { GenerationTime } from "./generation-time";
+import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
@@ -257,6 +257,8 @@ function MotionCard({
             : job.estimatedCredits !== undefined
               ? `Cost: ${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency, 2, false)} (estimated)`
               : "Cost: unavailable"}
+          {" · "}
+          <GenerationElapsed created={job.created} completedAt={job.state === "success" || job.state === "fail" ? job.completedAt ?? job.updated : undefined} />
         </small>
       </div>
       {job.error && <p className="error">{job.error}</p>}

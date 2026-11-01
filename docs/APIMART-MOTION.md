@@ -29,6 +29,8 @@ The Generate button, resolution rates, and form cost breakdown display APIMart c
 
 The server revalidates media and pricing before any upload/generation. Underquoted requests return 409. Existing job IDs are reused without submitting again. Failed uploads do not start a paid render. Ambiguous submission failures remain marked for manual task recovery; the app never automatically resubmits a generation. Use APIMart's dashboard to find an existing task ID, then link it from the job card.
 
+History shows a live seconds counter beside each cost, measured from when the submission reaches the server, including validation, upload, queue, and rendering time. It updates every second and resumes from the saved submission timestamp after refresh. The counter stops when the server observes success or failure and saves that timestamp with the job. Older finished jobs fall back to their last saved update time. Unknown submissions continue counting until their status is resolved.
+
 ## Verification
 
 The trial was checked in the browser for provider switching, APIMart labels, loaded media/clip timing, and its converted USD estimate. An inline verification exercised the actual route handlers, real trial-file inspection and FFmpeg trimming, live published price parsing, Cloudinary signature generation, provider-specific submission/polling, ownership isolation, download bytes, duplicate submission prevention, underquoted estimates, unsupported models, and failed uploads. External upload and paid generation responses were simulated. Live Cloudinary uploads and paid APIMart output have not been verified without credentials.

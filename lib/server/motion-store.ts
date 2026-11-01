@@ -17,6 +17,11 @@ export function validId(id: string) {
 function file(id: string) {
   return path.join(directory, validId(id) + ".json");
 }
+function withCompletionTime(job: StoredMotionJob): StoredMotionJob {
+  if ((job.state === "success" || job.state === "fail") && job.completedAt === undefined)
+    return { ...job, completedAt: job.updated };
+  return job;
+}
 export async function createJob(job: StoredMotionJob) {
   await mkdir(directory, { recursive: true, mode: 0o700 });
   try {
@@ -35,7 +40,7 @@ export async function readJob(id: string, owner: string) {
     const job = JSON.parse(await readFile(file(id), "utf8")) as StoredMotionJob;
     if (job.owner !== owner)
       throw new ApiError("Job not found for this Kie key.", 404);
-    return job;
+    return withCompletionTime(job);
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code === "ENOENT")
       throw new ApiError("Job not found.", 404);
@@ -53,9 +58,9 @@ export async function listJobs(owner: string) {
   const jobs = await Promise.all(
     names.map(async (n) => {
       try {
-        return JSON.parse(
+        return withCompletionTime(JSON.parse(
           await readFile(path.join(directory, n), "utf8"),
-        ) as StoredMotionJob;
+        ) as StoredMotionJob);
       } catch {
         return null;
       }

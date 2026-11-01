@@ -46,6 +46,7 @@ export async function GET(req: Request) {
   }
 }
 export async function POST(req: Request) {
+  const submittedAt = Date.now();
   let stored: StoredMotionJob | undefined,
     submitted = false;
   try {
@@ -217,7 +218,7 @@ export async function POST(req: Request) {
       resolution,
       estimatedCredits: cost.total,
       pricingCheckedAt: pricing.checkedAt,
-      created: Date.now(),
+      created: submittedAt,
       updated: Date.now(),
       state: "uploading",
     };
@@ -314,6 +315,7 @@ export async function POST(req: Request) {
       stored = {
         ...stored,
         state: unknown ? "submission_unknown" : "fail",
+        completedAt: unknown ? undefined : Date.now(),
         updated: Date.now(),
         error:
           e instanceof ApiError

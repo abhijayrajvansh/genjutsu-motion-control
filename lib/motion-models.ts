@@ -112,6 +112,7 @@ export type MotionJob = {
   prompt: string;
   seed?: number;
   created: number;
+  completedAt?: number;
   updated: number;
   state: MotionState;
   taskId?: string;

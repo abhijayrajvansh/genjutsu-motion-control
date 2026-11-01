@@ -87,6 +87,7 @@ export async function refreshJob(job: StoredMotionJob, key: string) {
     previewImage,
     previewAttempted: job.previewAttempted || shouldRecoverPreview,
     state: task.state as MotionState,
+    completedAt: task.state === "success" || task.state === "fail" ? Date.now() : undefined,
     updated: Date.now(),
     resultUrls: resultUrls.length ? resultUrls : job.resultUrls,
     error:
@@ -113,6 +114,7 @@ async function refreshApimartJob(job: StoredMotionJob, key: string) {
     .filter((url): url is string => typeof url === "string" && url.startsWith("https://"));
   if (state === "success" && !resultUrls.length) throw new ApiError("APIMart completed the task without a video URL.", 502);
   const updated: StoredMotionJob = { ...job, state, updated: Date.now(),
+    completedAt: state === "success" || state === "fail" ? Date.now() : undefined,
     resultUrls: resultUrls.length ? resultUrls : job.resultUrls,
     error: state === "fail" ? redact(task.error?.message || "APIMart could not generate this video.", key) : undefined,
     creditsConsumed: task.credits_cost,
