@@ -74,6 +74,7 @@ export function MotionWorkflow({
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
   const clipControls = useRef<VideoClipControls>(null);
   const [clipPlaying, setClipPlaying] = useState(false);
+  const [previewHost, setPreviewHost] = useState<HTMLDivElement | null>(null);
   const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection } | null>(null);
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
@@ -427,21 +428,22 @@ export function MotionWorkflow({
             accept="video/mp4,video/quicktime"
             asset={video}
             onPick={chooseVideo}
-            loadedContent={video && clip && sourceSeconds > 0 ? (
-              <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
-                minimum={minimumClip} maximum={maximumClip} disabled={busy} compact playbackRef={clipControls}
-                onPlaybackChange={setClipPlaying}
-                onChange={(selection) => {
-                  const next = { assetId: video.id, selection };
-                  setClipDraft(next);
-                  writeMotionInputs({ clip: next });
-                }} />
-            ) : undefined}
+            loadedContent={video && clip && sourceSeconds > 0 ? <div ref={setPreviewHost} className="driving-preview-host" /> : undefined}
             onPreview={clip ? () => clipControls.current?.togglePlayback() : undefined}
             previewLabel={clipPlaying ? "Pause video" : "Play video"}
             previewDisabled={busy || (!!clip && sourceSeconds < minimumClip)}
           />
         </div>
+        {video && clip && sourceSeconds > 0 && previewHost && (
+          <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
+            minimum={minimumClip} maximum={maximumClip} disabled={busy} compact playbackRef={clipControls}
+            onPlaybackChange={setClipPlaying} previewContainer={previewHost}
+            onChange={(selection) => {
+              const next = { assetId: video.id, selection };
+              setClipDraft(next);
+              writeMotionInputs({ clip: next });
+            }} />
+        )}
       </div>
       <div className="motion-input-actions">
         <div>

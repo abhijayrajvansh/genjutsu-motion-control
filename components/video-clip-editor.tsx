@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Asset } from "@/lib/storage";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 
@@ -45,7 +46,7 @@ function drawWave(
 type DragMode = "start" | "end" | "move" | "seek";
 
 export type VideoClipControls = { togglePlayback: () => void };
-export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maximum, disabled, onChange, compact = false, playbackRef, onPlaybackChange }: {
+export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maximum, disabled, onChange, compact = false, playbackRef, onPlaybackChange, previewContainer = null }: {
   asset: Asset;
   sourceSeconds: number;
   selection: VideoSelection;
@@ -56,6 +57,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   compact?: boolean;
   playbackRef?: React.Ref<VideoClipControls>;
   onPlaybackChange?: (playing: boolean) => void;
+  previewContainer?: HTMLElement | null;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const track = useRef<HTMLDivElement>(null);
@@ -92,7 +94,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     const canvas = document.createElement("canvas");
     canvas.width = 72;
     canvas.height = 128;
-    const count = 10;
+    const count = Math.max(8, Math.min(16, Math.round((track.current?.clientWidth || 320) / 48)));
     const shots: string[] = [];
     const grab = (index: number) => {
       if (cancelled) return;
@@ -228,12 +230,8 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   useImperativeHandle(playbackRef, () => ({ togglePlayback: () => { void playSelection(); } }));
   const playhead = sourceSeconds > 0 ? `${Math.min(100, Math.max(0, cursor / sourceSeconds * 100))}%` : "0%";
 
-  return (
-    <section className={`clip-editor ${compact ? "clip-editor-inline" : ""}`} aria-label="Input video editor">
-      {!compact && <div className="between">
-        <strong>Input duration</strong>
-        <span className="clip-length">{displayLength}s selected</span>
-      </div>}
+  const preview = (
+    <>
       <video ref={video} src={url || undefined} className="clip-preview" playsInline preload="auto"
         aria-label="Selected clip preview"
         onPlay={() => { setPlaying(true); onPlaybackChange?.(true); }} onPause={() => { setPlaying(false); onPlaybackChange?.(false); }}
@@ -250,6 +248,15 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
         }}
       />
       {compact && <small className="clip-file-name" title={asset.name}>{asset.name}</small>}
+    </>
+  );
+  return (
+    <section className={`clip-editor ${compact ? "clip-editor-inline" : ""} ${previewContainer ? "clip-editor-span" : ""}`} aria-label="Input video editor">
+      {!compact && <div className="between">
+        <strong>Input duration</strong>
+        <span className="clip-length">{displayLength}s selected</span>
+      </div>}
+      {previewContainer ? createPortal(preview, previewContainer) : preview}
       <div className="clip-board">
         <div className="clip-board-head">
           <span>Trim</span>
