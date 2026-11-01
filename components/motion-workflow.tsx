@@ -24,7 +24,7 @@ import { KieRequestError, useKie } from "./kie-connection";
 function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
-  return bytes[0] % 2147483647;
+  return bytes[0] % 2147483648;
 }
 const MOTION_INPUTS_KEY = "clone.motion.inputs";
 type SavedMotionInputs = {
