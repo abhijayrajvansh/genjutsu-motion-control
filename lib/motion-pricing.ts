@@ -174,12 +174,13 @@ export function formatCredits(value: number) {
   return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 }
 
-export function formatMotionCredits(value: number, currency?: "CNY" | "USD", maximumFractionDigits = 2) {
+export function formatMotionCredits(value: number, currency?: "CNY" | "USD", maximumFractionDigits = 2, includeProvider = true) {
   if (currency === "CNY") return "Credit estimate unavailable for legacy job";
   // APIMart's published USD equivalents use $0.10 per credit.
   // Keep the reviewed quote in its original units; convert only for display.
   const credits = currency === "USD" ? value * 10 : value;
-  return `${credits.toLocaleString("en-US", { maximumFractionDigits })} ${currency === "USD" ? "APIMart" : "Kie"} credits`;
+  const unit = includeProvider ? `${currency === "USD" ? "APIMart" : "Kie"} credits` : "credits";
+  return `${credits.toLocaleString("en-US", { maximumFractionDigits })} ${unit}`;
 }
 
 export const APIMART_PRICE_URL = "https://apimart.ai/model/wan-3-0";

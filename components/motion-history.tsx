@@ -253,10 +253,10 @@ function MotionCard({
         )}
         <small className="real-label">
           {job.creditsConsumed !== undefined && !pending.includes(job.state)
-            ? `Cost: ${formatCredits(job.creditsConsumed)} ${name} credits`
+            ? `Cost: ${formatCredits(job.creditsConsumed)} credits`
             : job.estimatedCredits !== undefined
-              ? `Cost: ~${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency)} (estimated)`
-              : `${name} cost: unavailable`}
+              ? `Cost: ~${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency, 2, false)} (estimated)`
+              : "Cost: unavailable"}
         </small>
       </div>
       {job.error && <p className="error">{job.error}</p>}
