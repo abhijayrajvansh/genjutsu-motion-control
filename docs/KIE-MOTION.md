@@ -109,4 +109,4 @@ Verified old-format requests, underquoted requests, and the current 32-credit tr
 
 ## USD display
 
-The header balance, Generate button, job estimates and actual Kie job costs display USD at the published base conversion of 1 credit = $0.005 (8 credits = $0.04). Top-up bonuses may change your effective purchase cost. Internal estimates, balance comparisons, stored job values and the submission quote remain in Kie credits, preserving billing validation and existing jobs. For example, the 224-credit estimate displays as $1.12.
+The header balance shows the raw Kie credit count. The Generate button, job estimates and actual Kie job costs display USD at the published base conversion of 1 credit = $0.005 (8 credits = $0.04). Top-up bonuses may change your effective purchase cost. Internal estimates, balance comparisons, stored job values and the submission quote remain in Kie credits, preserving billing validation and existing jobs. For example, the 224-credit estimate displays as $1.12.
