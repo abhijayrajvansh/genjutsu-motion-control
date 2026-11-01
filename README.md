@@ -21,7 +21,7 @@ Motion Control now has a real Kie integration: file uploads, provider task creat
 
 Enter your key in the **header’s API key field**, then click **Connect**, or configure `KIE_API_KEY` in `.env.local` and restart the server. Successfully connected keys are saved in this browser’s local storage and restored on later visits; editing or clearing the field forgets the saved key. The key is never committed or written into job records. **Load 2-second trial** prepares a small Wan 3 render; generating it uses your real Kie credits.
 
-**Keep original clip audio** saves the selected input soundtrack and attaches it to the downloaded MP4, replacing model audio without re-encoding the generated video. Older jobs can recover their uploaded input audio while it remains available on Kie.
+**Keep original clip audio** saves the selected input soundtrack and attaches it to both in-app playback and the downloaded MP4, replacing model audio without re-encoding the generated video. Playback prepares the audio-preserving video when you first press Play. Older jobs can recover their uploaded input audio while it remains available on Kie.
 
 The Generate button shows a live **total Kie-credit estimate**, including billable input-video time. Current published prices are refreshed automatically; the backend rechecks the estimate and balance before submitting. Final provider billing may differ.
 

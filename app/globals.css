@@ -548,6 +548,9 @@ em {
     aspect-ratio: 3 / 4;
     margin-top: 16px;
   }
+  .history-list .job-card > .real-result {
+    aspect-ratio: auto 9 / 16;
+  }
 }
 .favorite-button {
   display: grid;
@@ -2057,7 +2060,7 @@ body {
 }
 .real-result {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: auto 9 / 16;
   height: auto;
   max-height: none;
   object-fit: contain;

@@ -121,6 +121,88 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
     </div>
   );
 }
+function MotionResult({ job }: { job: MotionJob }) {
+  const { request, key, provider } = useKie();
+  const [requested, setRequested] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [media, setMedia] = useState<{
+    request: typeof request;
+    id: string;
+    attempt: number;
+    url?: string;
+    error?: string;
+  } | null>(null);
+  const preserveAudio = job.preserveInputAudio !== false;
+  const current = media?.request === request && media.id === job.id && media.attempt === attempt
+    ? media : null;
+
+  useEffect(() => {
+    if (!requested || !preserveAudio) return;
+    const controller = new AbortController();
+    let active = true;
+    let url: string | undefined;
+    async function prepare() {
+      try {
+        // Use the same authenticated, audio-preserving file as Download video.
+        const response = await fetch(`/api/kie/motion/${job.id}/download?originalAudio=true`, {
+          headers: { "x-motion-provider": provider, ...(key ? { [provider === "apimart" ? "x-apimart-key" : "x-kie-key"]: key } : {}) },
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Could not prepare video audio.");
+        }
+        const blob = await response.blob();
+        if (!active) return;
+        url = URL.createObjectURL(blob);
+        setMedia({ request, id: job.id, attempt, url });
+      } catch (error) {
+        if (active) setMedia({ request, id: job.id, attempt,
+          error: error instanceof Error ? error.message : "Could not prepare video audio." });
+      }
+    }
+    void prepare();
+    return () => {
+      active = false;
+      controller.abort();
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [requested, preserveAudio, job.id, request, key, provider, attempt]);
+
+  return (
+    <>
+      <video
+        className="real-result"
+        src={preserveAudio && current?.url ? current.url : job.resultUrls?.[0]}
+        controls
+        playsInline
+        preload="metadata"
+        onPlay={(event) => {
+          if (!preserveAudio || current?.url) return;
+          event.currentTarget.pause();
+          setRequested(true);
+          if (current?.error) setAttempt((value) => value + 1);
+        }}
+        onLoadedMetadata={(event) => {
+          if (preserveAudio && current?.url) {
+            // Native controls remain available if the browser requires another play gesture.
+            void event.currentTarget.play().catch(() => {});
+          }
+        }}
+      />
+      {preserveAudio && requested && !current && <p role="status">Preparing video with original audio…</p>}
+      {preserveAudio && current?.error && (
+        <p className="error" role="alert">
+          {current.error}{" "}
+          <button type="button" className="text-button" onClick={() => setAttempt((value) => value + 1)}>
+            Retry playback
+          </button>
+        </p>
+      )}
+    </>
+  );
+}
 function MotionCard({
   job,
   onChange,
@@ -231,13 +313,7 @@ function MotionCard({
         <RenderPreview image={job.previewImage} state={job.state} />
       )}
       {job.state === "success" && job.resultUrls?.[0] && (
-        <video
-          className="real-result"
-          src={job.resultUrls[0]}
-          controls
-          playsInline
-          preload="metadata"
-        />
+        <MotionResult job={job} />
       )}
       <div className="job-meta-row">
         {job.prompt && (
