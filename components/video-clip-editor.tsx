@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Asset } from "@/lib/storage";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
@@ -17,7 +17,7 @@ function drawWave(
   sourceSeconds: number,
 ) {
   const dpr = window.devicePixelRatio || 1;
-  const width = canvas.clientWidth;
+  const width = Math.min(canvas.clientWidth, 8192 / dpr);
   const height = canvas.clientHeight;
   if (width < 2 || height < 2) return;
   canvas.width = Math.round(width * dpr);
@@ -64,6 +64,8 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
+  const zoomFocus = useRef<number | null>((selection.start + selection.end) / 2);
   const wave = useRef<HTMLCanvasElement>(null);
   const [url, setUrl] = useState("");
   const [cursor, setCursor] = useState(0);
@@ -71,12 +73,49 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   const [error, setError] = useState("");
   const [frames, setFrames] = useState<string[]>([]);
   const [peaks, setPeaks] = useState<number[]>([]);
+  const maximumZoom = Math.max(1, sourceSeconds / Math.max(minimum * 4, 10));
+  const [zoom, setZoom] = useState(() => clipMode === "trim"
+    ? Math.max(1, Math.min(maximumZoom, sourceSeconds / ((selection.end - selection.start) * 3)))
+    : 1);
   const length = selection.end - selection.start;
   const displayLength = Number(length.toFixed(2));
   const valid = length >= minimum && sourceSeconds >= minimum;
   const locked = disabled || !valid || !!error;
   const startRatio = sourceSeconds > 0 ? selection.start / sourceSeconds : 0;
   const endRatio = sourceSeconds > 0 ? selection.end / sourceSeconds : 1;
+
+  useLayoutEffect(() => {
+    const element = viewport.current;
+    if (!element) return;
+    const focus = zoomFocus.current ?? sourceSeconds / 2;
+    const center = () => {
+      element.scrollLeft = sourceSeconds > 0
+        ? focus / sourceSeconds * element.scrollWidth - element.clientWidth / 2
+        : 0;
+    };
+    center();
+    const observer = new ResizeObserver(center);
+    observer.observe(element);
+    zoomFocus.current = null;
+    return () => observer.disconnect();
+  }, [zoom, sourceSeconds]);
+
+  function changeZoom(next: number, focus?: number) {
+    const element = viewport.current;
+    const center = element && element.scrollWidth > 0
+      ? (element.scrollLeft + element.clientWidth / 2) / element.scrollWidth * sourceSeconds
+      : (selection.start + selection.end) / 2;
+    const target = Math.max(1, Math.min(maximumZoom, next));
+    zoomFocus.current = focus ?? center;
+    if (target === zoom && element) {
+      element.scrollLeft = zoomFocus.current / sourceSeconds * element.scrollWidth - element.clientWidth / 2;
+      zoomFocus.current = null;
+    }
+    setZoom(target);
+  }
+  function fitSelection() {
+    changeZoom(sourceSeconds / (length * 3), (selection.start + selection.end) / 2);
+  }
 
   useEffect(() => {
     const next = URL.createObjectURL(asset.blob);
@@ -189,13 +228,15 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   }
   function moveWindow(start: number) {
     if (clipMode === "full") return;
-    const next = videoSelection(sourceSeconds, minimum, maximum, { start, end: start + length });
+    const nextStart = Math.max(0, Math.min(sourceSeconds - length, start));
+    const next = { start: nextStart, end: nextStart + length };
     onChange(next);
     seek(next.start);
   }
   function updateStart(start: number) {
     if (clipMode === "full") return;
-    const next = videoSelection(sourceSeconds, minimum, maximum, { start, end: selection.end });
+    const duration = videoSelection(selection.end, minimum, maximum, { start: 0, end: selection.end - start }).end;
+    const next = { start: selection.end - duration, end: selection.end };
     onChange(next);
     seek(next.start);
   }
@@ -207,6 +248,8 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   }
   function chooseClipMode(next: "full" | "trim") {
     onClipModeChange?.(next);
+    if (next === "trim") fitSelection();
+    else changeZoom(1);
   }
   function timeAt(clientX: number) {
     const rect = track.current?.getBoundingClientRect();
@@ -218,25 +261,30 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     if (locked) return;
     if (clipMode === "full" && mode !== "seek") return;
     event.stopPropagation();
+    event.preventDefault();
     (event.currentTarget as HTMLElement).focus();
     const originX = event.clientX;
     const originStart = selection.start;
+    const originEnd = selection.end;
+    const originTime = timeAt(originX);
     let moved = false;
     const move = (pointer: PointerEvent) => {
       if (Math.abs(pointer.clientX - originX) > 3) moved = true;
       const at = timeAt(pointer.clientX);
-      if (mode === "start") updateStart(at);
-      else if (mode === "end") updateEnd(at);
-      else if (mode === "move" && moved) moveWindow(originStart + at - timeAt(originX));
+      if (mode === "start") updateStart(originStart + at - originTime);
+      else if (mode === "end") updateEnd(originEnd + at - originTime);
+      else if (mode === "move" && moved) moveWindow(originStart + at - originTime);
       else if (mode === "seek") seek(at);
     };
     const stop = (pointer: PointerEvent) => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", stop);
-      if (mode === "move" && !moved) seek(timeAt(pointer.clientX));
+      window.removeEventListener("pointercancel", stop);
+      if (pointer.type !== "pointercancel" && mode === "move" && !moved) seek(timeAt(pointer.clientX));
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
     if (mode === "seek") seek(timeAt(originX));
   }
   async function playSelection() {
@@ -316,63 +364,75 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
           {!compact && <button type="button" className="clip-play" disabled={locked} onClick={playSelection}>{playing ? "Pause" : "Play"}</button>}
           <output aria-label="Video playhead">{timecode(cursor)} <span>/ {timecode(sourceSeconds)}</span></output>
         </div>
-        <div
-          ref={track}
-          className="clip-track"
-          onPointerDown={(event) => {
-            if ((event.target as HTMLElement).closest(".clip-handle")) return;
-            const rect = track.current?.getBoundingClientRect();
-            if (!rect) return;
-            const x = event.clientX - rect.left;
-            const startX = startRatio * rect.width;
-            const endX = endRatio * rect.width;
-            const inside = x > startX + 10 && x < endX - 10;
-            beginDrag(clipMode === "full" || !inside ? "seek" : "move", event);
-          }}
-        >
-          <div className="clip-frames" aria-hidden="true">
-            {(frames.length > 0 ? frames : Array.from({ length: 10 }, () => "")).map((frame, index) => (
-              frame
-                ? <img key={index} src={frame} alt="" draggable={false} />
-                : <span key={index} />
-            ))}
-          </div>
-          <div className="clip-dim" style={{ width: `${startRatio * 100}%` }} />
-          <div className="clip-dim clip-dim-end" style={{ width: `${(1 - endRatio) * 100}%` }} />
-          <div className="clip-range" style={{ left: `${startRatio * 100}%`, width: `${Math.max(0, endRatio - startRatio) * 100}%` }} />
-          <button
-            type="button"
-            className="clip-handle clip-handle-in"
-            style={{ left: `${startRatio * 100}%` }}
-            aria-label="Trim in"
-            disabled={locked || clipMode === "full"}
-            onPointerDown={(event) => beginDrag("start", event)}
-            onKeyDown={(event) => {
-              if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-              event.preventDefault();
-              updateStart(selection.start + (event.key === "ArrowLeft" ? -1 : 1));
-            }}
-          />
-          <button
-            type="button"
-            className="clip-handle clip-handle-out"
-            style={{ left: `${endRatio * 100}%` }}
-            aria-label="Trim out"
-            disabled={locked || clipMode === "full"}
-            onPointerDown={(event) => beginDrag("end", event)}
-            onKeyDown={(event) => {
-              if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-              event.preventDefault();
-              updateEnd(selection.end + (event.key === "ArrowLeft" ? -1 : 1));
-            }}
-          />
-          <div className="clip-playhead" style={{ left: playhead }} />
+        <div className="clip-zoom" role="group" aria-label="Timeline zoom">
+          <button type="button" aria-label="Zoom out timeline" disabled={disabled || zoom <= 1} onClick={() => changeZoom(zoom / 2)}>−</button>
+          <output aria-label="Timeline zoom level">{Number(zoom.toFixed(1))}×</output>
+          <button type="button" aria-label="Zoom in timeline" disabled={disabled || zoom >= maximumZoom} onClick={() => changeZoom(zoom * 2)}>+</button>
+          <button type="button" disabled={disabled} onClick={fitSelection}>Fit selection</button>
+          <button type="button" disabled={disabled || zoom === 1} onClick={() => changeZoom(1)}>Full timeline</button>
         </div>
-        <canvas ref={wave} className="clip-wave" aria-hidden="true" />
+        <div ref={viewport} className="clip-timeline-viewport" tabIndex={0} role="region" aria-label="Video timeline. Scroll horizontally when zoomed in.">
+          <div className="clip-timeline" style={{ width: `${zoom * 100}%` }}>
+            <div
+              ref={track}
+              className="clip-track"
+              onPointerDown={(event) => {
+                if ((event.target as HTMLElement).closest(".clip-handle")) return;
+                const rect = track.current?.getBoundingClientRect();
+                if (!rect) return;
+                const x = event.clientX - rect.left;
+                const startX = startRatio * rect.width;
+                const endX = endRatio * rect.width;
+                const inside = x > startX + 10 && x < endX - 10;
+                beginDrag(clipMode === "full" || !inside ? "seek" : "move", event);
+              }}
+            >
+              <div className="clip-frames" aria-hidden="true">
+                {(frames.length > 0 ? frames : Array.from({ length: 10 }, () => "")).map((frame, index) => (
+                  frame
+                    ? <img key={index} src={frame} alt="" draggable={false} />
+                    : <span key={index} />
+                ))}
+              </div>
+              <div className="clip-dim" style={{ width: `${startRatio * 100}%` }} />
+              <div className="clip-dim clip-dim-end" style={{ width: `${(1 - endRatio) * 100}%` }} />
+              <div className="clip-range" style={{ left: `${startRatio * 100}%`, width: `${Math.max(0, endRatio - startRatio) * 100}%` }} />
+              <button
+                type="button"
+                className="clip-handle clip-handle-in"
+                style={{ left: `${startRatio * 100}%` }}
+                aria-label="Trim in"
+                disabled={locked || clipMode === "full"}
+                onPointerDown={(event) => beginDrag("start", event)}
+                onKeyDown={(event) => {
+                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                  event.preventDefault();
+                  updateStart(selection.start + (event.key === "ArrowLeft" ? -1 : 1));
+                }}
+              />
+              <button
+                type="button"
+                className="clip-handle clip-handle-out"
+                style={{ left: `${endRatio * 100}%` }}
+                aria-label="Trim out"
+                disabled={locked || clipMode === "full"}
+                onPointerDown={(event) => beginDrag("end", event)}
+                onKeyDown={(event) => {
+                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                  event.preventDefault();
+                  updateEnd(selection.end + (event.key === "ArrowLeft" ? -1 : 1));
+                }}
+              />
+              <div className="clip-playhead" style={{ left: playhead }} />
+            </div>
+            <canvas ref={wave} className="clip-wave" aria-hidden="true" />
+          </div>
+        </div>
+        <small className="clip-timeline-help">{minimum}–{maximum}s clip limit{zoom > 1 ? " · Scroll horizontally to navigate" : ""}</small>
         <div className="clip-readout">
           <label>
             <span>In</span>
-            <input type="number" aria-label="Clip start time" step={0.01} min={0} max={Number(Math.max(0, sourceSeconds - length).toFixed(2))} value={Number(selection.start.toFixed(2))}
+            <input type="number" aria-label="Clip start time" step={0.01} min={Number(Math.max(0, selection.end - maximum).toFixed(2))} max={Number(Math.max(0, selection.end - minimum).toFixed(2))} value={Number(selection.start.toFixed(2))}
               disabled={locked || clipMode === "full"} onChange={(event) => { if (event.target.value !== "") updateStart(Number(event.target.value)); }} />
           </label>
           <strong>{displayLength}s</strong>

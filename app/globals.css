@@ -1789,6 +1789,48 @@ body {
 .clip-play:disabled {
   opacity: 0.45;
 }
+.clip-zoom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+.clip-zoom button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--input);
+  color: var(--foreground);
+}
+.clip-zoom button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.clip-zoom output {
+  min-width: 34px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.clip-timeline-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--muted);
+  border-radius: 8px;
+}
+.clip-timeline {
+  min-width: 100%;
+  padding-top: 3px;
+}
+.clip-timeline-help {
+  margin-top: 6px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
 .clip-track {
   position: relative;
   height: 72px;
