@@ -537,6 +537,21 @@ em {
   color: var(--accent-text);
   border-color: var(--accent);
 }
+.archive-button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid #e8a3a3;
+  border-radius: 5px;
+  color: #d64545;
+  background: transparent;
+}
+.archive-button:hover {
+  background: rgba(214, 69, 69, 0.12);
+}
 .history-column .job-actions .button {
   width: 100%;
 }

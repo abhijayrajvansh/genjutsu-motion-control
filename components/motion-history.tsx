@@ -5,14 +5,16 @@ import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
 import { GenerationTime } from "./generation-time";
-import { FavoriteButton } from "./favorite-button";
+import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
-export function MotionHistory({ showEmpty = true, favorites, favoritesOnly, onToggleFavorite }: {
+export function MotionHistory({ showEmpty = true, favorites, archived, view, onToggleFavorite, onArchive }: {
   showEmpty?: boolean;
   favorites: string[];
-  favoritesOnly: boolean;
+  archived: string[];
+  view: "all" | "favorites" | "archives";
   onToggleFavorite: (id: string) => void;
+  onArchive: (id: string) => void;
 }) {
   const { connected, request, revision } = useKie(),
     [jobs, setJobs] = useState<MotionJob[]>([]),
@@ -63,7 +65,12 @@ export function MotionHistory({ showEmpty = true, favorites, favoritesOnly, onTo
       clearInterval(timer);
     };
   }, [connected, request, revision, refresh]);
-  const visibleJobs = favoritesOnly ? jobs.filter((job) => favorites.includes(job.id)) : jobs;
+  const visibleJobs = jobs.filter((job) => {
+    const isArchived = archived.includes(job.id);
+    if (view === "archives") return isArchived;
+    if (isArchived) return false;
+    return view === "favorites" ? favorites.includes(job.id) : true;
+  });
   return (
     <div className="motion-history">
       {!connected ? (
@@ -73,7 +80,11 @@ export function MotionHistory({ showEmpty = true, favorites, favoritesOnly, onTo
         </div>
       ) : !visibleJobs.length && showEmpty ? (
         <div className="empty-history">
-          {favoritesOnly ? "No favorites yet. Use the star on a generation to save it here." : "No Kie generations yet. Load the two-second trial or upload your own reference image and driving video."}
+          {view === "favorites"
+            ? "No favorites yet. Use the star on a generation to save it here."
+            : view === "archives"
+              ? "No archived generations yet. Use the bin on All generations to move one here."
+              : "No Kie generations yet. Load the two-second trial or upload your own reference image and driving video."}
         </div>
       ) : null}
       {error && (
@@ -97,7 +108,10 @@ export function MotionHistory({ showEmpty = true, favorites, favoritesOnly, onTo
               key={job.id}
               job={job}
               favorite={favorites.includes(job.id)}
+              showArchive={view === "all"}
+              showRestore={view === "archives"}
               onToggleFavorite={() => onToggleFavorite(job.id)}
+              onArchive={() => onArchive(job.id)}
               onChange={() => setRefresh((r) => r + 1)}
             />
           ))}
@@ -109,12 +123,18 @@ function MotionCard({
   job,
   onChange,
   favorite,
+  showArchive,
+  showRestore,
   onToggleFavorite,
+  onArchive,
 }: {
   job: MotionJob;
   onChange: () => void;
   favorite: boolean;
+  showArchive: boolean;
+  showRestore: boolean;
   onToggleFavorite: () => void;
+  onArchive: () => void;
 }) {
   const { request } = useKie(),
     [error, setError] = useState(""),
@@ -197,6 +217,12 @@ function MotionCard({
         <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
           {stateLabels[job.state]}
         </span>
+        {showArchive && <ArchiveButton onClick={onArchive} />}
+        {showRestore && (
+          <button type="button" className="text-button" onClick={onArchive}>
+            Restore
+          </button>
+        )}
       </div>
       {pending.includes(job.state) && (
         <RenderPreview image={job.previewImage} state={job.state} />

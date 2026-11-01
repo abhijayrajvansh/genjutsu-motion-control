@@ -5,7 +5,7 @@ import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
 import { KieConnection, KieProvider } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
 import { GenerationTime } from "./generation-time";
-import { FavoriteButton } from "./favorite-button";
+import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { ThemeToggle } from "./theme-toggle";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
@@ -47,10 +47,29 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
   } catch {
     // Ignore an invalid saved preference.
   }
-  const favoritesOnly = historyView === "favorites";
-  const visibleJobs = favoritesOnly ? jobs.filter((job) => favoriteIds.includes(job.id)) : jobs;
+  const [savedArchives, setSavedArchives] = useSaved("clone.generations.archives", "[]");
+  let archiveIds: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(savedArchives);
+    if (Array.isArray(parsed)) archiveIds = parsed.filter((id): id is string => typeof id === "string");
+  } catch {
+    // Ignore an invalid saved preference.
+  }
+  const historyViews = ["all", "favorites", "archives"] as const;
+  const activeView = historyViews.includes(historyView as (typeof historyViews)[number])
+    ? (historyView as (typeof historyViews)[number])
+    : "all";
+  const visibleJobs = jobs.filter((job) => {
+    const isArchived = archiveIds.includes(job.id);
+    if (activeView === "archives") return isArchived;
+    if (isArchived) return false;
+    return activeView === "favorites" ? favoriteIds.includes(job.id) : true;
+  });
   function toggleFavorite(id: string) {
     setSavedFavorites(JSON.stringify(favoriteIds.includes(id) ? favoriteIds.filter((value) => value !== id) : [...favoriteIds, id]));
+  }
+  function archiveGeneration(id: string) {
+    setSavedArchives(JSON.stringify(archiveIds.includes(id) ? archiveIds.filter((value) => value !== id) : [...archiveIds, id]));
   }
   useEffect(() => {
     // Hydrate local-only workspace settings after server rendering.
@@ -314,17 +333,18 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                   onKeyDown={(event) => {
                     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
                     event.preventDefault();
-                    const next = event.key === "Home" ? "all" : event.key === "End" ? "favorites" : favoritesOnly ? "all" : "favorites";
+                    const index = historyViews.indexOf(activeView);
+                    const next = event.key === "Home" ? "all" : event.key === "End" ? "archives" : historyViews[(index + (event.key === "ArrowRight" ? 1 : historyViews.length - 1)) % historyViews.length];
                     setHistoryView(next);
                     document.getElementById(`history-tab-${next}`)?.focus();
                   }}
                 >
-                  {[["all", "All generations"], ["favorites", "Favorites"]].map(([value, label]) => (
-                    <button type="button" key={value} role="tab" id={`history-tab-${value}`} aria-selected={(favoritesOnly ? "favorites" : "all") === value} aria-controls="history-panel" tabIndex={(favoritesOnly ? "favorites" : "all") === value ? 0 : -1} onClick={() => setHistoryView(value)}>{label}</button>
+                  {[["all", "All generations"], ["favorites", "Favorites"], ["archives", "Archives"]].map(([value, label]) => (
+                    <button type="button" key={value} role="tab" id={`history-tab-${value}`} aria-selected={activeView === value} aria-controls="history-panel" tabIndex={activeView === value ? 0 : -1} onClick={() => setHistoryView(value)}>{label}</button>
                   ))}
                 </div>
-                <div id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${favoritesOnly ? "favorites" : "all"}`}>
-                <MotionHistory showEmpty={visibleJobs.length === 0} favorites={favoriteIds} favoritesOnly={favoritesOnly} onToggleFavorite={toggleFavorite} />
+                <div id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${activeView}`}>
+                <MotionHistory showEmpty={visibleJobs.length === 0} favorites={favoriteIds} archived={archiveIds} view={activeView} onToggleFavorite={toggleFavorite} onArchive={archiveGeneration} />
                 {visibleJobs.length > 0 && (
                   <div className="job-list">
                     {visibleJobs.map((j) => {
@@ -348,6 +368,8 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                           <span className={`job-status ${j.status}`}>
                             {j.status === "processing" ? "Processing…" : "Ready"}
                           </span>
+                          {activeView === "all" && <ArchiveButton onClick={() => archiveGeneration(j.id)} />}
+                          {activeView === "archives" && <button type="button" className="text-button" onClick={() => archiveGeneration(j.id)}>Restore</button>}
                           </div>
                           {j.status === "processing" ? (
                             <div className="processing">
