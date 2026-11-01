@@ -1,5 +1,5 @@
 import { apimart, apimartBalance } from "@/lib/server/apimart";
-import { cloudinaryConfigured, uploadMotionMedia } from "@/lib/server/cloudinary";
+import { r2Configured, uploadMotionMedia } from "@/lib/server/r2";
 import { estimateMotionCost, formatMotionAmount } from "@/lib/motion-pricing";
 import { currentMotionPricing } from "@/lib/server/motion-pricing";
 import {
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
       throw new ApiError("APIMart supports Wan 3, Wan 2.7 R2V and Wan 2.7 Video Edit.");
     if (provider !== "apimart" && apimartOnly(model.id))
       throw new ApiError("Wan 2.7 R2V and Video Edit are available on APIMart.");
-    if (provider === "apimart" && !cloudinaryConfigured()) throw new ApiError("Configure Cloudinary on the server: set CLOUDINARY_URL in .env.local and restart the server.", 503);
+    if (provider === "apimart" && !r2Configured()) throw new ApiError("Configure Cloudflare R2 on the server: set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, and R2_PUBLIC_URL in .env.local and restart the server.", 503);
     const mode = String(form.get("mode") ?? "reference");
     if (mode !== "reference" && mode !== "first-frame")
       throw new ApiError("Choose a supported motion mode.");

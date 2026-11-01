@@ -55,13 +55,13 @@ npm run build
 
 See [reconstruction notes](docs/RECONSTRUCTION.md) for evidence and the scope of verification.
 
-## APIMart Wan 3 with Cloudinary
+## APIMart with Cloudflare R2
 
-Select **APIMart** in the header and connect an APIMart API key. APIMart is enabled only for Wan 3 reference image + driving video. Switching back to Kie restores its separately saved key and existing models/history.
+Select **APIMart** in the header and connect an APIMart API key. APIMart is available for Wan 3, Wan 2.7 R2V, and Wan 2.7 Video Edit. Switching back to Kie restores its separately saved key and existing models/history.
 
-For media uploads, copy `.env.example` to `.env.local` and set `CLOUDINARY_URL` from Cloudinary Console → API Keys. You can instead set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` with no `CLOUDINARY_URL`. Restart the app after changing server configuration. Keep secrets server-only; never prefix them with `NEXT_PUBLIC_`. You may optionally set `APIMART_API_KEY` on the server instead of entering it in the header.
+For media uploads, copy `.env.example` to `.env.local` and set `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, and `R2_PUBLIC_URL`. The public URL is the bucket’s `r2.dev` address or a custom domain, not the S3 API endpoint. Enable public read on the bucket. Restart the app after changing server configuration. Keep secrets server-only; never prefix them with `NEXT_PUBLIC_`. You may optionally set `APIMART_API_KEY` on the server instead of entering it in the header.
 
-See [APIMart setup, pricing and verification](docs/APIMART-MOTION.md). Live Cloudinary uploads and a funded APIMart render require configured credentials.
+See [APIMart setup, pricing and verification](docs/APIMART-MOTION.md). Live R2 uploads and a funded APIMart render require configured credentials.
 
 ## MiniMax H3 on a Vast.ai RTX 5090
 

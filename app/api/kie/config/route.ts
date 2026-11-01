@@ -1,12 +1,12 @@
 import { apiKey, errorResponse, json, kie, sameOrigin, requestProvider } from "@/lib/server/kie";
 import { apimartBalance } from "@/lib/server/apimart";
-import { cloudinaryConfigured } from "@/lib/server/cloudinary";
+import { r2Configured } from "@/lib/server/r2";
 export const runtime = "nodejs";
 export async function GET(req: Request) {
   try {
     const provider = requestProvider(req);
     return json({ configured: !!(provider === "apimart" ? process.env.APIMART_API_KEY : process.env.KIE_API_KEY)?.trim(),
-      mediaReady: provider === "kie" || cloudinaryConfigured() });
+      mediaReady: provider === "kie" || r2Configured() });
   } catch (e) { return errorResponse(e); }
 }
 export async function POST(req: Request) {

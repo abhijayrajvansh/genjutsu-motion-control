@@ -634,10 +634,10 @@ export function MotionWorkflow({
         {pricing.card?.billsReferenceVideo === false
           ? "APIMart estimates use the output duration at the published Gold USD rate."
           : "APIMart estimates include driving-video plus output duration."}{" "}
-        Rates convert at $0.10 per credit. Cloudinary usage and optional moderation are extra. The header shows your remaining APIMart account credits.
+        Rates convert at $0.10 per credit. Optional moderation is extra. The header shows your remaining APIMart account credits.
       </small>}
       {!kie.mediaReady && kie.provider === "apimart" && <p className="error" role="alert">
-        Cloudinary is not configured. Set CLOUDINARY_URL in the server’s .env.local and restart to enable APIMart uploads.
+        Cloudflare R2 is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, and R2_PUBLIC_URL in the server’s .env.local and restart to enable APIMart uploads.
       </p>}
       <div className="motion-submit-bar">
         <div className="motion-submit-inner">
