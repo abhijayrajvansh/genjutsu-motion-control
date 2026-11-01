@@ -372,13 +372,13 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
         <div className="clip-readout">
           <label>
             <span>In</span>
-            <input type="number" aria-label="Clip start time" step={0.01} min={0} max={Math.max(0, sourceSeconds - length)} value={Number(selection.start.toFixed(2))}
+            <input type="number" aria-label="Clip start time" step={0.01} min={0} max={Number(Math.max(0, sourceSeconds - length).toFixed(2))} value={Number(selection.start.toFixed(2))}
               disabled={locked || clipMode === "full"} onChange={(event) => { if (event.target.value !== "") updateStart(Number(event.target.value)); }} />
           </label>
           <strong>{displayLength}s</strong>
           <label>
             <span>Out</span>
-            <input type="number" aria-label="Clip end time" step={0.01} min={selection.start + minimum} max={Math.min(sourceSeconds, selection.start + maximum)} value={Number(selection.end.toFixed(2))}
+            <input type="number" aria-label="Clip end time" step={0.01} min={Number((selection.start + minimum).toFixed(2))} max={Number(Math.min(sourceSeconds, selection.start + maximum).toFixed(2))} value={Number(selection.end.toFixed(2))}
               disabled={locked || clipMode === "full"} onChange={(event) => { if (event.target.value !== "") updateEnd(Number(event.target.value)); }} />
           </label>
         </div>
