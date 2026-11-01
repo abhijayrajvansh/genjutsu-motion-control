@@ -22,7 +22,6 @@ export function RenderPreview({ image, state }: { image?: string; state: string 
         ))}
       </div>
       <div className="render-preview-message">
-        <div className="render-orbit" aria-hidden="true"><span /></div>
         <strong>{preparing ? "Preparing your video" : queued ? "Your video is queued" : "Creating your video"}</strong>
         <span>{preparing ? "Getting your clip ready" : queued ? "Waiting for a render slot" : "Bringing your frames to life"}</span>
       </div>

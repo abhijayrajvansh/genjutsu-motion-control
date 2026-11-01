@@ -1715,26 +1715,6 @@ body {
   color: #ffffffb3;
   font-size: 12px;
 }
-.render-orbit {
-  width: 42px;
-  height: 42px;
-  margin-bottom: 6px;
-  border: 1px solid #ffffff26;
-  border-top-color: #ffdfaa;
-  border-right-color: #ffdfaa66;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  animation: spin 3s linear infinite;
-}
-.render-orbit > span {
-  width: 7px;
-  height: 7px;
-  border-radius: 2px;
-  background: #fff0cf;
-  box-shadow: 0 0 18px #ffdc9b99;
-  transform: rotate(45deg);
-}
 .render-preview-bottom {
   position: absolute;
   bottom: 20px;
@@ -1776,7 +1756,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .render-sparkles > span,
   .render-light-sweep,
-  .render-orbit,
   .render-activity > span {
     animation: none;
   }
