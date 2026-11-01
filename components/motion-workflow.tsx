@@ -74,6 +74,7 @@ export function MotionWorkflow({
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
   const clipControls = useRef<VideoClipControls>(null);
   const [clipPlaying, setClipPlaying] = useState(false);
+  const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection } | null>(null);
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
@@ -87,12 +88,15 @@ export function MotionWorkflow({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [stage, setStage] = useState(""),
-    [lastId, setLastId] = useState<string | null>(null),
     [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false),
     kie = useKie();
   useEffect(() => {
-    setPlannedSeed((current) => current ?? randomSeed());
+    const frame = requestAnimationFrame(() => {
+      const seed = randomSeed();
+      setPlannedSeed((current) => current ?? seed);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
   useEffect(() => {
     let live = true;
@@ -145,7 +149,6 @@ export function MotionWorkflow({
     : model.resolutions[0];
   const pricing = useMotionPricing(model.id);
   const videoLength = useVideoLength(video);
-  const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection } | null>(null);
   const sourceSeconds = videoLength?.seconds ?? 0;
   const minimumClip = Math.max(model.minSeconds, model.minReference);
   const maximumClip = Math.min(model.maxSeconds, model.maxReference, model.id === "kling" && orientation === "image" ? 10 : Infinity);
@@ -265,7 +268,6 @@ export function MotionWorkflow({
       "Trimming your selection, validating files, and submitting one generation…",
     );
     const id = crypto.randomUUID();
-    setLastId(id);
     const body = new FormData();
     body.set("id", id);
     body.set("model", model.id);
@@ -299,7 +301,6 @@ export function MotionWorkflow({
         e instanceof Error ? e.message : "Could not submit this generation.",
       );
       if (e instanceof KieRequestError && e.generationStarted === false) {
-        setLastId(null);
         setStage(
           "No paid generation was started. Your files and settings are still here.",
         );
