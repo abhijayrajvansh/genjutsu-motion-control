@@ -236,24 +236,26 @@ function MotionCard({
           preload="metadata"
         />
       )}
-      {job.prompt && (
-        <details className="job-prompt-details">
-          <summary>Show prompt</summary>
-          <p className="job-prompt">{job.prompt}</p>
-          {job.model === "wan" && (
-            <small className="job-prompt-seed">
-              {typeof job.seed === "number" ? `Seed: ${job.seed}` : "Seed: not recorded"}
-            </small>
-          )}
-        </details>
-      )}
-      <small className="real-label">
-        {job.creditsConsumed !== undefined && !pending.includes(job.state)
-          ? `Kie cost: ${formatCredits(job.creditsConsumed)} credits`
-          : job.estimatedCredits !== undefined
-            ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`
-            : "Kie cost: unavailable"}
-      </small>
+      <div className="job-meta-row">
+        {job.prompt && (
+          <details className="job-prompt-details">
+            <summary>Show prompt</summary>
+            <p className="job-prompt">{job.prompt}</p>
+            {job.model === "wan" && (
+              <small className="job-prompt-seed">
+                {typeof job.seed === "number" ? `Seed: ${job.seed}` : "Seed: not recorded"}
+              </small>
+            )}
+          </details>
+        )}
+        <small className="real-label">
+          {job.creditsConsumed !== undefined && !pending.includes(job.state)
+            ? `Kie cost: ${formatCredits(job.creditsConsumed)} credits`
+            : job.estimatedCredits !== undefined
+              ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`
+              : "Kie cost: unavailable"}
+        </small>
+      </div>
       {job.error && <p className="error">{job.error}</p>}
       {(job.state === "submission_unknown" || job.needsRecovery) && (
         <div className="recover-task">

@@ -1112,6 +1112,26 @@ em {
 .job-prompt-details {
   margin-top: 12px;
 }
+.job-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+}
+.job-meta-row .job-prompt-details {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+.job-meta-row .real-label {
+  margin-top: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+  line-height: 18px;
+}
+.job-meta-row .job-prompt-details > summary {
+  line-height: 18px;
+}
 .job-prompt-seed {
   display: block;
   margin-top: 8px;
