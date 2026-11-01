@@ -21,9 +21,10 @@ export async function apimart<T>(path: string, key: string, init: RequestInit = 
   return body as T;
 }
 export async function apimartBalance(key: string) {
-  const balance = await apimart<{ remain_balance: number; unlimited_quota?: boolean }>("/v1/balance", key);
-  if (typeof balance.remain_balance !== "number" || !Number.isFinite(balance.remain_balance))
-    throw new ApiError("APIMart returned an invalid balance.", 502);
-  // APIMart balance units vary by account configuration. Never compare these to CNY pricing.
-  return balance.unlimited_quota ? null : balance.remain_balance;
+  // Token quotas can be unlimited even when the account has limited paid credits.
+  // Use account credits directly; remain_balance has account-dependent currency units.
+  const balance = await apimart<{ remain_credits: number }>("/v1/user/balance", key);
+  if (typeof balance.remain_credits !== "number" || !Number.isFinite(balance.remain_credits))
+    throw new ApiError("APIMart returned an invalid account credit balance.", 502);
+  return balance.remain_credits;
 }

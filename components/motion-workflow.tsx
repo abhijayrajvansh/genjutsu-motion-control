@@ -622,7 +622,7 @@ export function MotionWorkflow({
           </small>
         )}
       {kie.provider === "apimart" && <small>
-        APIMart estimates use published Gold USD rates and include driving-video plus output duration. Cloudinary usage and optional moderation are extra. Account balance units depend on your APIMart account.
+        APIMart estimates use published Gold USD rates and include driving-video plus output duration. Cloudinary usage and optional moderation are extra. The header shows your remaining APIMart account credits.
       </small>}
       {!kie.mediaReady && kie.provider === "apimart" && <p className="error" role="alert">
         Cloudinary is not configured. Set CLOUDINARY_URL in the server’s .env.local and restart to enable APIMart uploads.

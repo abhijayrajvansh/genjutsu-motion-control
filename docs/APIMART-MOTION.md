@@ -23,7 +23,7 @@ The app fetches the exact `wan3.0-video` price table from https://apimart.ai/mod
 
 The model page explicitly bills reference-video duration plus generated-video duration. This conflicts with the API documentation's output-only CNY billing text, which was the earlier integration's source. Estimates now follow the model price page and include both durations. The two-second input plus two-second output trial estimates $0.1316 at 480P. USD rates come directly from APIMart; there is no external exchange-rate dependency. New jobs store USD estimates. Previously saved USD estimates retain their reviewed values; legacy CNY estimates show that a USD estimate is unavailable rather than applying an invented conversion. Cloudinary usage and optional moderation remain additional costs.
 
-APIMart token balance units depend on account configuration, so the header displays raw account balance and does not compare it to USD estimates. APIMart enforces available funds when accepting the request. History labels actual provider-reported `credits_cost` as APIMart credits separately from USD estimates. Optional moderation may incur additional cost; generation estimates do not include that charge.
+The header displays remaining account credits from `GET /v1/user/balance` (`remain_credits`), not the API key's token quota from `/v1/balance`. An unlimited token quota does not mean unlimited account funds. Missing or invalid account credits produce an error instead of an unlimited balance. Credits are not compared directly to USD generation estimates; APIMart enforces available funds when accepting the request. History labels actual provider-reported `credits_cost` as APIMart credits separately from USD estimates. Optional moderation may incur additional cost; generation estimates do not include that charge.
 
 The server revalidates media and pricing before any upload/generation. Underquoted requests return 409. Existing job IDs are reused without submitting again. Failed uploads do not start a paid render. Ambiguous submission failures remain marked for manual task recovery; the app never automatically resubmits a generation. Use APIMart's dashboard to find an existing task ID, then link it from the job card.
 
@@ -36,6 +36,7 @@ The trial was checked in the browser for provider switching, APIMart labels, loa
 - https://docs.apimart.ai/en/api-reference/videos/wan3.0-video/generation
 - https://docs.apimart.ai/en/api-reference/tasks/status
 - https://docs.apimart.ai/en/api-reference/account/token-balance
+- https://docs.apimart.ai/en/api-reference/account/user-balance
 - https://cloudinary.com/documentation/upload_images
 - https://cloudinary.com/documentation/authentication_signatures
 

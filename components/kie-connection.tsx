@@ -154,7 +154,7 @@ export function KieConnection() {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const name = kie.provider === "apimart" ? "APIMart" : "Kie";
-  const balanceLabel = kie.balance === null ? "Unlimited" : kie.balance.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  const balanceLabel = kie.balance === null ? "Unavailable" : kie.balance.toLocaleString("en-US", { maximumFractionDigits: 2 });
   async function connect() {
     setError("");
     setBusy(true);
@@ -178,9 +178,9 @@ export function KieConnection() {
         ) : <small>Server key configured</small>}
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
           data-connected={kie.connected}
-          aria-label={kie.connected ? `${name} balance: ${balanceLabel}. Refresh balance` : `Connect ${name}`}
-          title={kie.connected ? `Check ${name} balance` : `Connect ${name}`}>
-          {busy ? "…" : kie.connected ? `${kie.provider === "kie" ? "Credits" : "Balance"}: ${balanceLabel}` : "Connect"}
+          aria-label={kie.connected ? `${name} credits: ${balanceLabel}. Refresh balance` : `Connect ${name}`}
+          title={kie.connected ? `Check ${name} credits` : `Connect ${name}`}>
+          {busy ? "…" : kie.connected ? `Credits: ${balanceLabel}` : "Connect"}
         </Button>
       </div>
       {error && (
