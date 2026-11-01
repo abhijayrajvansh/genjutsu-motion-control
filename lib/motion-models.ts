@@ -107,6 +107,7 @@ export type MotionJob = {
   model: MotionModelId;
   label: string;
   prompt: string;
+  seed?: number;
   created: number;
   updated: number;
   state: MotionState;

@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile, rename, readdir } from "node:fs/promises";
 import path from "node:path";
 import { MotionJob } from "@/lib/motion-models";
 import { ApiError } from "./kie";
-export type StoredMotionJob = MotionJob & { owner: string; previewAttempted?: boolean };
+export type StoredMotionJob = MotionJob & { owner: string; previewAttempted?: boolean; seedChecked?: boolean };
 const directory = path.join(process.cwd(), ".data", "motion");
 export function validId(id: string) {
   if (
@@ -66,9 +66,10 @@ export async function listJobs(owner: string) {
     .sort((a, b) => b.created - a.created);
 }
 export function publicJob(job: StoredMotionJob): MotionJob {
-  const { owner, previewAttempted, ...safe } = job;
+  const { owner, previewAttempted, seedChecked, ...safe } = job;
   void owner;
   void previewAttempted;
+  void seedChecked;
   return {
     ...safe,
     needsRecovery: !job.taskId && Date.now() - job.created > 300000,

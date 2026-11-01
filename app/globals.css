@@ -1090,6 +1090,11 @@ em {
 .job-prompt-details {
   margin-top: 12px;
 }
+.job-prompt-seed {
+  display: block;
+  margin-top: 8px;
+  color: var(--foreground);
+}
 .job-prompt-details > summary {
   width: fit-content;
   color: var(--text-secondary);

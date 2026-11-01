@@ -3,6 +3,32 @@ import { motionModel, MotionState } from "@/lib/motion-models";
 import { ApiError, kie, redact } from "./kie";
 import { StoredMotionJob, updateJob } from "./motion-store";
 import { providerVideoPoster } from "./video-trim";
+export function seedFromTaskParam(param?: string) {
+  if (!param) return undefined;
+  try {
+    const outer = JSON.parse(param) as { input?: unknown };
+    const input = typeof outer.input === "string" ? JSON.parse(outer.input) : outer.input;
+    const seed = input && typeof input === "object" ? (input as { seed?: unknown }).seed : undefined;
+    return Number.isInteger(seed) ? (seed as number) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+export async function rememberSeed(job: StoredMotionJob, key: string) {
+  if (job.model !== "wan" || job.seed !== undefined || job.seedChecked || !job.taskId) return job;
+  try {
+    const task = await kie<{ param?: string }>(
+      "/api/v1/jobs/recordInfo?taskId=" + encodeURIComponent(job.taskId),
+      key,
+    );
+    const seed = seedFromTaskParam(task.param);
+    const updated = { ...job, seed, seedChecked: true, updated: Date.now() };
+    await updateJob(updated);
+    return updated;
+  } catch {
+    return job;
+  }
+}
 export async function refreshJob(job: StoredMotionJob, key: string) {
   if (!job.taskId || job.state === "success" || job.state === "fail")
     return job;
@@ -53,6 +79,8 @@ export async function refreshJob(job: StoredMotionJob, key: string) {
   const previewImage = shouldRecoverPreview ? await providerVideoPoster(task.param!) : job.previewImage;
   const updated = {
     ...job,
+    seed: job.seed ?? seedFromTaskParam(task.param),
+    seedChecked: job.seed !== undefined || job.seedChecked || seedFromTaskParam(task.param) !== undefined || task.state === "success" || task.state === "fail",
     previewImage,
     previewAttempted: job.previewAttempted || shouldRecoverPreview,
     state: task.state as MotionState,

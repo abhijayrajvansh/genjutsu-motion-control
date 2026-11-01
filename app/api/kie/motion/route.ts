@@ -21,6 +21,7 @@ import {
 import { inspectFile } from "@/lib/server/media-validation";
 import { trimDrivingVideo, videoPoster } from "@/lib/server/video-trim";
 import { saveInputAudio } from "@/lib/server/original-audio";
+import { rememberSeed } from "@/lib/server/motion-status";
 import {
   motionModel,
   MOTION_MODELS,
@@ -31,8 +32,11 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 export async function GET(req: Request) {
   try {
-    const owner = keyId(apiKey(req));
-    return json({ jobs: (await listJobs(owner)).map(publicJob) });
+    const key = apiKey(req);
+    const owner = keyId(key);
+    const jobs = [];
+    for (const job of await listJobs(owner)) jobs.push(await rememberSeed(job, key));
+    return json({ jobs: jobs.map(publicJob) });
   } catch (e) {
     return errorResponse(e);
   }
@@ -256,7 +260,13 @@ export async function POST(req: Request) {
       seed,
       nsfwChecker,
     });
-    stored = { ...stored, prompt: payload.input.prompt as string };
+    stored = {
+      ...stored,
+      prompt: payload.input.prompt as string,
+      ...(typeof payload.input.seed === "number"
+        ? { seed: payload.input.seed, seedChecked: true }
+        : {}),
+    };
     await updateJob(stored);
     submitted = true;
     const task = await kie<{ taskId: string }>("/api/v1/jobs/createTask", key, {
