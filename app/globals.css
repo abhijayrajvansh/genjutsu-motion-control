@@ -1759,6 +1759,7 @@ body {
 }
 .clip-board[data-mode="full"] .clip-handle {
   opacity: 0.35;
+  pointer-events: none;
 }
 .clip-board-head output {
   margin-left: auto;

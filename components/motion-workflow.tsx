@@ -32,7 +32,7 @@ type SavedMotionInputs = {
   videoId?: string | null;
   firstFrameId?: string | null;
   extraIds?: (string | null)[];
-  clip?: { assetId: string; selection: VideoSelection } | null;
+  clip?: { assetId: string; selection: VideoSelection; mode?: "full" | "trim" } | null;
 };
 function readMotionInputs(): SavedMotionInputs {
   try {
@@ -73,7 +73,7 @@ export function MotionWorkflow({
   }
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
   const [previewHost, setPreviewHost] = useState<HTMLDivElement | null>(null);
-  const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection } | null>(null);
+  const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection; mode?: "full" | "trim" } | null>(null);
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
@@ -150,8 +150,12 @@ export function MotionWorkflow({
   const sourceSeconds = videoLength?.seconds ?? 0;
   const minimumClip = Math.max(model.minSeconds, model.minReference);
   const maximumClip = Math.min(model.maxSeconds, model.maxReference, model.id === "kling" && orientation === "image" ? 10 : Infinity);
-  const clip = sourceSeconds > 0
-    ? videoSelection(sourceSeconds, minimumClip, maximumClip, clipDraft && clipDraft.assetId === video?.id ? clipDraft.selection : undefined)
+  const fullClip = sourceSeconds > 0 ? videoSelection(sourceSeconds, minimumClip, maximumClip) : null;
+  const savedClip = clipDraft && video && clipDraft.assetId === video.id ? clipDraft : null;
+  const clipMode: "full" | "trim" = savedClip?.mode
+    ?? (fullClip && savedClip && (Math.abs(savedClip.selection.start - fullClip.start) > 0.001 || Math.abs(savedClip.selection.end - fullClip.end) > 0.001) ? "trim" : "full");
+  const clip = fullClip
+    ? videoSelection(sourceSeconds, minimumClip, maximumClip, clipMode === "trim" ? savedClip?.selection : undefined)
     : null;
   const referenceSeconds = clip ? Math.round((clip.end - clip.start) * 1000000) / 1000000 : null;
   const duration = referenceSeconds ? Math.round(referenceSeconds) : model.minSeconds;
@@ -433,8 +437,16 @@ export function MotionWorkflow({
         {video && clip && sourceSeconds > 0 && previewHost && (
           <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
             minimum={minimumClip} maximum={maximumClip} disabled={busy} compact previewContainer={previewHost}
+            clipMode={clipMode}
+            onClipModeChange={(mode) => {
+              const selection = mode === "full" || !fullClip ? videoSelection(sourceSeconds, minimumClip, maximumClip) : clip;
+              const next = { assetId: video.id, selection, mode };
+              setClipDraft(next);
+              writeMotionInputs({ clip: next });
+            }}
             onChange={(selection) => {
-              const next = { assetId: video.id, selection };
+              if (clipMode === "full") return;
+              const next = { assetId: video.id, selection, mode: "trim" as const };
               setClipDraft(next);
               writeMotionInputs({ clip: next });
             }} />

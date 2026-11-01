@@ -47,7 +47,7 @@ function drawWave(
 type DragMode = "start" | "end" | "move" | "seek";
 
 export type VideoClipControls = { togglePlayback: () => void };
-export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maximum, disabled, onChange, compact = false, playbackRef, onPlaybackChange, previewContainer = null }: {
+export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maximum, disabled, onChange, compact = false, playbackRef, onPlaybackChange, previewContainer = null, clipMode = "full", onClipModeChange }: {
   asset: Asset;
   sourceSeconds: number;
   selection: VideoSelection;
@@ -59,6 +59,8 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   playbackRef?: React.Ref<VideoClipControls>;
   onPlaybackChange?: (playing: boolean) => void;
   previewContainer?: HTMLElement | null;
+  clipMode?: "full" | "trim";
+  onClipModeChange?: (mode: "full" | "trim") => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const track = useRef<HTMLDivElement>(null);
@@ -66,10 +68,6 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   const [url, setUrl] = useState("");
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [clipMode, setClipMode] = useState<"full" | "trim">(() => {
-    const full = videoSelection(sourceSeconds, minimum, maximum);
-    return Math.abs(full.start - selection.start) < 0.001 && Math.abs(full.end - selection.end) < 0.001 ? "full" : "trim";
-  });
   const [error, setError] = useState("");
   const [frames, setFrames] = useState<string[]>([]);
   const [peaks, setPeaks] = useState<number[]>([]);
@@ -190,23 +188,25 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     setCursor(next);
   }
   function moveWindow(start: number) {
+    if (clipMode === "full") return;
     const next = videoSelection(sourceSeconds, minimum, maximum, { start, end: start + length });
     onChange(next);
     seek(next.start);
   }
   function updateStart(start: number) {
+    if (clipMode === "full") return;
     const next = videoSelection(sourceSeconds, minimum, maximum, { start, end: selection.end });
     onChange(next);
     seek(next.start);
   }
   function updateEnd(end: number) {
+    if (clipMode === "full") return;
     const next = videoSelection(sourceSeconds, minimum, maximum, { start: selection.start, end });
     onChange(next);
     seek(Math.max(next.start, next.end - 1 / 30));
   }
   function chooseClipMode(next: "full" | "trim") {
-    setClipMode(next);
-    if (next === "full") onChange(videoSelection(sourceSeconds, minimum, maximum));
+    onClipModeChange?.(next);
   }
   function timeAt(clientX: number) {
     const rect = track.current?.getBoundingClientRect();
@@ -216,6 +216,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   }
   function beginDrag(mode: DragMode, event: React.PointerEvent) {
     if (locked) return;
+    if (clipMode === "full" && mode !== "seek") return;
     event.stopPropagation();
     (event.currentTarget as HTMLElement).focus();
     const originX = event.clientX;
