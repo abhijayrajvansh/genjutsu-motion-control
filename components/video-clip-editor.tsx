@@ -246,21 +246,23 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
 
   const preview = (
     <>
-      <video ref={video} src={url || undefined} className="clip-preview" playsInline preload="auto"
-        aria-label="Selected clip preview"
-        onPlay={() => { setPlaying(true); onPlaybackChange?.(true); }} onPause={() => { setPlaying(false); onPlaybackChange?.(false); }}
-        onError={() => setError("This browser cannot preview the video. Try an H.264 MP4.")}
-        onLoadedData={() => seek(selection.start)}
-        onTimeUpdate={() => {
-          const element = video.current;
-          if (!element) return;
-          if (!element.paused && element.currentTime >= selection.end) {
-            element.pause();
-            element.currentTime = Math.max(selection.start, selection.end - 1 / 30);
-          }
-          setCursor(element.currentTime);
-        }}
-      />
+      <div className="clip-preview-slot">
+        <video ref={video} src={url || undefined} className="clip-preview" playsInline preload="auto"
+          aria-label="Selected clip preview"
+          onPlay={() => { setPlaying(true); onPlaybackChange?.(true); }} onPause={() => { setPlaying(false); onPlaybackChange?.(false); }}
+          onError={() => setError("This browser cannot preview the video. Try an H.264 MP4.")}
+          onLoadedData={() => seek(selection.start)}
+          onTimeUpdate={() => {
+            const element = video.current;
+            if (!element) return;
+            if (!element.paused && element.currentTime >= selection.end) {
+              element.pause();
+              element.currentTime = Math.max(selection.start, selection.end - 1 / 30);
+            }
+            setCursor(element.currentTime);
+          }}
+        />
+      </div>
       {compact && <small className="clip-file-name" title={asset.name}>{asset.name}</small>}
     </>
   );

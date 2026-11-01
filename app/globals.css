@@ -1461,8 +1461,11 @@ body {
   white-space: nowrap;
 }
 .motion-input-grid {
+  --motion-preview-frame: 290px;
+  --motion-preview-media: 240px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 12px;
 }
 .motion-model-row {
@@ -1508,35 +1511,59 @@ body {
 .motion-input-grid .drop-zone video {
   max-height: 120px;
 }
-.motion-image-input > .file-picker:first-child .drop-zone.has-file {
-  min-height: 256px;
+.motion-image-input > .file-picker:first-child .drop-zone.has-file,
+.driving-preview-host {
+  box-sizing: border-box;
+  height: var(--motion-preview-frame);
+  min-height: var(--motion-preview-frame);
+  max-height: var(--motion-preview-frame);
+  padding: 12px 8px;
+  gap: 6px;
 }
-.motion-image-input > .file-picker:first-child .drop-zone img {
-  height: 240px;
-  max-height: 240px;
+.motion-image-input > .file-picker:first-child .drop-zone img,
+.driving-preview-host .clip-preview-slot {
+  flex: 0 0 var(--motion-preview-media);
+  height: var(--motion-preview-media);
+  min-height: var(--motion-preview-media);
+  max-height: var(--motion-preview-media);
   width: auto;
   max-width: 100%;
+}
+.motion-image-input > .file-picker:first-child .drop-zone img {
   object-fit: contain;
   background: #000;
+}
+.motion-image-input > .file-picker:first-child .drop-zone.has-file > span,
+.driving-preview-host .clip-file-name {
+  flex: 0 0 18px;
+  height: 18px;
+  line-height: 18px;
 }
 .driving-preview-host {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 256px;
-  padding: 8px;
   border: 1px dashed var(--border-strong);
   border-radius: 8px;
   background: transparent;
 }
+.driving-preview-host .clip-preview-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .driving-preview-host .clip-preview {
-  height: 240px;
   width: auto;
+  height: auto;
   max-width: 100%;
+  max-height: 100%;
   border-radius: 4px;
   background: transparent;
+  object-fit: contain;
+}
+.clip-editor > .clip-preview-slot {
+  display: contents;
 }
 .driving-preview-host .clip-file-name {
   max-width: 100%;
