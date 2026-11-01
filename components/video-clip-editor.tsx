@@ -36,7 +36,8 @@ function drawWave(
     const x = index * (barWidth + gap);
     const barHeight = Math.max(2, Math.min(1, peak) * (height - 4));
     const at = ((index + 0.5) / samples.length) * sourceSeconds;
-    context.fillStyle = at >= start && at <= end ? gradient : "rgba(255,255,255,0.2)";
+    const idle = getComputedStyle(canvas).getPropertyValue("--clip-wave-idle").trim() || "rgba(255,255,255,0.2)";
+    context.fillStyle = at >= start && at <= end ? gradient : idle;
     context.beginPath();
     context.roundRect(x, (height - barHeight) / 2, barWidth, barHeight, 1);
     context.fill();
@@ -169,7 +170,12 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     draw();
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
-    return () => observer.disconnect();
+    const theme = new MutationObserver(draw);
+    theme.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => {
+      observer.disconnect();
+      theme.disconnect();
+    };
   }, [peaks, selection.start, selection.end, sourceSeconds]);
 
   function seek(seconds: number) {

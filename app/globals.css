@@ -1591,14 +1591,15 @@ body {
   background: #000;
 }
 .clip-board {
+  --clip-wave-idle: #c9c3b9;
   display: flex;
   flex-direction: column;
   gap: 0;
   padding: 8px;
   border-radius: 12px;
-  background: #07080b;
-  color: #f4f6f8;
-  box-shadow: inset 0 0 0 1px #35c8ff33, 0 0 0 1px #101114;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 .clip-board-head {
   display: flex;
@@ -1608,7 +1609,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #9aa3ad;
+  color: var(--muted-foreground);
 }
 .clip-board-head output {
   margin-left: auto;
@@ -1616,10 +1617,10 @@ body {
   letter-spacing: 0;
   text-transform: none;
   font-variant-numeric: tabular-nums;
-  color: #f4f6f8;
+  color: var(--foreground);
 }
 .clip-board-head output span {
-  color: #8b939c;
+  color: var(--text-subtle);
 }
 .clip-play {
   min-height: 22px;
@@ -1647,7 +1648,7 @@ body {
   height: 100%;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
-  background: #14161a;
+  background: var(--muted);
 }
 .clip-frames img,
 .clip-frames span {
@@ -1656,14 +1657,14 @@ body {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  background: linear-gradient(180deg, #1c1f24, #101114);
+  background: var(--muted);
 }
 .clip-dim {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
-  background: #05060acc;
+  background: #faf9f7c4;
   pointer-events: none;
   border-radius: 8px 0 0 0;
 }
@@ -1699,7 +1700,7 @@ body {
   width: 11px;
   padding: 0;
   border-radius: 5px;
-  background: #07080be6;
+  background: #fffc;
   transform: translateX(-50%);
   pointer-events: auto;
   cursor: ew-resize;
@@ -1725,7 +1726,7 @@ body {
   bottom: -2px;
   width: 2px;
   margin-left: -1px;
-  background: #fff;
+  background: var(--foreground);
   pointer-events: none;
   z-index: 2;
 }
@@ -1737,7 +1738,7 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--foreground);
   transform: translateX(-50%);
 }
 .clip-wave {
@@ -1745,7 +1746,7 @@ body {
   width: 100%;
   height: 32px;
   border-radius: 0 0 8px 8px;
-  background: #050608;
+  background: var(--muted);
 }
 .clip-readout {
   display: grid;
@@ -1762,7 +1763,7 @@ body {
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8b939c;
+  color: var(--muted-foreground);
 }
 .clip-readout label:last-child {
   align-items: flex-end;
@@ -1771,10 +1772,10 @@ body {
   width: 100%;
   height: 28px;
   padding: 0 8px;
-  border: 1px solid #2a3038;
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
-  background: #101216;
-  color: #f4f6f8;
+  background: var(--input);
+  color: var(--foreground);
   font-variant-numeric: tabular-nums;
   font-size: 12px;
   appearance: textfield;
@@ -1792,6 +1793,48 @@ body {
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
+}
+[data-theme="dark"] .clip-board {
+  --clip-wave-idle: rgba(255, 255, 255, 0.28);
+  background: #07080b;
+  color: #f4f6f8;
+  box-shadow: inset 0 0 0 1px #35c8ff33, 0 0 0 1px #101114;
+}
+[data-theme="dark"] .clip-board-head {
+  color: #9aa3ad;
+}
+[data-theme="dark"] .clip-board-head output {
+  color: #f4f6f8;
+}
+[data-theme="dark"] .clip-board-head output span,
+[data-theme="dark"] .clip-readout label {
+  color: #8b939c;
+}
+[data-theme="dark"] .clip-frames,
+[data-theme="dark"] .clip-frames span,
+[data-theme="dark"] .clip-wave {
+  background: #14161a;
+}
+[data-theme="dark"] .clip-wave {
+  background: #050608;
+}
+[data-theme="dark"] .clip-dim {
+  background: #05060acc;
+}
+[data-theme="dark"] .clip-handle {
+  background: #07080be6;
+}
+[data-theme="dark"] .clip-playhead,
+[data-theme="dark"] .clip-playhead::before {
+  background: #fff;
+}
+[data-theme="dark"] .clip-readout input {
+  border-color: #2a3038;
+  background: #101216;
+  color: #f4f6f8;
+}
+[data-theme="dark"] .clip-readout strong {
   color: #d4f25c;
 }
 .connected-label {
