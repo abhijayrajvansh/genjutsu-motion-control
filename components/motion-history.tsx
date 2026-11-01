@@ -320,7 +320,7 @@ function MotionCard({
           <details className="job-prompt-details">
             <summary>Show prompt</summary>
             <p className="job-prompt">{job.prompt}</p>
-            {job.model === "wan" && (
+            {(job.model === "wan" || job.model === "wan27r2v" || job.model === "wan27edit") && (
               <small className="job-prompt-seed">
                 {typeof job.seed === "number" ? `Seed: ${job.seed}` : "Seed: not recorded"}
               </small>
