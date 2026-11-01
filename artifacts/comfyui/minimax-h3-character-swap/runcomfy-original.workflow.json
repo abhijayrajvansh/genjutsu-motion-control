@@ -1,0 +1,6331 @@
+{
+  "id": "d72f7d7d-193b-448c-a80c-fe8f831ca2f9",
+  "extra": {
+    "ds": {
+      "scale": 0.17173913043478262,
+      "offset": [
+        1711.301424050633,
+        815.8771756329115
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.55.18",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      747,
+      503,
+      0,
+      454,
+      2,
+      "MASK"
+    ],
+    [
+      748,
+      503,
+      0,
+      491,
+      0,
+      "MASK"
+    ],
+    [
+      670,
+      990,
+      0,
+      456,
+      0,
+      "*"
+    ],
+    [
+      678,
+      457,
+      0,
+      454,
+      1,
+      "IMAGE"
+    ],
+    [
+      682,
+      463,
+      0,
+      466,
+      0,
+      "MODEL"
+    ],
+    [
+      683,
+      464,
+      0,
+      466,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      684,
+      467,
+      0,
+      469,
+      0,
+      "NOISE"
+    ],
+    [
+      688,
+      464,
+      1,
+      469,
+      4,
+      "LATENT"
+    ],
+    [
+      692,
+      470,
+      0,
+      472,
+      1,
+      "VAE"
+    ],
+    [
+      693,
+      463,
+      0,
+      473,
+      0,
+      "MODEL"
+    ],
+    [
+      696,
+      472,
+      0,
+      476,
+      0,
+      "IMAGE"
+    ],
+    [
+      718,
+      491,
+      0,
+      492,
+      0,
+      "IMAGE"
+    ],
+    [
+      730,
+      504,
+      0,
+      503,
+      0,
+      "MODEL"
+    ],
+    [
+      731,
+      502,
+      0,
+      503,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      732,
+      504,
+      1,
+      502,
+      0,
+      "CLIP"
+    ],
+    [
+      807,
+      456,
+      0,
+      901,
+      0,
+      "IMAGE"
+    ],
+    [
+      827,
+      463,
+      0,
+      950,
+      0,
+      "MODEL"
+    ],
+    [
+      828,
+      950,
+      0,
+      951,
+      0,
+      "MODEL"
+    ],
+    [
+      829,
+      951,
+      0,
+      952,
+      0,
+      "MODEL"
+    ],
+    [
+      830,
+      464,
+      0,
+      952,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      831,
+      463,
+      0,
+      953,
+      0,
+      "MODEL"
+    ],
+    [
+      834,
+      955,
+      0,
+      469,
+      1,
+      "*"
+    ],
+    [
+      837,
+      956,
+      0,
+      469,
+      2,
+      "*"
+    ],
+    [
+      840,
+      957,
+      0,
+      469,
+      3,
+      "*"
+    ],
+    [
+      841,
+      1012,
+      0,
+      961,
+      0,
+      "STRING"
+    ],
+    [
+      842,
+      961,
+      0,
+      962,
+      0,
+      "STRING"
+    ],
+    [
+      843,
+      1012,
+      0,
+      963,
+      0,
+      "STRING"
+    ],
+    [
+      844,
+      963,
+      0,
+      964,
+      0,
+      "STRING"
+    ],
+    [
+      848,
+      960,
+      0,
+      965,
+      0,
+      "*"
+    ],
+    [
+      849,
+      970,
+      0,
+      457,
+      0,
+      "IMAGE"
+    ],
+    [
+      850,
+      970,
+      0,
+      454,
+      0,
+      "IMAGE"
+    ],
+    [
+      851,
+      970,
+      0,
+      503,
+      1,
+      "IMAGE"
+    ],
+    [
+      853,
+      980,
+      0,
+      476,
+      1,
+      "*"
+    ],
+    [
+      863,
+      970,
+      0,
+      991,
+      0,
+      "IMAGE"
+    ],
+    [
+      864,
+      991,
+      0,
+      992,
+      0,
+      "INT"
+    ],
+    [
+      865,
+      991,
+      1,
+      992,
+      1,
+      "INT"
+    ],
+    [
+      866,
+      991,
+      2,
+      992,
+      2,
+      "INT"
+    ],
+    [
+      867,
+      992,
+      0,
+      993,
+      0,
+      "IMAGE"
+    ],
+    [
+      868,
+      457,
+      0,
+      993,
+      1,
+      "IMAGE"
+    ],
+    [
+      869,
+      503,
+      0,
+      993,
+      2,
+      "MASK"
+    ],
+    [
+      871,
+      964,
+      0,
+      995,
+      0,
+      "STRING"
+    ],
+    [
+      882,
+      912,
+      0,
+      1010,
+      0,
+      "*"
+    ],
+    [
+      883,
+      1010,
+      0,
+      1011,
+      0,
+      "STRING"
+    ],
+    [
+      884,
+      1011,
+      0,
+      1012,
+      0,
+      "STRING"
+    ],
+    [
+      906,
+      469,
+      0,
+      1021,
+      0,
+      "*"
+    ],
+    [
+      907,
+      1021,
+      0,
+      472,
+      0,
+      "LATENT"
+    ],
+    [
+      900,
+      1020,
+      0,
+      970,
+      2,
+      "FLOAT"
+    ],
+    [
+      899,
+      970,
+      1,
+      481,
+      0,
+      "INT"
+    ],
+    [
+      706,
+      476,
+      0,
+      482,
+      0,
+      "VIDEO"
+    ],
+    [
+      679,
+      465,
+      0,
+      464,
+      0,
+      "CLIP"
+    ],
+    [
+      680,
+      470,
+      0,
+      464,
+      1,
+      "VAE"
+    ],
+    [
+      681,
+      474,
+      0,
+      464,
+      2,
+      "VAE"
+    ],
+    [
+      722,
+      496,
+      0,
+      464,
+      3,
+      "IMAGE"
+    ],
+    [
+      806,
+      456,
+      0,
+      464,
+      6,
+      "IMAGE"
+    ],
+    [
+      852,
+      980,
+      0,
+      464,
+      12,
+      "*"
+    ],
+    [
+      847,
+      960,
+      0,
+      464,
+      15,
+      "*"
+    ],
+    [
+      725,
+      501,
+      0,
+      464,
+      16,
+      "INT"
+    ],
+    [
+      726,
+      501,
+      1,
+      464,
+      17,
+      "INT"
+    ],
+    [
+      703,
+      481,
+      1,
+      464,
+      18,
+      "INT"
+    ],
+    [
+      911,
+      1002,
+      0,
+      912,
+      0,
+      "STRING"
+    ],
+    [
+      821,
+      910,
+      0,
+      912,
+      1,
+      "STRING"
+    ],
+    [
+      832,
+      952,
+      0,
+      955,
+      0,
+      "GUIDER"
+    ],
+    [
+      833,
+      466,
+      0,
+      955,
+      1,
+      "GUIDER"
+    ],
+    [
+      835,
+      954,
+      0,
+      956,
+      0,
+      "SAMPLER"
+    ],
+    [
+      836,
+      468,
+      0,
+      956,
+      1,
+      "SAMPLER"
+    ],
+    [
+      838,
+      953,
+      0,
+      957,
+      0,
+      "SIGMAS"
+    ],
+    [
+      839,
+      473,
+      0,
+      957,
+      1,
+      "SIGMAS"
+    ],
+    [
+      845,
+      962,
+      0,
+      960,
+      0,
+      "STRING"
+    ],
+    [
+      846,
+      995,
+      0,
+      960,
+      1,
+      "STRING"
+    ],
+    [
+      861,
+      970,
+      2,
+      980,
+      0,
+      "AUDIO"
+    ],
+    [
+      870,
+      993,
+      0,
+      990,
+      0,
+      "IMAGE"
+    ],
+    [
+      862,
+      454,
+      0,
+      990,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 454,
+      "pos": [
+        1530,
+        440
+      ],
+      "mode": 0,
+      "size": [
+        280,
+        160
+      ],
+      "type": "ImageCompositeMasked",
+      "flags": {},
+      "order": 37,
+      "title": "Invert only the person",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 850,
+          "name": "destination",
+          "type": "IMAGE",
+          "label": "destination",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 678,
+          "name": "source",
+          "type": "IMAGE",
+          "label": "source",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 747,
+          "name": "mask",
+          "type": "MASK",
+          "label": "mask",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "x",
+          "type": "INT",
+          "label": "x",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "x"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "y",
+          "type": "INT",
+          "label": "y",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "y"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "resize_source",
+          "type": "BOOLEAN",
+          "label": "resize_source",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "resize_source"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            862
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageCompositeMasked",
+        "widget_ue_connectable": {
+          "x": true,
+          "y": true,
+          "resize_source": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        0,
+        false
+      ],
+      "widgets_values_named": {
+        "x": 0,
+        "y": 0,
+        "resize_source": false
+      }
+    },
+    {
+      "id": 456,
+      "pos": [
+        1530,
+        680
+      ],
+      "mode": 0,
+      "size": [
+        280,
+        142
+      ],
+      "type": "ImageScaleToTotalPixels",
+      "color": "#232",
+      "flags": {},
+      "order": 48,
+      "title": "Motion Guide Resolution",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 670,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "upscale_method",
+          "type": "COMBO",
+          "label": "upscale_method",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "upscale_method"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "megapixels",
+          "type": "FLOAT",
+          "label": "megapixels",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "megapixels"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "resolution_steps",
+          "type": "INT",
+          "label": "resolution_steps",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "resolution_steps"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            806,
+            807
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageScaleToTotalPixels",
+        "widget_ue_connectable": {
+          "megapixels": true,
+          "upscale_method": true,
+          "resolution_steps": true
+        }
+      },
+      "showAdvanced": true,
+      "widgets_values": [
+        "nearest-exact",
+        0.15,
+        1
+      ],
+      "widgets_values_named": {
+        "megapixels": 0.15,
+        "upscale_method": "nearest-exact",
+        "resolution_steps": 1
+      }
+    },
+    {
+      "id": 457,
+      "pos": [
+        1530,
+        340
+      ],
+      "mode": 0,
+      "size": [
+        230,
+        40
+      ],
+      "type": "ImageInvert",
+      "flags": {},
+      "order": 31,
+      "title": "Invert colours",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 849,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            678,
+            868
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageInvert",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 463,
+      "pos": [
+        2200,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        82
+      ],
+      "type": "UNETLoader",
+      "flags": {},
+      "order": 0,
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "unet_name",
+          "type": "COMBO",
+          "label": "unet_name",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "unet_name"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "label": "weight_dtype",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": "MODEL",
+          "links": [
+            682,
+            693,
+            827,
+            831
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "Node name for S&R": "UNETLoader",
+        "widget_ue_connectable": {
+          "unet_name": true,
+          "weight_dtype": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 465,
+      "pos": [
+        2200,
+        140
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        106
+      ],
+      "type": "CLIPLoader",
+      "flags": {},
+      "order": 1,
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "clip_name",
+          "type": "COMBO",
+          "label": "clip_name",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "clip_name"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "type",
+          "type": "COMBO",
+          "label": "type",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "type"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "device",
+          "type": "COMBO",
+          "label": "device",
+          "shape": 7,
+          "locked": null,
+          "widget": {
+            "name": "device"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": "CLIP",
+          "links": [
+            679
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "Node name for S&R": "CLIPLoader",
+        "widget_ue_connectable": {
+          "type": true,
+          "device": true,
+          "clip_name": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "type": "minimax",
+        "device": "default",
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+      }
+    },
+    {
+      "id": 466,
+      "pos": [
+        2850,
+        430
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        50
+      ],
+      "type": "BasicGuider",
+      "flags": {},
+      "order": 54,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 682,
+          "name": "model",
+          "type": "MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 683,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": "conditioning",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "label": "GUIDER",
+          "links": [
+            833
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "BasicGuider",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 467,
+      "pos": [
+        2850,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        90
+      ],
+      "type": "RandomNoise",
+      "flags": {},
+      "order": 2,
+      "title": "Seed (change for variations)",
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "noise_seed",
+          "type": "INT",
+          "label": "noise_seed",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "noise_seed"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "NOISE",
+          "type": "NOISE",
+          "label": "NOISE",
+          "links": [
+            684
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RandomNoise",
+        "widget_ue_connectable": {
+          "noise_seed": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        155020261028,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 155020261028,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 468,
+      "pos": [
+        2850,
+        150
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        60
+      ],
+      "type": "KSamplerSelect",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "sampler_name",
+          "type": "COMBO",
+          "label": "sampler_name",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "sampler_name"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "label": "SAMPLER",
+          "links": [
+            836
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSamplerSelect",
+        "widget_ue_connectable": {
+          "sampler_name": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "res_multistep"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "res_multistep"
+      }
+    },
+    {
+      "id": 469,
+      "pos": [
+        3730,
+        540
+      ],
+      "mode": 0,
+      "size": [
+        260,
+        360
+      ],
+      "type": "SamplerCustomAdvanced",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 57,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 684,
+          "name": "noise",
+          "type": "NOISE",
+          "label": "noise",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 834,
+          "name": "guider",
+          "type": "GUIDER",
+          "label": "guider",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 837,
+          "name": "sampler",
+          "type": "SAMPLER",
+          "label": "sampler",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 840,
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "label": "sigmas",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 688,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": "latent_image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "output",
+          "type": "LATENT",
+          "label": "output",
+          "links": [
+            906
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "denoised_output",
+          "type": "LATENT",
+          "label": "denoised_output",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 470,
+      "pos": [
+        2200,
+        300
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        60
+      ],
+      "type": "VAELoader",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "vae_name",
+          "type": "COMBO",
+          "label": "vae_name",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "vae_name"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": "VAE",
+          "links": [
+            680,
+            692
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors",
+            "name": "minimax_h3_video_vae_fp16.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "Node name for S&R": "VAELoader",
+        "widget_ue_connectable": {
+          "vae_name": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+      }
+    },
+    {
+      "id": 474,
+      "pos": [
+        2200,
+        420
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        60
+      ],
+      "type": "VAELoader",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "vae_name",
+          "type": "COMBO",
+          "label": "vae_name",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "vae_name"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": "VAE",
+          "links": [
+            681
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors",
+            "name": "minimax_h3_audio_vae_fp32.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "Node name for S&R": "VAELoader",
+        "widget_ue_connectable": {
+          "vae_name": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+      }
+    },
+    {
+      "id": 481,
+      "pos": [
+        2200,
+        530
+      ],
+      "mode": 0,
+      "size": [
+        225,
+        74
+      ],
+      "type": "ComfyMathExpression",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 34,
+      "title": "Valid frame count (auto)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 899,
+          "name": "values.a",
+          "type": "FLOAT,INT,BOOLEAN",
+          "label": "values.a",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "values.b",
+          "type": "FLOAT,INT,BOOLEAN",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "expression",
+          "type": "STRING",
+          "label": "expression",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "expression"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "label": "FLOAT",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "INT",
+          "type": "INT",
+          "label": "INT",
+          "links": [
+            703
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "BOOL",
+          "type": "BOOLEAN",
+          "label": "BOOL",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ComfyMathExpression",
+        "widget_ue_connectable": {
+          "expression": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "a - ((a - 5) % 17)"
+      ],
+      "widgets_values_named": {
+        "expression": "a - ((a - 5) % 17)"
+      }
+    },
+    {
+      "id": 491,
+      "pos": [
+        1850,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        200,
+        30
+      ],
+      "type": "MaskToImage",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 38,
+      "title": "Mask → image",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 748,
+          "name": "mask",
+          "type": "MASK",
+          "label": "mask",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            718
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "MaskToImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 492,
+      "pos": [
+        1850,
+        100
+      ],
+      "mode": 0,
+      "size": [
+        300,
+        340
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 41,
+      "title": "Mask Preview (check first!)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 718,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "image_urls",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 504,
+      "pos": [
+        1150,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        330,
+        100
+      ],
+      "type": "CheckpointLoaderSimple",
+      "flags": {},
+      "order": 6,
+      "title": "SAM3 model",
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "ckpt_name",
+          "type": "COMBO",
+          "label": "ckpt_name",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "ckpt_name"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": "MODEL",
+          "links": [
+            730
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": "CLIP",
+          "links": [
+            732
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": "VAE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.19.3",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/sam3.1/resolve/main/checkpoints/sam3.1_multiplex_fp16.safetensors",
+            "name": "sam3.1_multiplex_fp16.safetensors",
+            "directory": "checkpoints"
+          }
+        ],
+        "tabWidth": 65,
+        "enableTabs": false,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "secondTabOffset": 80,
+        "Node name for S&R": "CheckpointLoaderSimple",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sam3.1_multiplex_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+      }
+    },
+    {
+      "id": 476,
+      "pos": [
+        4050,
+        130
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        200
+      ],
+      "type": "CreateVideo",
+      "flags": {},
+      "order": 60,
+      "title": "Combine (original audio)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 696,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 853,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": "audio",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "fps",
+          "type": "FLOAT",
+          "label": "fps",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "fps"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "bit_depth",
+          "type": "COMBO",
+          "label": "bit_depth",
+          "shape": 7,
+          "locked": null,
+          "widget": {
+            "name": "bit_depth"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "label": "VIDEO",
+          "links": [
+            706
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CreateVideo",
+        "widget_ue_connectable": {
+          "fps": true,
+          "bit_depth": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        24,
+        8,
+        "sRGB",
+        "none"
+      ],
+      "widgets_values_named": {
+        "fps": 24,
+        "codec": "none",
+        "bit_depth": 8,
+        "color_space": "sRGB"
+      }
+    },
+    {
+      "id": 502,
+      "pos": [
+        1150,
+        150
+      ],
+      "mode": 0,
+      "size": [
+        330,
+        100
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 24,
+      "title": "SAM3 Target — who to replace",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 732,
+          "name": "clip",
+          "type": "CLIP",
+          "label": "clip",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": "CONDITIONING",
+          "links": [
+            731
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.19.3",
+        "cnr_id": "comfy-core",
+        "tabWidth": 65,
+        "enableTabs": false,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "secondTabOffset": 80,
+        "Node name for S&R": "CLIPTextEncode",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "person"
+      ],
+      "widgets_values_named": {
+        "text": "person"
+      }
+    },
+    {
+      "id": 464,
+      "pos": [
+        2200,
+        670
+      ],
+      "mode": 0,
+      "size": [
+        420,
+        640
+      ],
+      "type": "MiniMaxH3ReferenceToVideo",
+      "flags": {},
+      "order": 52,
+      "title": "MiniMax H3 Ref → Video",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 679,
+          "name": "clip",
+          "type": "CLIP",
+          "label": "clip",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 680,
+          "name": "vae",
+          "type": "VAE",
+          "label": "vae",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 681,
+          "name": "audio_vae",
+          "type": "VAE",
+          "label": "audio_vae",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 722,
+          "name": "ref_images.ref_image_0",
+          "type": "IMAGE",
+          "label": "ref_images.ref_image_0",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_images.ref_image_1",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_images.ref_image_2",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 806,
+          "name": "ref_videos.ref_video_0",
+          "type": "IMAGE",
+          "label": "ref_videos.ref_video_0",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_videos.ref_video_1",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_videos.ref_video_2",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_video_audios.ref_video_audio_0",
+          "type": "AUDIO",
+          "label": "ref_video_audios.ref_video_audio_0",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_video_audios.ref_video_audio_1",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_video_audios.ref_video_audio_2",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 852,
+          "name": "ref_audios.ref_audio_0",
+          "type": "AUDIO",
+          "label": "ref_audios.ref_audio_0",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_audios.ref_audio_1",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "ref_audios.ref_audio_2",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 847,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "prompt"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 725,
+          "name": "width",
+          "type": "INT",
+          "label": "width",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 726,
+          "name": "height",
+          "type": "INT",
+          "label": "height",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "height"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 703,
+          "name": "length",
+          "type": "INT",
+          "label": "length",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "length"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "ref_image_size",
+          "type": "COMBO",
+          "label": "ref_image_size",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "ref_image_size"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": "positive",
+          "links": [
+            683,
+            830
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": "LATENT",
+          "links": [
+            688
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "MiniMaxH3ReferenceToVideo",
+        "widget_ue_connectable": {
+          "width": true,
+          "height": true,
+          "length": true,
+          "prompt": true,
+          "ref_image_size": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        1920,
+        768,
+        107,
+        "match"
+      ],
+      "widgets_values_named": {
+        "width": 1920,
+        "height": 768,
+        "length": 107,
+        "prompt": "",
+        "ref_image_size": "match"
+      }
+    },
+    {
+      "id": 472,
+      "pos": [
+        4050,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        230,
+        50
+      ],
+      "type": "VAEDecode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 59,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 907,
+          "name": "samples",
+          "type": "LATENT",
+          "label": "samples",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 692,
+          "name": "vae",
+          "type": "VAE",
+          "label": "vae",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            696
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 503,
+      "pos": [
+        1530,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        280,
+        290
+      ],
+      "type": "SAM3_Detect",
+      "flags": {},
+      "order": 32,
+      "title": "SAM3 Detect person",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 730,
+          "name": "model",
+          "type": "MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 851,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 731,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": "conditioning",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "label": "bboxes",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "positive_coords",
+          "type": "STRING",
+          "label": "positive_coords",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "negative_coords",
+          "type": "STRING",
+          "label": "negative_coords",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "threshold",
+          "type": "FLOAT",
+          "label": "threshold",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "threshold"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "refine_iterations",
+          "type": "INT",
+          "label": "refine_iterations",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "refine_iterations"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "individual_masks",
+          "type": "BOOLEAN",
+          "label": "individual_masks",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "individual_masks"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "masks",
+          "type": "MASK",
+          "label": "masks",
+          "links": [
+            747,
+            748,
+            869
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "label": "bboxes",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.19.3",
+        "cnr_id": "comfy-core",
+        "tabWidth": 65,
+        "enableTabs": false,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "secondTabOffset": 80,
+        "Node name for S&R": "SAM3_Detect",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0.5,
+        2,
+        false
+      ],
+      "widgets_values_named": {
+        "threshold": 0.5,
+        "individual_masks": false,
+        "refine_iterations": 2
+      }
+    },
+    {
+      "id": 496,
+      "pos": [
+        600,
+        410
+      ],
+      "mode": 0,
+      "size": [
+        360,
+        500
+      ],
+      "type": "LoadImage",
+      "color": "#232",
+      "flags": {},
+      "order": 7,
+      "title": "② Character Image",
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "image",
+          "type": "COMBO",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "image"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "label": "upload",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "upload"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            722
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {
+          "image": true,
+          "upload": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1550_input_character.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "1550_input_character.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 482,
+      "pos": [
+        4050,
+        410
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        880
+      ],
+      "type": "SaveVideo",
+      "flags": {},
+      "order": 61,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 706,
+          "name": "video",
+          "type": "VIDEO",
+          "label": "video",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "filename_prefix",
+          "type": "STRING",
+          "label": "filename_prefix",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "format",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "label": "format",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "format"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "codec",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "label": "codec",
+          "shape": 7,
+          "locked": null,
+          "widget": {
+            "name": "codec"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "video",
+          "type": "VIDEO",
+          "label": "video_url",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "video",
+          "type": "VIDEO",
+          "label": "video",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SaveVideo",
+        "widget_ue_connectable": {
+          "codec": true,
+          "format": true,
+          "filename_prefix": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1550_demo",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "widgets_values_named": {
+        "codec": "auto",
+        "format": "auto",
+        "format.codec": "auto",
+        "filename_prefix": "1550_demo"
+      }
+    },
+    {
+      "id": 901,
+      "pos": [
+        1850,
+        500
+      ],
+      "mode": 0,
+      "size": [
+        300,
+        340
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 50,
+      "title": "Motion Guide Preview",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 807,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "image_urls",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 900,
+      "pos": [
+        0,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        1100,
+        340
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 8,
+      "title": "READ ME — How to use",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "HOW TO USE — change only the GREEN nodes\n\n① Source Video — the clip whose motion, camera and timing you want. Any frame rate (converted to 24 fps automatically).\n   Trim it right on this node (the preview shows your cut), counted in frames at 24 fps:\n   • frame_load_cap = length. Best values: 107 (≈4.5 s), 124 (≈5 s), 158 (≈6.5 s), 209 (≈8.7 s), up to 362 (15 s). Other numbers are rounded down automatically.\n   • skip_first_frames = start point (24 = 1 s in).\n② Character Image — the new character. Its background doesn't matter; ⑥ decides which background is used.\n③ Output Size — pick your video's aspect ratio. 1.0 MP = full quality; 0.5 MP = fast previews.\n④ Prompt Source — turn ONE on:\n   • FREE PROMPT (default): get the prompt from the free Gemini app and paste it (steps in group 3B), or run the ready-made prompt as-is.\n   • PAID PROMPT: the Gemini node writes it automatically (Comfy account + credits).\n⑤ Speed — NORMAL (20 steps, full quality) or TURBO (LoRA, fast previews).\n⑥ Background — FROM VIDEO (character replacement) or FROM IMAGE (motion transfer). The matching rules are added to the prompt automatically; see \"Final prompt sent to H3\".\n⑦ Sound — ON if your clip has audio (needed for lip sync). OFF for silent clips, or the loader errors with \"failed to extract audio\".\n\nThen click Run.\n\nTips\n• Check the mask first: select \"Mask Preview\" → Run selected. The person should be solid white.\n• The final video uses the original audio from your clip.\n• Motion Guide Resolution 0.15 works well; try 0.3 for more detail (slower)."
+      ],
+      "widgets_values_named": {
+        "text": "HOW TO USE — change only the GREEN nodes\n\n① Source Video — the clip whose motion, camera and timing you want. Any frame rate (converted to 24 fps automatically).\n   Trim it right on this node (the preview shows your cut), counted in frames at 24 fps:\n   • frame_load_cap = length. Best values: 107 (≈4.5 s), 124 (≈5 s), 158 (≈6.5 s), 209 (≈8.7 s), up to 362 (15 s). Other numbers are rounded down automatically.\n   • skip_first_frames = start point (24 = 1 s in).\n② Character Image — the new character. Its background doesn't matter; ⑥ decides which background is used.\n③ Output Size — pick your video's aspect ratio. 1.0 MP = full quality; 0.5 MP = fast previews.\n④ Prompt Source — turn ONE on:\n   • FREE PROMPT (default): get the prompt from the free Gemini app and paste it (steps in group 3B), or run the ready-made prompt as-is.\n   • PAID PROMPT: the Gemini node writes it automatically (Comfy account + credits).\n⑤ Speed — NORMAL (20 steps, full quality) or TURBO (LoRA, fast previews).\n⑥ Background — FROM VIDEO (character replacement) or FROM IMAGE (motion transfer). The matching rules are added to the prompt automatically; see \"Final prompt sent to H3\".\n⑦ Sound — ON if your clip has audio (needed for lip sync). OFF for silent clips, or the loader errors with \"failed to extract audio\".\n\nThen click Run.\n\nTips\n• Check the mask first: select \"Mask Preview\" → Run selected. The person should be solid white.\n• The final video uses the original audio from your clip.\n• Motion Guide Resolution 0.15 works well; try 0.3 for more detail (slower)."
+      }
+    },
+    {
+      "id": 902,
+      "pos": [
+        1150,
+        320
+      ],
+      "mode": 0,
+      "size": [
+        330,
+        350
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 9,
+      "title": "Tips — Motion Guide",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "SAM3 Target: who gets replaced.\n • \"person\" = one person in the shot\n • \"man:1\" / \"woman in red:1\" = pick one of several\n\nThe person is colour-inverted on purpose, so the model copies their MOTION, not their identity.\n\nMotion Guide Resolution:\n • 0.15 = default (fast, works well incl. lip sync)\n • 0.3–0.4 = more detail in hands, face and background (slower)"
+      ],
+      "widgets_values_named": {
+        "text": "SAM3 Target: who gets replaced.\n • \"person\" = one person in the shot\n • \"man:1\" / \"woman in red:1\" = pick one of several\n\nThe person is colour-inverted on purpose, so the model copies their MOTION, not their identity.\n\nMotion Guide Resolution:\n • 0.15 = default (fast, works well incl. lip sync)\n • 0.3–0.4 = more detail in hands, face and background (slower)"
+      }
+    },
+    {
+      "id": 910,
+      "pos": [
+        826.837193556457,
+        1607.2365189751029
+      ],
+      "mode": 0,
+      "size": [
+        620,
+        440
+      ],
+      "type": "PrimitiveStringMultiline",
+      "color": "#232",
+      "flags": {},
+      "order": 10,
+      "title": "Your H3 Prompt (paste Gemini's answer here)",
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            821
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "subject_definitions:\n<Subject 1> is the original adult white male racing driver shown in <Picture 1>, with short sandy blond hair, light stubble, a cobalt-blue racing coverall with vivid orange panels and orange racing shoes. Retain this character's face, body design, colors, and complete outfit throughout.\n<Video 1> is the motion, timing and camera reference.\nSetting in <Video 1>: a hazy boxing gym with wall murals.\nFraming on the performer: match the source crop and character size exactly, including all source camera movement.\n\nsummary:\n[reference generation] From the first frame, <Subject 1> replaces the main foreground performer in <Video 1>, performing the same shadowboxing punches, guard changes, torso sways and small steps with matching timing.\n\nretention_analysis:\n<Subject 1>: attribute_transfer - transfer the reference character's identity, face, hair or fur, proportions and clothing to the moving performer consistently.\n<Video 1>: partially_preserved - preserve the original movement, pose progression, framing and camera motion. Replace the main performer's identity and complete clothing with <Subject 1>. Keep the source background.\n\ndetailed_description:\nOne continuous cinematic shot. <Subject 1> follows the main performer's exact shadowboxing punches, guard changes, torso sways and small steps. The new character occupies the same position and scale as the original performer throughout the shot. Preserve the scene geometry and all background elements in a hazy boxing gym with wall murals. Match the original light direction, shadow softness, exposure and color grade on the new character. Keep hands, limbs, face and outfit stable during motion. Do not zoom out to fit the reference portrait. No text, logos, extra limbs or additional characters. No props from the reference background.\n\noverall_soundscape:\nSilent video. No dialogue, music or generated sound.\n\nnon_diegetic_music:\nN/A"
+      ],
+      "widgets_values_named": {
+        "value": "subject_definitions:\n<Subject 1> is the original adult white male racing driver shown in <Picture 1>, with short sandy blond hair, light stubble, a cobalt-blue racing coverall with vivid orange panels and orange racing shoes. Retain this character's face, body design, colors, and complete outfit throughout.\n<Video 1> is the motion, timing and camera reference.\nSetting in <Video 1>: a hazy boxing gym with wall murals.\nFraming on the performer: match the source crop and character size exactly, including all source camera movement.\n\nsummary:\n[reference generation] From the first frame, <Subject 1> replaces the main foreground performer in <Video 1>, performing the same shadowboxing punches, guard changes, torso sways and small steps with matching timing.\n\nretention_analysis:\n<Subject 1>: attribute_transfer - transfer the reference character's identity, face, hair or fur, proportions and clothing to the moving performer consistently.\n<Video 1>: partially_preserved - preserve the original movement, pose progression, framing and camera motion. Replace the main performer's identity and complete clothing with <Subject 1>. Keep the source background.\n\ndetailed_description:\nOne continuous cinematic shot. <Subject 1> follows the main performer's exact shadowboxing punches, guard changes, torso sways and small steps. The new character occupies the same position and scale as the original performer throughout the shot. Preserve the scene geometry and all background elements in a hazy boxing gym with wall murals. Match the original light direction, shadow softness, exposure and color grade on the new character. Keep hands, limbs, face and outfit stable during motion. Do not zoom out to fit the reference portrait. No text, logos, extra limbs or additional characters. No props from the reference background.\n\noverall_soundscape:\nSilent video. No dialogue, music or generated sound.\n\nnon_diegetic_music:\nN/A"
+      }
+    },
+    {
+      "id": 911,
+      "pos": [
+        1496.837193556455,
+        1607.2365189751029
+      ],
+      "mode": 0,
+      "size": [
+        630,
+        440
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 11,
+      "title": "FREE route — how to get your prompt",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "FREE ROUTE: the free Gemini app writes the prompt (no credits)\n\nOPTION A — upload the video (best)\n1. Open the Gemini app (phone app or gemini.google.com) with any Google account.\n2. Upload a clip covering exactly the section you generate (the same start and length you set on ① with skip_first_frames and frame_load_cap), then your character image.\n3. Copy the whole \"Gemini instructions\" box (group 3 — the tall box between the Motion Guide and Paid Prompt groups) and send it as your message.\n\nOPTION B — screenshots (if video upload fails)\n1. Take 4–6 screenshots of that section, in order from start to end.\n2. Upload the screenshots FIRST and the character image LAST.\n3. Send the \"Gemini instructions\" text. If someone talks, add a last line: \"The person in the video is speaking.\" (Optionally add the exact words for even better lip sync.)\n\nTHEN\n• If the answer is \"NO VIDEO RECEIVED\", the upload failed — try again or use Option B.\n• Check the answer describes YOUR clip's action and framing (and the spoken words, with Option A).\n• If it stops after the first line, reply: \"Output the complete prompt in a single code block.\"\n• Paste the whole answer into \"Your H3 Prompt\" on the left, replacing the text there.\n\nNo time? The prompt already in \"Your H3 Prompt\" also runs as-is."
+      ],
+      "widgets_values_named": {
+        "text": "FREE ROUTE: the free Gemini app writes the prompt (no credits)\n\nOPTION A — upload the video (best)\n1. Open the Gemini app (phone app or gemini.google.com) with any Google account.\n2. Upload a clip covering exactly the section you generate (the same start and length you set on ① with skip_first_frames and frame_load_cap), then your character image.\n3. Copy the whole \"Gemini instructions\" box (group 3 — the tall box between the Motion Guide and Paid Prompt groups) and send it as your message.\n\nOPTION B — screenshots (if video upload fails)\n1. Take 4–6 screenshots of that section, in order from start to end.\n2. Upload the screenshots FIRST and the character image LAST.\n3. Send the \"Gemini instructions\" text. If someone talks, add a last line: \"The person in the video is speaking.\" (Optionally add the exact words for even better lip sync.)\n\nTHEN\n• If the answer is \"NO VIDEO RECEIVED\", the upload failed — try again or use Option B.\n• Check the answer describes YOUR clip's action and framing (and the spoken words, with Option A).\n• If it stops after the first line, reply: \"Output the complete prompt in a single code block.\"\n• Paste the whole answer into \"Your H3 Prompt\" on the left, replacing the text there.\n\nNo time? The prompt already in \"Your H3 Prompt\" also runs as-is."
+      }
+    },
+    {
+      "id": 912,
+      "pos": [
+        2660,
+        1250
+      ],
+      "mode": 0,
+      "size": [
+        300,
+        110
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 26,
+      "title": "Prompt switch (uses whichever is ON)",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 911,
+          "name": "any_01",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 821,
+          "name": "any_02",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "STRING",
+          "label": "STRING",
+          "links": [
+            882
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 950,
+      "pos": [
+        2850,
+        650
+      ],
+      "mode": 2,
+      "size": [
+        400,
+        82
+      ],
+      "type": "LoraLoaderModelOnly",
+      "flags": {},
+      "order": 22,
+      "title": "Turbo LoRA (Ref2V)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 827,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            828
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+            "name": "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+            "directory": "loras"
+          }
+        ],
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+        1
+      ],
+      "widgets_values_named": {
+        "lora_name": "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+        "strength_model": 1
+      }
+    },
+    {
+      "id": 951,
+      "pos": [
+        2850,
+        790
+      ],
+      "mode": 2,
+      "size": [
+        300,
+        82
+      ],
+      "type": "MiniMaxH3SigmaShift",
+      "flags": {},
+      "order": 28,
+      "title": "Turbo shift (12 / 3)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 828,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            829
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "MiniMaxH3SigmaShift"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        12,
+        3
+      ],
+      "widgets_values_named": {
+        "shift_audio": 3,
+        "shift_video": 12
+      }
+    },
+    {
+      "id": 953,
+      "pos": [
+        3300,
+        650
+      ],
+      "mode": 2,
+      "size": [
+        380,
+        110
+      ],
+      "type": "BasicScheduler",
+      "color": "#232",
+      "flags": {},
+      "order": 23,
+      "title": "Turbo steps (4 official · 6–8 on pruned models)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 831,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "label": null,
+          "links": [
+            838
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "BasicScheduler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "simple",
+        8,
+        1
+      ],
+      "widgets_values_named": {
+        "steps": 8,
+        "denoise": 1,
+        "scheduler": "simple"
+      }
+    },
+    {
+      "id": 954,
+      "pos": [
+        3300,
+        820
+      ],
+      "mode": 2,
+      "size": [
+        380,
+        60
+      ],
+      "type": "KSamplerSelect",
+      "flags": {},
+      "order": 12,
+      "title": "Turbo sampler",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "label": null,
+          "links": [
+            835
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "euler"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "euler"
+      }
+    },
+    {
+      "id": 952,
+      "pos": [
+        3300,
+        950
+      ],
+      "mode": 2,
+      "size": [
+        380,
+        50
+      ],
+      "type": "BasicGuider",
+      "flags": {},
+      "order": 55,
+      "title": "Turbo guider",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 829,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 830,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "label": null,
+          "links": [
+            832
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "BasicGuider"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 955,
+      "pos": [
+        3730,
+        0
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        110
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 56,
+      "title": "Guider switch",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 832,
+          "name": "any_01",
+          "type": "GUIDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 833,
+          "name": "any_02",
+          "type": "GUIDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "GUIDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "GUIDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "GUIDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "GUIDER",
+          "label": "GUIDER",
+          "links": [
+            834
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 956,
+      "pos": [
+        3730,
+        170
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        110
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 25,
+      "title": "Sampler switch",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 835,
+          "name": "any_01",
+          "type": "SAMPLER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 836,
+          "name": "any_02",
+          "type": "SAMPLER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "SAMPLER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "SAMPLER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "SAMPLER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "SAMPLER",
+          "label": "SAMPLER",
+          "links": [
+            837
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 957,
+      "pos": [
+        3730,
+        340
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        110
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 29,
+      "title": "Steps switch",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 838,
+          "name": "any_01",
+          "type": "SIGMAS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 839,
+          "name": "any_02",
+          "type": "SIGMAS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "SIGMAS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "SIGMAS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "SIGMAS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "SIGMAS",
+          "label": "SIGMAS",
+          "links": [
+            840
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 958,
+      "pos": [
+        380,
+        1190
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        130
+      ],
+      "type": "Fast Groups Muter (rgthree)",
+      "color": "#232",
+      "flags": {},
+      "order": 13,
+      "title": "⑤ Speed — turn ONE on",
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "sort": "position",
+        "showNav": true,
+        "matchTitle": "SPEED",
+        "matchColors": "",
+        "showAllGraphs": true,
+        "toggleRestriction": "always one",
+        "customSortAlphabet": ""
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 959,
+      "pos": [
+        3300,
+        1070
+      ],
+      "mode": 0,
+      "size": [
+        360,
+        320
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 14,
+      "title": "Turbo mode",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "TURBO = LightX2V Ref2V Turbo LoRA (v0.1).\n\nOfficial settings: full ref2va_bf16 base, 4 steps, euler, shift 12/3, ~0.5 MP.\n\nOn pruned models (the default here) part of the LoRA can't load, so 4 steps may degrade — 6–8 steps is the safer range.\n\nUse it for fast previews; switch back to NORMAL for final renders.\n\nLoRA file → models/loras:\nminimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors"
+      ],
+      "widgets_values_named": {
+        "text": "TURBO = LightX2V Ref2V Turbo LoRA (v0.1).\n\nOfficial settings: full ref2va_bf16 base, 4 steps, euler, shift 12/3, ~0.5 MP.\n\nOn pruned models (the default here) part of the LoRA can't load, so 4 steps may degrade — 6–8 steps is the safer range.\n\nUse it for fast previews; switch back to NORMAL for final renders.\n\nLoRA file → models/loras:\nminimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors"
+      }
+    },
+    {
+      "id": 961,
+      "pos": [
+        2200,
+        1570
+      ],
+      "mode": 0,
+      "size": [
+        380,
+        380
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 43,
+      "title": "Add rule: background + lighting from VIDEO",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 841,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            842
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "^[ \\t>*_`#]*subject[ _]definitions[ \\t*_`]*:[*_`]*",
+        "subject_definitions:\n<Subject 2> is the environment of <Video 1>: its location, walls, floor, background, set, furniture, objects and light sources, exactly as they appear in <Video 1> (described in the 'Setting in <Video 1>' line if given).\n<Video 1> is the source video for the target video edit.\nBackground rule: <Picture 1> provides only <Subject 1> - the character's identity, face, hair and outfit design. Everything around <Subject 1> in every frame is <Subject 2>: the location, background, set, objects and lighting of <Video 1>.\nLighting rule: relight <Subject 1> to match <Video 1> exactly - same light direction, intensity, colour temperature, coloured light and reflections, shadows, contrast and colour grade as the original performer - so the character looks filmed in that scene, not composited. If a 'Scene lighting' line is given, match it exactly.\nFraming rule: keep exactly the shot size, crop, lens and subject scale of <Video 1> in every frame, as described in the 'Framing on the performer' line if given; <Subject 1> occupies the same area of the frame, cut by the frame edges at the same places on the body, as the performer.",
+        true,
+        true,
+        false,
+        1
+      ],
+      "widgets_values_named": {
+        "count": 1,
+        "dotall": false,
+        "string": "",
+        "replace": "subject_definitions:\n<Subject 2> is the environment of <Video 1>: its location, walls, floor, background, set, furniture, objects and light sources, exactly as they appear in <Video 1> (described in the 'Setting in <Video 1>' line if given).\n<Video 1> is the source video for the target video edit.\nBackground rule: <Picture 1> provides only <Subject 1> - the character's identity, face, hair and outfit design. Everything around <Subject 1> in every frame is <Subject 2>: the location, background, set, objects and lighting of <Video 1>.\nLighting rule: relight <Subject 1> to match <Video 1> exactly - same light direction, intensity, colour temperature, coloured light and reflections, shadows, contrast and colour grade as the original performer - so the character looks filmed in that scene, not composited. If a 'Scene lighting' line is given, match it exactly.\nFraming rule: keep exactly the shot size, crop, lens and subject scale of <Video 1> in every frame, as described in the 'Framing on the performer' line if given; <Subject 1> occupies the same area of the frame, cut by the frame edges at the same places on the body, as the performer.",
+        "multiline": true,
+        "regex_pattern": "^[ \\t>*_`#]*subject[ _]definitions[ \\t*_`]*:[*_`]*",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 962,
+      "pos": [
+        2600,
+        1570
+      ],
+      "mode": 0,
+      "size": [
+        380,
+        380
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 46,
+      "title": "Add rule: keep video environment + lighting",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 842,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            845
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "(?:\\[[ \\t]*reference[ \\t]+generation([^\\]\\n]*)\\]([\\s\\S]*?))?^[ \\t>*_`#]*retention[ _]analysis[ \\t*_`]*:[*_`]*",
+        "[video editing\\g<1>] The target video is an edited version of <Video 1>. <Subject 2> stays exactly as it is in <Video 1>, and the only edit is the performer, who becomes <Subject 1>.\\g<2>\nretention_analysis:\n<Subject 2> (appears in every shot): fully_preserved - the location, walls, floor, background, set, furniture, objects and light sources of <Video 1> are retained exactly, in the same positions and from the same camera angle.\nLighting: preserved from <Video 1> - <Subject 1> takes the lighting and colour grade of <Subject 2>.",
+        true,
+        true,
+        false,
+        1
+      ],
+      "widgets_values_named": {
+        "count": 1,
+        "dotall": false,
+        "string": "",
+        "replace": "[video editing\\g<1>] The target video is an edited version of <Video 1>. <Subject 2> stays exactly as it is in <Video 1>, and the only edit is the performer, who becomes <Subject 1>.\\g<2>\nretention_analysis:\n<Subject 2> (appears in every shot): fully_preserved - the location, walls, floor, background, set, furniture, objects and light sources of <Video 1> are retained exactly, in the same positions and from the same camera angle.\nLighting: preserved from <Video 1> - <Subject 1> takes the lighting and colour grade of <Subject 2>.",
+        "multiline": true,
+        "regex_pattern": "(?:\\[[ \\t]*reference[ \\t]+generation([^\\]\\n]*)\\]([\\s\\S]*?))?^[ \\t>*_`#]*retention[ _]analysis[ \\t*_`]*:[*_`]*",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 963,
+      "pos": [
+        3050,
+        1570
+      ],
+      "mode": 2,
+      "size": [
+        360,
+        340
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 44,
+      "title": "Add rule: background from IMAGE",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 843,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            844
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "^[ \\t>*_`#]*subject[ _]definitions[ \\t*_`]*:[*_`]*",
+        "subject_definitions:\nBackground rule: <Subject 1> appears in the environment shown in <Picture 1>; keep that background, setting and lighting. Use <Video 1> only for motion, timing and camera movement; ignore its background and setting. Light <Subject 1> exactly as in <Picture 1>. Do not bring any coloured lights, haze, smoke or effects from <Video 1> into the scene.\nFraming rule: start from the framing, shot size and lens of <Picture 1>, and apply the camera movement of <Video 1> relative to that framing. Keep <Subject 1>'s full body in frame whenever the action needs it.",
+        true,
+        true,
+        false,
+        1
+      ],
+      "widgets_values_named": {
+        "count": 1,
+        "dotall": false,
+        "string": "",
+        "replace": "subject_definitions:\nBackground rule: <Subject 1> appears in the environment shown in <Picture 1>; keep that background, setting and lighting. Use <Video 1> only for motion, timing and camera movement; ignore its background and setting. Light <Subject 1> exactly as in <Picture 1>. Do not bring any coloured lights, haze, smoke or effects from <Video 1> into the scene.\nFraming rule: start from the framing, shot size and lens of <Picture 1>, and apply the camera movement of <Video 1> relative to that framing. Keep <Subject 1>'s full body in frame whenever the action needs it.",
+        "multiline": true,
+        "regex_pattern": "^[ \\t>*_`#]*subject[ _]definitions[ \\t*_`]*:[*_`]*",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 964,
+      "pos": [
+        3430,
+        1570
+      ],
+      "mode": 2,
+      "size": [
+        360,
+        340
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 47,
+      "title": "Add rule: keep image environment",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 844,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            871
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "^[ \\t>*_`#]*retention[ _]analysis[ \\t*_`]*:[*_`]*",
+        "retention_analysis:\nEnvironment: taken from <Picture 1> - keep the background, setting and lighting of <Picture 1>; do not reproduce the setting of <Video 1>.",
+        true,
+        true,
+        false,
+        1
+      ],
+      "widgets_values_named": {
+        "count": 1,
+        "dotall": false,
+        "string": "",
+        "replace": "retention_analysis:\nEnvironment: taken from <Picture 1> - keep the background, setting and lighting of <Picture 1>; do not reproduce the setting of <Video 1>.",
+        "multiline": true,
+        "regex_pattern": "^[ \\t>*_`#]*retention[ _]analysis[ \\t*_`]*:[*_`]*",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 960,
+      "pos": [
+        3900,
+        1570
+      ],
+      "mode": 0,
+      "size": [
+        300,
+        106
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 51,
+      "title": "Background switch",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 845,
+          "name": "any_01",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 846,
+          "name": "any_02",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "STRING",
+          "label": "STRING",
+          "links": [
+            847,
+            848
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 965,
+      "pos": [
+        4250,
+        1570
+      ],
+      "mode": 0,
+      "size": [
+        450,
+        360
+      ],
+      "type": "PreviewAny",
+      "flags": {},
+      "order": 53,
+      "title": "Final prompt sent to H3",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 848,
+          "name": "source",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewAny"
+      },
+      "showAdvanced": null,
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 966,
+      "pos": [
+        760,
+        1190
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        130
+      ],
+      "type": "Fast Groups Muter (rgthree)",
+      "color": "#232",
+      "flags": {},
+      "order": 15,
+      "title": "⑥ Background — turn ONE on",
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "sort": "position",
+        "showNav": true,
+        "matchTitle": "BACKGROUND",
+        "matchColors": "",
+        "showAllGraphs": true,
+        "toggleRestriction": "always one",
+        "customSortAlphabet": ""
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 970,
+      "pos": [
+        0,
+        410
+      ],
+      "mode": 0,
+      "size": [
+        561.62109375,
+        629.0682060826408
+      ],
+      "type": "VHS_LoadVideo",
+      "color": "#232",
+      "flags": {},
+      "order": 27,
+      "title": "① Source Video — set frame_load_cap (length) and skip_first_frames (start)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 900,
+          "name": "force_rate",
+          "type": "FLOAT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "force_rate"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            849,
+            850,
+            851,
+            863
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "frame_count",
+          "type": "INT",
+          "label": null,
+          "links": [
+            899
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "links": [
+            861
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4d907bee61e92c2e65af3bd6383a4e4d356126d1",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "video": "1550_input_motion.mp4",
+        "format": "None",
+        "force_rate": 24,
+        "custom_width": 0,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "1550_input_motion.mp4",
+            "frame_load_cap": 124,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 0,
+        "frame_load_cap": 124,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      },
+      "widgets_values_named": {
+        "video": "1550_input_motion.mp4",
+        "format": "None",
+        "force_rate": 24,
+        "custom_width": 0,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "1550_input_motion.mp4",
+            "frame_load_cap": 124,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 0,
+        "frame_load_cap": 124,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 980,
+      "pos": [
+        380,
+        1380
+      ],
+      "mode": 2,
+      "size": [
+        340,
+        110
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 35,
+      "title": "Video sound (pass-through)",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 861,
+          "name": "any_01",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_02",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "AUDIO",
+          "label": "AUDIO",
+          "links": [
+            852,
+            853
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 991,
+      "pos": [
+        3050,
+        1980
+      ],
+      "mode": 2,
+      "size": [
+        230,
+        124
+      ],
+      "type": "GetImageSize",
+      "flags": {},
+      "order": 33,
+      "title": "Frame size",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 863,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "links": [
+            864
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "links": [
+            865
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "batch_size",
+          "type": "INT",
+          "label": null,
+          "links": [
+            866
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "GetImageSize"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 992,
+      "pos": [
+        3430,
+        1980
+      ],
+      "mode": 2,
+      "size": [
+        260,
+        130
+      ],
+      "type": "EmptyImage",
+      "flags": {},
+      "order": 39,
+      "title": "Neutral grey canvas",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 864,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 865,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "height"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 866,
+          "name": "batch_size",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "batch_size"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            867
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "EmptyImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        512,
+        1,
+        8421504
+      ],
+      "widgets_values_named": {
+        "color": 8421504,
+        "width": 512,
+        "height": 512,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 993,
+      "pos": [
+        3050,
+        2170
+      ],
+      "mode": 2,
+      "size": [
+        360,
+        160
+      ],
+      "type": "ImageCompositeMasked",
+      "flags": {},
+      "order": 42,
+      "title": "Motion guide WITHOUT video background",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 867,
+          "name": "destination",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 868,
+          "name": "source",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 869,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            870
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        0,
+        false
+      ],
+      "widgets_values_named": {
+        "x": 0,
+        "y": 0,
+        "resize_source": false
+      }
+    },
+    {
+      "id": 990,
+      "pos": [
+        2200,
+        2050
+      ],
+      "mode": 0,
+      "size": [
+        300,
+        106
+      ],
+      "type": "Any Switch (rgthree)",
+      "flags": {},
+      "order": 45,
+      "title": "Motion guide switch",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 870,
+          "name": "any_01",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 862,
+          "name": "any_02",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_03",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_04",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": null,
+          "name": "any_05",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "*",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            670
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d7297b42f0fa78bec1c0411478f887423c249502",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Any Switch (rgthree)"
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 995,
+      "pos": [
+        3430,
+        2170
+      ],
+      "mode": 2,
+      "size": [
+        360,
+        320
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 49,
+      "title": "Remove video lighting + framing lines",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 871,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            846
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "Setting\\s+in\\s+<Video\\s*1>\\s*:[^\\n]*\\n?|(Scene\\s+lighting|Framing)\\s+on\\s+the\\s+performer\\s+in\\s+<Video\\s*1>\\s*:.*?(?=\\n\\s*\\n|(Scene\\s+lighting|Framing)\\s+on\\s+the\\s+performer|\\Z)",
+        "",
+        true,
+        false,
+        true,
+        0
+      ],
+      "widgets_values_named": {
+        "count": 0,
+        "dotall": true,
+        "string": "",
+        "replace": "",
+        "multiline": false,
+        "regex_pattern": "Setting\\s+in\\s+<Video\\s*1>\\s*:[^\\n]*\\n?|(Scene\\s+lighting|Framing)\\s+on\\s+the\\s+performer\\s+in\\s+<Video\\s*1>\\s*:.*?(?=\\n\\s*\\n|(Scene\\s+lighting|Framing)\\s+on\\s+the\\s+performer|\\Z)",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 1002,
+      "pos": [
+        0,
+        1600
+      ],
+      "mode": 0,
+      "size": [
+        760,
+        980
+      ],
+      "type": "PrimitiveStringMultiline",
+      "flags": {},
+      "order": 16,
+      "title": "Gemini instructions — copy this for the free route",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            911
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "You write prompts for the MiniMax H3 Reference-to-Video model.\n\nINPUTS YOU RECEIVE\n- <Video 1>, the motion reference. You receive it EITHER as a video file OR as several still frames taken from it, uploaded first and in time order (the first frame is the start of the clip). Its soundtrack is <Audio 1>.\n- <Picture 1>, the new character: one image. When frames are used, the character image is the LAST image uploaded.\n- Optionally, a short request from the user. It may say that the person in the video speaks or sings, and may give the exact words. Follow it when it doesn't conflict with the rules below.\n- If you received only one image and no video or video frames, reply only: NO VIDEO RECEIVED\n\nYOUR JOB\nWatch the whole video (or study the frames in order) and the character image, then return ONE prompt in English, in plain text (no markdown, no code fences, no commentary), using EXACTLY this structure, field names and order:\n\nsubject_definitions:\n<Subject 1> is the adult person in <Picture 1>, with the exact face, skin tone, hairstyle, body proportions and complete outfit from that image: {{one or two sentences describing the character in <Picture 1>: apparent age, build, face, skin tone, hair, and only the clothing and accessories on the body parts that are visible within the framing of <Video 1> (for example, do not mention shoes if the video never shows the performer's feet). Visual facts only.}}\n<Video 1> is the source clip; use its performer's motion, timing and camera movement.\n{{If the performer speaks, sings or raps (you can hear it in the video, or the user says so), write: \"<Audio 1> is the source soundtrack; its voice (S1) belongs to <Subject 1>.\" Otherwise write: \"<Audio 1> is the source soundtrack.\"}}\n\nsummary:\n[reference generation] From the very first frame, <Subject 1> fully replaces the performer in <Video 1> and performs the same actions with the same timing for the entire clip.\n\nretention_analysis:\n<Subject 1>: attribute_transfer - transfer the face, hairstyle, outfit and body proportions consistently to every frame.\n<Video 1>: partially_preserved - preserve the performer's action, pose, timing and camera movement; do not preserve the original performer's face, makeup or face paint, hair, hair accessories, clothing or props.\n{{If the performer speaks, sings or raps (you can hear it in the video, or the user says so), write: \"<Audio 1>: fully_copy - copy the source audio exactly; <Subject 1>'s lip movements are synchronized word for word to the speech (S1).\" Otherwise write: \"<Audio 1>: reference - keep the timing and ambience of the source audio.\"}}\n\ndetailed_description:\nPhotorealistic, continuous shot.\n[Shot 1] <Subject 1>, already fully transformed in the opening frame, {{describe what the performer does from the first frame to the last: movement, direction, gestures, facial expression, and how the camera moves. Two to five sentences. Describe only body movement: never mention the original performer's appearance, makeup or face paint, hair, hair accessories, costume, sleeves, or any object they hold, unless the character in <Picture 1> has the same item (write \"sweeps her right arm upward\", not \"waves a fan\"). If the performer speaks, sings or raps (you can hear it in the video, or the user says so) and you know the exact words (you hear them, or the user gives them), weave the words into the action in time order, split into short phrases placed where they are said, each written as (S1) <d>[Language] exact words</d> - for example: \"He raises his hands and says (S1) <d>[English] You can now use AI</d>, then lowers his arms and continues (S1) <d>[English] to replace any character</d>.\" Include every word, including the final words. If the performer speaks but you do not know the words, write \"speaks (S1)\" at the moments they talk, without <d> tags, and never guess words.}} The camera follows the same path and framing as <Video 1>. Stable face, stable outfit, natural body motion, no identity drift, no morphing, no duplicated limbs.\nSetting in <Video 1>: the target video takes place in <Subject 2>, {{describe the place <Video 1> was filmed in, in one or two sentences kept on this single line: the type of location, the walls, floor and background, furniture and fixed objects, visible light fixtures, colours and materials. Describe the place only, as it would look with nobody in it. If the location changes between shots, describe each location in order.}}\nScene lighting on the performer in <Video 1>: {{one or two sentences: light colours, direction, brightness, hard or soft light, highlights, shadows and overall exposure, as they fall on the performer.}}\nFraming on the performer in <Video 1>: {{one sentence: the shot size and exactly where the frame edges cut the performer's body, e.g. 'Medium shot from the top of the head to mid-thigh; the feet are never visible.' Note any change in framing during the clip.}}\n\noverall_soundscape:\n{{One sentence on ambience and physical sounds only; never repeat the dialogue here. If there is no speech, add: \"No invented dialogue.\"}}\n\nnon_diegetic_music:\n{{Describe any background music you can actually hear in <Audio 1> in one sentence. If the video has no sound, or no music, write N/A.}}\n\nRULES\n- Keep every field name exactly as written, each on its own line followed by a colon.\n- Copy all fixed sentences exactly as written above; only replace the parts in double curly braces {{ }}, and remove the braces. Keep square-bracket tokens such as [reference generation], [Shot 1] and [English] exactly as written. Keep the label <Subject 2> exactly as written in the 'Setting in <Video 1>' line and use it nowhere else.\n- If the video contains hard cuts (or the frames show a sudden change of shot), add extra shots after [Shot 1] in the form \"[Shot 2] At 00:02.500, ...\" using the time the cut happens.\n- Describe the location of the video only in the 'Setting in <Video 1>' line, and always write that line. Leave the background, set and location shown in the character image out of the prompt entirely. The workflow adds the background instructions separately.\n- Never invent dialogue, lyrics or music that you cannot actually hear and the user did not provide. If the video has no sound at all, write \"Natural ambience matching the scene. No dialogue.\" for overall_soundscape.\n- Never rephrase the fixed sentences, and never describe framing anywhere except the 'Framing on the performer' line."
+      ],
+      "widgets_values_named": {
+        "value": "You write prompts for the MiniMax H3 Reference-to-Video model.\n\nINPUTS YOU RECEIVE\n- <Video 1>, the motion reference. You receive it EITHER as a video file OR as several still frames taken from it, uploaded first and in time order (the first frame is the start of the clip). Its soundtrack is <Audio 1>.\n- <Picture 1>, the new character: one image. When frames are used, the character image is the LAST image uploaded.\n- Optionally, a short request from the user. It may say that the person in the video speaks or sings, and may give the exact words. Follow it when it doesn't conflict with the rules below.\n- If you received only one image and no video or video frames, reply only: NO VIDEO RECEIVED\n\nYOUR JOB\nWatch the whole video (or study the frames in order) and the character image, then return ONE prompt in English, in plain text (no markdown, no code fences, no commentary), using EXACTLY this structure, field names and order:\n\nsubject_definitions:\n<Subject 1> is the adult person in <Picture 1>, with the exact face, skin tone, hairstyle, body proportions and complete outfit from that image: {{one or two sentences describing the character in <Picture 1>: apparent age, build, face, skin tone, hair, and only the clothing and accessories on the body parts that are visible within the framing of <Video 1> (for example, do not mention shoes if the video never shows the performer's feet). Visual facts only.}}\n<Video 1> is the source clip; use its performer's motion, timing and camera movement.\n{{If the performer speaks, sings or raps (you can hear it in the video, or the user says so), write: \"<Audio 1> is the source soundtrack; its voice (S1) belongs to <Subject 1>.\" Otherwise write: \"<Audio 1> is the source soundtrack.\"}}\n\nsummary:\n[reference generation] From the very first frame, <Subject 1> fully replaces the performer in <Video 1> and performs the same actions with the same timing for the entire clip.\n\nretention_analysis:\n<Subject 1>: attribute_transfer - transfer the face, hairstyle, outfit and body proportions consistently to every frame.\n<Video 1>: partially_preserved - preserve the performer's action, pose, timing and camera movement; do not preserve the original performer's face, makeup or face paint, hair, hair accessories, clothing or props.\n{{If the performer speaks, sings or raps (you can hear it in the video, or the user says so), write: \"<Audio 1>: fully_copy - copy the source audio exactly; <Subject 1>'s lip movements are synchronized word for word to the speech (S1).\" Otherwise write: \"<Audio 1>: reference - keep the timing and ambience of the source audio.\"}}\n\ndetailed_description:\nPhotorealistic, continuous shot.\n[Shot 1] <Subject 1>, already fully transformed in the opening frame, {{describe what the performer does from the first frame to the last: movement, direction, gestures, facial expression, and how the camera moves. Two to five sentences. Describe only body movement: never mention the original performer's appearance, makeup or face paint, hair, hair accessories, costume, sleeves, or any object they hold, unless the character in <Picture 1> has the same item (write \"sweeps her right arm upward\", not \"waves a fan\"). If the performer speaks, sings or raps (you can hear it in the video, or the user says so) and you know the exact words (you hear them, or the user gives them), weave the words into the action in time order, split into short phrases placed where they are said, each written as (S1) <d>[Language] exact words</d> - for example: \"He raises his hands and says (S1) <d>[English] You can now use AI</d>, then lowers his arms and continues (S1) <d>[English] to replace any character</d>.\" Include every word, including the final words. If the performer speaks but you do not know the words, write \"speaks (S1)\" at the moments they talk, without <d> tags, and never guess words.}} The camera follows the same path and framing as <Video 1>. Stable face, stable outfit, natural body motion, no identity drift, no morphing, no duplicated limbs.\nSetting in <Video 1>: the target video takes place in <Subject 2>, {{describe the place <Video 1> was filmed in, in one or two sentences kept on this single line: the type of location, the walls, floor and background, furniture and fixed objects, visible light fixtures, colours and materials. Describe the place only, as it would look with nobody in it. If the location changes between shots, describe each location in order.}}\nScene lighting on the performer in <Video 1>: {{one or two sentences: light colours, direction, brightness, hard or soft light, highlights, shadows and overall exposure, as they fall on the performer.}}\nFraming on the performer in <Video 1>: {{one sentence: the shot size and exactly where the frame edges cut the performer's body, e.g. 'Medium shot from the top of the head to mid-thigh; the feet are never visible.' Note any change in framing during the clip.}}\n\noverall_soundscape:\n{{One sentence on ambience and physical sounds only; never repeat the dialogue here. If there is no speech, add: \"No invented dialogue.\"}}\n\nnon_diegetic_music:\n{{Describe any background music you can actually hear in <Audio 1> in one sentence. If the video has no sound, or no music, write N/A.}}\n\nRULES\n- Keep every field name exactly as written, each on its own line followed by a colon.\n- Copy all fixed sentences exactly as written above; only replace the parts in double curly braces {{ }}, and remove the braces. Keep square-bracket tokens such as [reference generation], [Shot 1] and [English] exactly as written. Keep the label <Subject 2> exactly as written in the 'Setting in <Video 1>' line and use it nowhere else.\n- If the video contains hard cuts (or the frames show a sudden change of shot), add extra shots after [Shot 1] in the form \"[Shot 2] At 00:02.500, ...\" using the time the cut happens.\n- Describe the location of the video only in the 'Setting in <Video 1>' line, and always write that line. Leave the background, set and location shown in the character image out of the prompt entirely. The workflow adds the background instructions separately.\n- Never invent dialogue, lyrics or music that you cannot actually hear and the user did not provide. If the video has no sound at all, write \"Natural ambience matching the scene. No dialogue.\" for overall_soundscape.\n- Never rephrase the fixed sentences, and never describe framing anywhere except the 'Framing on the performer' line."
+      }
+    },
+    {
+      "id": 981,
+      "pos": [
+        0,
+        1380
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        100
+      ],
+      "type": "Fast Groups Muter (rgthree)",
+      "color": "#232",
+      "flags": {},
+      "order": 17,
+      "title": "⑦ Sound — turn OFF for silent clips",
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "sort": "position",
+        "showNav": true,
+        "matchTitle": "SOUND",
+        "matchColors": "",
+        "showAllGraphs": true,
+        "toggleRestriction": "default",
+        "customSortAlphabet": ""
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 913,
+      "pos": [
+        0,
+        1190
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        130
+      ],
+      "type": "Fast Groups Muter (rgthree)",
+      "color": "#232",
+      "flags": {},
+      "order": 18,
+      "title": "④ Prompt Source — turn ONE on",
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "sort": "position",
+        "showNav": true,
+        "matchTitle": "PROMPT",
+        "matchColors": "",
+        "showAllGraphs": true,
+        "toggleRestriction": "always one",
+        "customSortAlphabet": ""
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 501,
+      "pos": [
+        600,
+        950
+      ],
+      "mode": 0,
+      "size": [
+        360,
+        170
+      ],
+      "type": "ResolutionSelector",
+      "color": "#232",
+      "flags": {},
+      "order": 19,
+      "title": "③ Output Size — match source aspect",
+      "inputs": [
+        {
+          "dir": null,
+          "link": null,
+          "name": "aspect_ratio",
+          "type": "COMBO",
+          "label": "aspect_ratio",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "aspect_ratio"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "megapixels",
+          "type": "FLOAT",
+          "label": "megapixels",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "megapixels"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "multiple",
+          "type": "INT",
+          "label": "multiple",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "multiple"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "width",
+          "links": [
+            725
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "height",
+          "links": [
+            726
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ResolutionSelector",
+        "widget_ue_connectable": {
+          "multiple": true,
+          "megapixels": true,
+          "aspect_ratio": true
+        }
+      },
+      "showAdvanced": false,
+      "widgets_values": [
+        "16:9 (Widescreen)",
+        1,
+        32
+      ],
+      "widgets_values_named": {
+        "multiple": 32,
+        "megapixels": 1,
+        "aspect_ratio": "16:9 (Widescreen)"
+      }
+    },
+    {
+      "id": 473,
+      "pos": [
+        2850,
+        260
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        110
+      ],
+      "type": "BasicScheduler",
+      "flags": {},
+      "order": 21,
+      "title": "Normal steps (20–30)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 693,
+          "name": "model",
+          "type": "MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "scheduler",
+          "type": "COMBO",
+          "label": "scheduler",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "scheduler"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "steps",
+          "type": "INT",
+          "label": "steps",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "steps"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": null,
+          "name": "denoise",
+          "type": "FLOAT",
+          "label": "denoise",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "denoise"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "label": "SIGMAS",
+          "links": [
+            839
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.30.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "BasicScheduler",
+        "widget_ue_connectable": {
+          "steps": true,
+          "denoise": true,
+          "scheduler": true
+        }
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "simple",
+        20,
+        1
+      ],
+      "widgets_values_named": {
+        "steps": 20,
+        "denoise": 1,
+        "scheduler": "simple"
+      }
+    },
+    {
+      "id": 1010,
+      "pos": [
+        3900,
+        2000
+      ],
+      "mode": 0,
+      "size": [
+        360,
+        292
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 30,
+      "title": "Tidy pasted prompt: remove code fences",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 882,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            883
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "^\\s*```[a-zA-Z]*\\s*$",
+        "",
+        true,
+        true,
+        false,
+        0
+      ],
+      "widgets_values_named": {
+        "count": 0,
+        "dotall": false,
+        "string": "",
+        "replace": "",
+        "multiline": true,
+        "regex_pattern": "^\\s*```[a-zA-Z]*\\s*$",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 1011,
+      "pos": [
+        4300,
+        2000
+      ],
+      "mode": 0,
+      "size": [
+        360,
+        292
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 36,
+      "title": "Tidy pasted prompt: subject_definitions heading",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 883,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            884
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "^[\\s*#_`]*subject[_ ]definitions[\\s*_`]*:[ \\t*]*",
+        "subject_definitions:\\n",
+        true,
+        true,
+        false,
+        0
+      ],
+      "widgets_values_named": {
+        "count": 0,
+        "dotall": false,
+        "string": "",
+        "replace": "subject_definitions:\\n",
+        "multiline": true,
+        "regex_pattern": "^[\\s*#_`]*subject[_ ]definitions[\\s*_`]*:[ \\t*]*",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 1012,
+      "pos": [
+        3900,
+        2350
+      ],
+      "mode": 0,
+      "size": [
+        760,
+        292
+      ],
+      "type": "RegexReplace",
+      "flags": {},
+      "order": 40,
+      "title": "Tidy pasted prompt: retention_analysis heading",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 884,
+          "name": "string",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "string"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            841,
+            843
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RegexReplace"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        "^[\\s*#_`]*retention[_ ]analysis[\\s*_`]*:[ \\t*]*",
+        "retention_analysis:\\n",
+        true,
+        true,
+        false,
+        0
+      ],
+      "widgets_values_named": {
+        "count": 0,
+        "dotall": false,
+        "string": "",
+        "replace": "retention_analysis:\\n",
+        "multiline": true,
+        "regex_pattern": "^[\\s*#_`]*retention[_ ]analysis[\\s*_`]*:[ \\t*]*",
+        "case_insensitive": true
+      }
+    },
+    {
+      "id": 1020,
+      "pos": [
+        760,
+        1390
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        70
+      ],
+      "type": "PrimitiveFloat",
+      "flags": {},
+      "order": 20,
+      "title": "Frame rate for H3 (keep 24)",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "label": null,
+          "links": [
+            900
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.38.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PrimitiveFloat"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        24
+      ],
+      "widgets_values_named": {
+        "value": 24
+      }
+    },
+    {
+      "id": 1021,
+      "pos": [
+        3730,
+        1020
+      ],
+      "mode": 0,
+      "size": [
+        260,
+        46
+      ],
+      "type": "UnloadAllModels",
+      "flags": {},
+      "order": 58,
+      "title": "Free VRAM before decode (auto)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 906,
+          "name": "value",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": [
+            907
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-unload-model",
+        "Node name for S&R": "UnloadAllModels"
+      },
+      "showAdvanced": null
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f5a7a",
+      "flags": {},
+      "title": "1 · INPUTS  (edit these)",
+      "bounding": [
+        -20,
+        -70,
+        1140,
+        1580
+      ]
+    },
+    {
+      "id": 2,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "2 · MOTION GUIDE  (masks & inverts the original person)",
+      "bounding": [
+        1130,
+        -70,
+        1040,
+        970
+      ]
+    },
+    {
+      "id": 4,
+      "color": "#88418a",
+      "flags": {},
+      "title": "4 · GENERATE",
+      "bounding": [
+        2180,
+        -70,
+        1830,
+        1500
+      ]
+    },
+    {
+      "id": 5,
+      "color": "#a1543f",
+      "flags": {},
+      "title": "5 · OUTPUT",
+      "bounding": [
+        4030,
+        -70,
+        650,
+        1450
+      ]
+    },
+    {
+      "id": 6,
+      "color": "#6a4f8a",
+      "flags": {},
+      "title": "3B · FREE PROMPT  (free Gemini app — paste the answer here)",
+      "bounding": [
+        806.837193556457,
+        1537.2365189751029,
+        1340,
+        540
+      ]
+    },
+    {
+      "id": 8,
+      "color": "#555555",
+      "flags": {},
+      "title": "SPEED · NORMAL (full quality)",
+      "bounding": [
+        2830,
+        100,
+        380,
+        430
+      ]
+    },
+    {
+      "id": 9,
+      "color": "#a1543f",
+      "flags": {},
+      "title": "SPEED · TURBO (fast previews)",
+      "bounding": [
+        2830,
+        590,
+        870,
+        440
+      ]
+    },
+    {
+      "id": 10,
+      "color": "#445577",
+      "flags": {},
+      "title": "3C · BACKGROUND FROM VIDEO (character replacement)",
+      "bounding": [
+        2180,
+        1500,
+        820,
+        500
+      ]
+    },
+    {
+      "id": 11,
+      "color": "#a1543f",
+      "flags": {},
+      "title": "3C · BACKGROUND FROM IMAGE (motion transfer)",
+      "bounding": [
+        3030,
+        1500,
+        780,
+        1030
+      ]
+    },
+    {
+      "id": 12,
+      "color": "#9a7b3f",
+      "flags": {},
+      "title": "3D · FINAL TEXT → H3",
+      "bounding": [
+        3880,
+        1500,
+        840,
+        1170
+      ]
+    },
+    {
+      "id": 13,
+      "color": "#555555",
+      "flags": {},
+      "title": "SOUND · use the video's audio",
+      "bounding": [
+        360,
+        1330,
+        380,
+        180
+      ]
+    },
+    {
+      "id": 14,
+      "color": "#9a7b3f",
+      "flags": {},
+      "title": "3 · GEMINI INSTRUCTIONS  (used by both paid and free routes)",
+      "bounding": [
+        -20,
+        1530,
+        800,
+        1090
+      ]
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "definitions": null,
+  "last_link_id": 911,
+  "last_node_id": 1021,
+  "floatingLinks": null
+}

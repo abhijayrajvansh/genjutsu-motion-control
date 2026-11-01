@@ -1,0 +1,214 @@
+{
+  "source_page": "https://www.runcomfy.com/comfyui-workflows/minimax-h3-character-swap-in-comfyui-sam3-auto-prompt",
+  "source_download_endpoint": "https://www.runcomfy.com/api/workflow-json/00000000-0000-0000-0000-000000001550",
+  "source_workflow_id": "00000000-0000-0000-0000-000000001550",
+  "extracted_at_utc": "2026-11-01T15:45:31.269925+00:00",
+  "workflow_file": "runcomfy-original.workflow.json",
+  "workflow_sha256": "2079a7d4a86b097eed0758d5fa8a47365853f7192dc9e6fefe734a66696986d7",
+  "node_count": 62,
+  "link_count": 72,
+  "nodes_by_type": {
+    "Any Switch (rgthree)": 7,
+    "BasicGuider": 2,
+    "BasicScheduler": 2,
+    "CLIPLoader": 1,
+    "CLIPTextEncode": 1,
+    "CheckpointLoaderSimple": 1,
+    "ComfyMathExpression": 1,
+    "CreateVideo": 1,
+    "EmptyImage": 1,
+    "Fast Groups Muter (rgthree)": 4,
+    "GetImageSize": 1,
+    "ImageCompositeMasked": 2,
+    "ImageInvert": 1,
+    "ImageScaleToTotalPixels": 1,
+    "KSamplerSelect": 2,
+    "LoadImage": 1,
+    "LoraLoaderModelOnly": 1,
+    "MaskToImage": 1,
+    "MiniMaxH3ReferenceToVideo": 1,
+    "MiniMaxH3SigmaShift": 1,
+    "Note": 4,
+    "PreviewAny": 1,
+    "PreviewImage": 2,
+    "PrimitiveFloat": 1,
+    "PrimitiveStringMultiline": 2,
+    "RandomNoise": 1,
+    "RegexReplace": 8,
+    "ResolutionSelector": 1,
+    "SAM3_Detect": 1,
+    "SamplerCustomAdvanced": 1,
+    "SaveVideo": 1,
+    "UNETLoader": 1,
+    "UnloadAllModels": 1,
+    "VAEDecode": 1,
+    "VAELoader": 2,
+    "VHS_LoadVideo": 1
+  },
+  "models": [
+    {
+      "filename": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "node_id": 463,
+      "node_type": "UNETLoader",
+      "required_for_saved_normal_path": true,
+      "optional_turbo_only": false,
+      "comfyui_destination": "models/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "download_url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/912b6e38b2092ec4d2e86d24183e0d59ea059d48/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "repository": "Comfy-Org/MiniMax-H3",
+      "revision": "912b6e38b2092ec4d2e86d24183e0d59ea059d48",
+      "size_bytes": 20970379616,
+      "size_gb_decimal": 20.97,
+      "sha256": "9255f52b6677845ad238f20dfaafa94727053694127ab7f255c048f0f9365779"
+    },
+    {
+      "filename": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "node_id": 465,
+      "node_type": "CLIPLoader",
+      "required_for_saved_normal_path": true,
+      "optional_turbo_only": false,
+      "comfyui_destination": "models/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "download_url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/912b6e38b2092ec4d2e86d24183e0d59ea059d48/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "repository": "Comfy-Org/MiniMax-H3",
+      "revision": "912b6e38b2092ec4d2e86d24183e0d59ea059d48",
+      "size_bytes": 15687142551,
+      "size_gb_decimal": 15.687,
+      "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+    },
+    {
+      "filename": "minimax_h3_video_vae_fp16.safetensors",
+      "node_id": 470,
+      "node_type": "VAELoader",
+      "required_for_saved_normal_path": true,
+      "optional_turbo_only": false,
+      "comfyui_destination": "models/vae/minimax_h3_video_vae_fp16.safetensors",
+      "download_url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/912b6e38b2092ec4d2e86d24183e0d59ea059d48/vae/minimax_h3_video_vae_fp16.safetensors",
+      "repository": "Comfy-Org/MiniMax-H3",
+      "revision": "912b6e38b2092ec4d2e86d24183e0d59ea059d48",
+      "size_bytes": 5207808496,
+      "size_gb_decimal": 5.208,
+      "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
+    },
+    {
+      "filename": "minimax_h3_audio_vae_fp32.safetensors",
+      "node_id": 474,
+      "node_type": "VAELoader",
+      "required_for_saved_normal_path": true,
+      "optional_turbo_only": false,
+      "comfyui_destination": "models/vae/minimax_h3_audio_vae_fp32.safetensors",
+      "download_url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/912b6e38b2092ec4d2e86d24183e0d59ea059d48/vae/minimax_h3_audio_vae_fp32.safetensors",
+      "repository": "Comfy-Org/MiniMax-H3",
+      "revision": "912b6e38b2092ec4d2e86d24183e0d59ea059d48",
+      "size_bytes": 605254808,
+      "size_gb_decimal": 0.605,
+      "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+    },
+    {
+      "filename": "sam3.1_multiplex_fp16.safetensors",
+      "node_id": 504,
+      "node_type": "CheckpointLoaderSimple",
+      "required_for_saved_normal_path": true,
+      "optional_turbo_only": false,
+      "comfyui_destination": "models/checkpoints/sam3.1_multiplex_fp16.safetensors",
+      "download_url": "https://huggingface.co/Comfy-Org/sam3.1/resolve/7bb8374780a725b4353ed31f3a9395c9742b5621/checkpoints/sam3.1_multiplex_fp16.safetensors",
+      "repository": "Comfy-Org/sam3.1",
+      "revision": "7bb8374780a725b4353ed31f3a9395c9742b5621",
+      "size_bytes": 1745546848,
+      "size_gb_decimal": 1.746,
+      "sha256": "9ba99c92703c2e8b4f47de2d34a539bb8e18923049e238b780d70dbe6368eb03"
+    },
+    {
+      "filename": "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+      "node_id": 950,
+      "node_type": "LoraLoaderModelOnly",
+      "required_for_saved_normal_path": false,
+      "optional_turbo_only": true,
+      "comfyui_destination": "models/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+      "download_url": "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/912b6e38b2092ec4d2e86d24183e0d59ea059d48/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+      "repository": "Comfy-Org/MiniMax-H3",
+      "revision": "912b6e38b2092ec4d2e86d24183e0d59ea059d48",
+      "size_bytes": 1956193000,
+      "size_gb_decimal": 1.956,
+      "sha256": "5b9ab5ade15d0775676d01a907268a69a1468dc6033b3b0d3ded5502f3ebb84c"
+    }
+  ],
+  "download_bytes_normal_path": 44216132319,
+  "download_bytes_all_options": 46172325319,
+  "custom_node_packages": [
+    {
+      "id": "rgthree-comfy",
+      "repository": "https://github.com/rgthree/rgthree-comfy",
+      "workflow_revision": "d7297b42f0fa78bec1c0411478f887423c249502",
+      "nodes": [
+        "Any Switch (rgthree)",
+        "Fast Groups Muter (rgthree)"
+      ]
+    },
+    {
+      "id": "comfyui-videohelpersuite",
+      "repository": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite",
+      "workflow_revision": "4d907bee61e92c2e65af3bd6383a4e4d356126d1",
+      "nodes": [
+        "VHS_LoadVideo"
+      ]
+    },
+    {
+      "id": "comfyui-unload-model",
+      "repository": "https://github.com/SeanScripts/ComfyUI-Unload-Model",
+      "workflow_version": "1.0.2",
+      "nodes": [
+        "UnloadAllModels"
+      ]
+    }
+  ],
+  "environment": {
+    "gpu": "RTX 5090 32GB",
+    "comfyui_minimum_from_workflow_metadata": "0.38.0",
+    "current_release_checked": "0.43.0",
+    "frontend_version_saved_in_workflow": "1.55.18",
+    "torch_cuda_build": "Use a current official PyTorch cu130 build with RTX 5090/sm_120 support; verify nvidia-smi and torch.cuda before model downloads. Comfy-Org recommends cu130 for INT8 ConvRot.",
+    "system_packages": [
+      "git",
+      "ffmpeg (including ffprobe)"
+    ],
+    "python_dependencies": "Install ComfyUI requirements.txt plus requirements.txt of custom-node packages that provide one, in the same Python environment.",
+    "memory": "32GB VRAM cannot hold the backbone, text encoder and VAE simultaneously. Keep ComfyUI automatic offloading enabled.",
+    "host_ram_recommendation_gb": "64 minimum planning target; 96–128 preferred for this workflow. This exact graph has not been executed on the target Vast.ai instance.",
+    "disk_recommendation_gb": "150–200 GB persistent storage for weights, dependencies, caches, inputs and outputs; weights alone are roughly 44 GB."
+  },
+  "saved_settings": {
+    "fps": 24,
+    "frame_load_cap": 124,
+    "frame_count_rule": "a - ((a - 5) % 17)",
+    "duration_seconds": 5.166666666666667,
+    "resolution_megapixels": 1.0,
+    "normal_steps": 20,
+    "turbo_lora_node_mode": 2,
+    "source_audio_passthrough_node_mode": 2,
+    "input_video_filename": "1550_input_motion.mp4",
+    "input_image_filename": "1550_input_character.png"
+  },
+  "recommended_first_run": {
+    "resolution_megapixels": 0.5,
+    "frame_load_cap": 124,
+    "fps": 24,
+    "speed": "Normal",
+    "steps": 20,
+    "background": "Video",
+    "audio": "Off",
+    "note": "Change the prompt to describe your own inputs and inspect the SAM3 mask before rendering. Increase resolution/length only after a successful run."
+  },
+  "important_notes": [
+    "All five model loader files are included in the reproducibility manifest, including both VAEs. No separate SDXL checkpoint, Wan checkpoint, CLIP vision model, ControlNet or Hugging Face diffusers directory is referenced by the graph.",
+    "The optional Turbo LoRA is disabled in the saved workflow. Its embedded note says it targets the full Ref2VA backbone and only partially loads on the pruned backbone; 4 steps can degrade output. Keep Normal mode for the first run.",
+    "The downloaded graph contains no Gemini/API generation node. The free prompt route accepts a supplied/pasted prompt; Gemini is optional and manual.",
+    "Input video and character image are local assets, not embedded in the workflow JSON. Supply your own assets or copy them into ComfyUI/input and select them in the loaders.",
+    "A 32GB GPU alone does not establish host RAM capacity or runtime compatibility. No Vast.ai instance was rented, modified, or tested in this task.",
+    "MiniMax H3 local commercial use has separate license terms; see the official ComfyUI H3 guide and model license."
+  ],
+  "references": [
+    "https://huggingface.co/Comfy-Org/MiniMax-H3",
+    "https://huggingface.co/Comfy-Org/sam3.1",
+    "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
+    "https://github.com/Nuos/rtx509032g-minimax-h3-comfyui/blob/main/README.md"
+  ]
+}
