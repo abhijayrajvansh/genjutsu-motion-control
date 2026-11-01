@@ -2391,10 +2391,3 @@ body:has(.motion-submit-bar) .main-content {
   }
 }
 
-.motion-cost-breakdown {
-  display: grid;
-  gap: 4px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}

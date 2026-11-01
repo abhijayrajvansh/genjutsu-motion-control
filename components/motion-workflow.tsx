@@ -494,20 +494,6 @@ export function MotionWorkflow({
         value={selectedResolution}
         onChange={setResolution}
       />
-      {cost && pricing.card && referenceSeconds !== null && (
-        <div className="motion-cost-breakdown" role="note" aria-label="Generation cost breakdown">
-          <span>
-            Selected input: {Number(referenceSeconds.toFixed(2))}s · {model.id === "kling" ? "Output follows the selected clip" : `Requested output: ${duration}s`}
-          </span>
-          <span>
-            ({pricing.card.billsReferenceVideo ? `${cost.referenceSeconds}s input + ` : ""}{cost.outputSeconds}s output)
-            {" × "}{formatMotionCredits(pricing.card.rates[selectedResolution], pricing.card.currency, 4)}/s
-            {cost.imageCredits > 0 && ` + ${formatMotionCredits(cost.imageCredits, pricing.card.currency)} image fees`}
-            {" = ~"}{formatMotionCredits(cost.total, pricing.card.currency)}
-          </span>
-          <span>Estimate rounds billable durations up to whole seconds. Final cost is reported by {providerName}.</span>
-        </div>
-      )}
       <details className="prompt-override">
         <summary>Override prompt</summary>
         <Prompt
