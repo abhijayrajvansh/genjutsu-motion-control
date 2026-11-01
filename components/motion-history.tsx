@@ -253,7 +253,7 @@ function MotionCard({
         )}
         <small className="real-label">
           {job.creditsConsumed !== undefined && !pending.includes(job.state)
-            ? `${name} cost: ${formatCredits(job.creditsConsumed)} credits`
+            ? `${name} cost: ${job.provider === "apimart" ? `${formatCredits(job.creditsConsumed)} credits` : formatMotionAmount(job.creditsConsumed)}`
             : job.estimatedCredits !== undefined
               ? `${name} cost: ~${formatMotionAmount(job.estimatedCredits, job.estimatedCurrency)} (estimated)`
               : `${name} cost: unavailable`}

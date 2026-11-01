@@ -206,5 +206,7 @@ export function parseApimartPriceCard(html: string, checkedAt: string): MotionPr
 }
 export function formatMotionAmount(value: number, currency?: "CNY" | "USD") {
   if (currency === "CNY") return "USD estimate unavailable for legacy job";
-  return currency ? value.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 }) : `${formatCredits(value)} Kie credits`;
+  // Kie publishes 8 credits = $0.04. Keep billing values in credits; convert only for display.
+  const usd = currency === "USD" ? value : value * 0.005;
+  return usd.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 });
 }

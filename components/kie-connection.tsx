@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { formatMotionAmount } from "@/lib/motion-pricing";
 import type { MotionProvider } from "@/lib/motion-models";
 import { Button, Modal } from "./controls";
 export class KieRequestError extends Error {
@@ -154,6 +155,7 @@ export function KieConnection() {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const name = kie.provider === "apimart" ? "APIMart" : "Kie";
+  const balanceLabel = kie.balance === null ? "Unlimited" : kie.provider === "kie" ? formatMotionAmount(kie.balance) : kie.balance.toLocaleString();
   async function connect() {
     setError("");
     setBusy(true);
@@ -177,9 +179,9 @@ export function KieConnection() {
         ) : <small>Server key configured</small>}
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
           data-connected={kie.connected}
-          aria-label={kie.connected ? `${name} balance: ${kie.balance?.toLocaleString() ?? "unlimited"}. Refresh balance` : `Connect ${name}`}
+          aria-label={kie.connected ? `${name} balance: ${balanceLabel}. Refresh balance` : `Connect ${name}`}
           title={kie.connected ? `Check ${name} balance` : `Connect ${name}`}>
-          {busy ? "…" : kie.connected ? `${kie.provider === "kie" ? "Credits" : "Balance"}: ${kie.balance?.toLocaleString() ?? "Unlimited"}` : "Connect"}
+          {busy ? "…" : kie.connected ? `Balance: ${balanceLabel}` : "Connect"}
         </Button>
       </div>
       {error && (

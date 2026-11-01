@@ -106,3 +106,7 @@ A browser tab opened before total-credit estimates were introduced still used th
 Missing estimates now return `CLIENT_UPDATE_REQUIRED` with an explicit reload instruction and `generationStarted: false`, immediately after idempotency lookup and before media inspection or external calls. Changed estimates return `PRICE_CHANGED` separately. The current client refreshes changed prices, displays a reload action for old-client errors, and avoids showing a phantom job ID or ambiguous check-logs warning for a confirmed preflight rejection. It never automatically retries a paid request or reloads a page containing a session key.
 
 Verified old-format requests, underquoted requests, and the current 32-credit trial format through the live local API using a dummy key. The correct format passed pricing validation and stopped at the free authentication check. Build, typecheck and lint passed. A new browser tab loaded the credit-enabled form and displayed `Generate 2s video — ~32 Kie credits`. The screenshot request ID had no job record, consistent with rejection before creation. No paid render was started by these checks.
+
+## USD display
+
+The header balance, Generate button, job estimates and actual Kie job costs display USD at the published base conversion of 1 credit = $0.005 (8 credits = $0.04). Top-up bonuses may change your effective purchase cost. Internal estimates, balance comparisons, stored job values and the submission quote remain in Kie credits, preserving billing validation and existing jobs. For example, the 224-credit estimate displays as $1.12.

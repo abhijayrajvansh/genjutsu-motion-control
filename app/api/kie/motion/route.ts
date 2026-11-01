@@ -1,6 +1,6 @@
 import { apimart, apimartBalance } from "@/lib/server/apimart";
 import { cloudinaryConfigured, uploadMotionMedia } from "@/lib/server/cloudinary";
-import { estimateMotionCost, formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
+import { estimateMotionCost, formatMotionAmount } from "@/lib/motion-pricing";
 import { currentMotionPricing } from "@/lib/server/motion-pricing";
 import {
   apiKey,
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       return json(
         {
           error:
-            "This tab is running an older version without total-credit estimates. Reload the page, reconnect Kie if prompted, and review the credits on the Generate button. No paid generation was started.",
+            "This tab is running an older version without total-credit estimates. Reload the page, reconnect Kie if prompted, and review the estimate on the Generate button. No paid generation was started.",
           code: "CLIENT_UPDATE_REQUIRED",
           generationStarted: false,
         },
@@ -197,7 +197,7 @@ export async function POST(req: Request) {
     const balance = provider === "apimart" ? await apimartBalance(key) : await kie<number>("/api/v1/chat/credit", key);
     if (provider === "kie" && balance !== null && balance < cost.total)
       throw new ApiError(
-        `Not enough Kie credits: balance ${formatCredits(balance!)}, estimated total ${formatCredits(cost.total)}.`,
+        `Insufficient Kie balance: ${formatMotionAmount(balance!)}, estimated total ${formatMotionAmount(cost.total)}.`,
         402,
       );
     stored = {

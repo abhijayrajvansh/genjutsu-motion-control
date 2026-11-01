@@ -16,7 +16,7 @@ import {
   Select,
   useSaved,
 } from "./controls";
-import { estimateMotionCost, formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
+import { estimateMotionCost, formatMotionAmount } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
@@ -603,8 +603,8 @@ export function MotionWorkflow({
         )}
         {insufficient && (
           <small className="error">
-            Not enough Kie credits. Balance: {formatCredits(kie.balance!)} ·
-            Estimated total: {formatCredits(cost!.total)}.
+            Insufficient Kie balance: {formatMotionAmount(kie.balance!)} ·
+            Estimated total: {formatMotionAmount(cost!.total)}.
           </small>
         )}
       {kie.provider === "apimart" && <small>
@@ -634,7 +634,7 @@ export function MotionWorkflow({
                 : costProblem
                   ? "Generate — estimate unavailable"
                   : video
-                    ? "Calculating total credits…"
+                    ? "Calculating total cost…"
                     : "Generate — add a driving video"}
           </Button>
         </div>
