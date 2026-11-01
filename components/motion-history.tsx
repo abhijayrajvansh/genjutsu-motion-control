@@ -291,7 +291,11 @@ function MotionCard({
           <strong>{(job.taskId || job.id).slice(0, 10)}</strong>
         </div>
         <GenerationTime created={job.created} />
-        <small>{job.label} · {job.resolution}</small>
+        <small className="job-model-line">
+          {job.label} · {job.resolution}
+          {" · "}
+          <GenerationElapsed created={job.created} completedAt={job.state === "success" || job.state === "fail" ? job.completedAt ?? job.updated : undefined} />
+        </small>
         <div className="job-mode-row">
           <small>
             {job.mode === "first-frame"
@@ -333,8 +337,6 @@ function MotionCard({
             : job.estimatedCredits !== undefined
               ? `Cost: ${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency, 2, false)}`
               : "Cost: unavailable"}
-          {" · "}
-          <GenerationElapsed created={job.created} completedAt={job.state === "success" || job.state === "fail" ? job.completedAt ?? job.updated : undefined} />
         </small>
       </div>
       {job.error && <p className="error">{job.error}</p>}

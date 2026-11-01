@@ -1098,6 +1098,16 @@ em {
 .history-column .job-card .job-mode-row > small {
   margin-top: 0;
 }
+.history-column .job-card > .between > small.job-model-line {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.job-model-line .generation-elapsed {
+  color: var(--success-text);
+}
 .job-status {
   font-size: 11px;
   padding: 3px 7px;
