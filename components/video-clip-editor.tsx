@@ -262,6 +262,27 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
             setCursor(element.currentTime);
           }}
         />
+        {previewContainer && (
+          <button
+            type="button"
+            className="clip-preview-toggle"
+            aria-label={playing ? "Pause driving video" : "Play driving video"}
+            disabled={locked}
+            onClick={() => void playSelection()}
+          >
+            <span>
+              {playing ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M6.5 5h3.5v14H6.5V5Zm7.5 0H17.5v14H14V5Z" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5.5v13l11-6.5L8 5.5Z" />
+                </svg>
+              )}
+            </span>
+          </button>
+        )}
       </div>
       {compact && <small className="clip-file-name" title={asset.name}>{asset.name}</small>}
     </>
