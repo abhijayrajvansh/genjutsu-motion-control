@@ -16,7 +16,7 @@ import {
   Select,
   useSaved,
 } from "./controls";
-import { estimateMotionCost, formatMotionAmount } from "@/lib/motion-pricing";
+import { estimateMotionCost, formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
@@ -644,7 +644,7 @@ export function MotionWorkflow({
             {busy
               ? "Uploading / submitting…"
               : cost
-                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatMotionAmount(cost.total, pricing.card?.currency)}`
+                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${kie.provider === "kie" ? `${formatCredits(cost.total)} Kie credits` : formatMotionAmount(cost.total, pricing.card?.currency)}`
                 : costProblem
                   ? "Generate — estimate unavailable"
                   : video
