@@ -103,7 +103,7 @@ export async function POST(req: Request) {
     const firstFrame = form.get("firstFrame");
     if (mode === "first-frame" && model.maxImages < 2)
       throw new ApiError(
-        "Kling supports one image. Choose Wan, Official H3 or Seedance for First frame + reference.",
+        `${model.label} supports one image. Choose Wan, Official H3 or Seedance for First frame + reference.`,
       );
     if (mode === "first-frame" && !(firstFrame instanceof File))
       throw new ApiError("Add the corrected first frame for this mode.");
@@ -224,7 +224,7 @@ export async function POST(req: Request) {
       previewAttempted: true,
       preserveInputAudio,
       prompt,
-      seconds: model.id === "kling" ? media.duration : seconds,
+      seconds: model.id === "kling" || model.id === "wan22replace" ? media.duration : seconds,
       resolution,
       estimatedCredits: cost.total,
       pricingCheckedAt: pricing.checkedAt,
@@ -302,7 +302,7 @@ export async function POST(req: Request) {
     });
     stored = {
       ...stored,
-      prompt: payload.input.prompt as string,
+      prompt: typeof payload.input.prompt === "string" ? payload.input.prompt : stored.prompt,
       ...(typeof payload.input.seed === "number"
         ? { seed: payload.input.seed, seedChecked: true }
         : {}),

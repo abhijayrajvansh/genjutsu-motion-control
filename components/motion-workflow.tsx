@@ -198,7 +198,7 @@ export function MotionWorkflow({
     const next = motionModel(id);
     setSaved(id);
     setResolution(next.resolutions[0]);
-    if (id === "kling") setSavedMode("reference");
+    if (id === "kling" || id === "wan22replace") setSavedMode("reference");
     setExtras([]);
     setError("");
   }
@@ -290,7 +290,7 @@ export function MotionWorkflow({
     body.set("audio", String(audio));
     const typedSeed = seed.trim() === "" ? plannedSeed ?? randomSeed() : Number(seed);
     body.set("seed", String(typedSeed));
-    body.set("nsfwChecker", String((model.id === "wan" || apimartOnly(model.id)) && nsfwChecker));
+    body.set("nsfwChecker", String((model.id === "wan" || model.id === "wan22replace" || apimartOnly(model.id)) && nsfwChecker));
     body.set("preserveInputAudio", String(preserveInputAudio));
     body.set("orientation", orientation);
     body.set("maxEstimatedCredits", String(cost.total));
@@ -511,58 +511,60 @@ export function MotionWorkflow({
                   ? "image 1 supplies the character. video 1 supplies motion and timing only. Output is 2–10 seconds at 720P or 1080P."
                   : model.id === "wan27edit"
                     ? "The driving clip is edited in place. Reference images set the person and clothing. The clip must be 2–10 seconds, and the output keeps that length."
-                    : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
+                    : model.id === "wan22replace"
+                      ? "Kie Replace uses the reference image and the driving video only. This prompt is saved on the job and is not sent."
+                      : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
           }
         />
       </details>
       {(model.id === "wan" || apimartOnly(model.id)) && (
-        <>
-          <label className="field">
-            <span className="seed-row">
-              Seed
-              <button
-                type="button"
-                className="text-button"
-                onClick={(event) => {
-                  event.preventDefault();
-                  setSeed("");
-                  setPlannedSeed(randomSeed());
-                }}
-              >
-                Randomize
-              </button>
-            </span>
-            <input
-              type="number"
-              min={0}
-              max={2147483647}
-              step={1}
-              value={seed}
-              placeholder={plannedSeed === null ? "" : String(plannedSeed)}
-              onChange={(event) => setSeed(event.target.value)}
-            />
-            <small>
-              This generation will use seed {seed.trim() === "" ? plannedSeed ?? "…" : seed.trim()}. Leave the field empty to use the preview, or type a whole number from 0 to 2147483647.
-            </small>
-          </label>
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={nsfwChecker}
-              onChange={(event) => setNsfwChecker(event.target.checked)}
-            />
-            <span>
-              NSFW checker
-              <small>{kie.provider === "apimart" ? "Ask APIMart to moderate the prompt and reference images before generation." : "Ask Kie to enable its NSFW checker for this generation."}</small>
-            </span>
-          </label>
-        </>
+        <label className="field">
+          <span className="seed-row">
+            Seed
+            <button
+              type="button"
+              className="text-button"
+              onClick={(event) => {
+                event.preventDefault();
+                setSeed("");
+                setPlannedSeed(randomSeed());
+              }}
+            >
+              Randomize
+            </button>
+          </span>
+          <input
+            type="number"
+            min={0}
+            max={2147483647}
+            step={1}
+            value={seed}
+            placeholder={plannedSeed === null ? "" : String(plannedSeed)}
+            onChange={(event) => setSeed(event.target.value)}
+          />
+          <small>
+            This generation will use seed {seed.trim() === "" ? plannedSeed ?? "…" : seed.trim()}. Leave the field empty to use the preview, or type a whole number from 0 to 2147483647.
+          </small>
+        </label>
+      )}
+      {(model.id === "wan" || model.id === "wan22replace" || apimartOnly(model.id)) && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={nsfwChecker}
+            onChange={(event) => setNsfwChecker(event.target.checked)}
+          />
+          <span>
+            NSFW checker
+            <small>{kie.provider === "apimart" ? "Ask APIMart to moderate the prompt and reference images before generation." : model.id === "wan22replace" ? "Off sends nsfw_checker false. On asks Kie to run its checker." : "Ask Kie to enable its NSFW checker for this generation."}</small>
+          </span>
+        </label>
       )}
       <label className="check">
         <input type="checkbox" checked={preserveInputAudio} onChange={(event) => setPreserveInputAudio(event.target.checked)} />
         <span>Keep original clip audio<small>Use the selected input segment’s soundtrack in the downloaded video.</small></span>
       </label>
-      {!preserveInputAudio && !["h3", "kling"].includes(model.id) && (
+      {!preserveInputAudio && !["h3", "kling", "wan22replace"].includes(model.id) && (
         <label className="check">
           <input
             type="checkbox"
@@ -589,6 +591,11 @@ export function MotionWorkflow({
         <small>
           Output follows the usable driving-video length, with a three-second
           minimum. The provider may retain its original audio.
+        </small>
+      )}
+      {!preserveInputAudio && model.id === "wan22replace" && (
+        <small>
+          Output follows the selected clip at 480p. The trimmed video must be 10 MB or smaller.
         </small>
       )}
         {pricing.error && (

@@ -28,6 +28,11 @@ export const PRICE_SOURCES: Record<
     model: "kling-2.6/motion-control",
     resolutions: ["720p", "1080p"],
   },
+  wan22replace: {
+    url: "https://kie.ai/wan-animate",
+    model: "wan/2-2-animate-replace",
+    resolutions: ["480p"],
+  },
   wan27r2v: {
     url: "https://apimart.ai/model/wan-2-7-r2v",
     model: "wan2.7-r2v",
@@ -75,7 +80,12 @@ export function parsePriceCard(
   const usdRates: Record<string, number> = {};
   for (const resolution of source.resolutions) {
     const pattern =
-      model === "wan" || model === "kling"
+      model === "wan22replace"
+        ? new RegExp(
+            `([\\d.]+)\\s+Kie credits per video-second for ${resolution.replace(/p$/i, " p")}\\b`,
+            "i",
+          )
+        : model === "wan" || model === "kling"
         ? new RegExp(
             `([\\d.]+)\\s+credits\\/s(?:\\s*\\([^)]*\\))?\\s+for\\s+${resolution}\\b`,
             "i",
@@ -92,7 +102,9 @@ export function parsePriceCard(
         "Kie pricing could not be verified for every resolution.",
       );
     rates[resolution] = value;
-    const usdPattern = model === "wan"
+    const usdPattern = model === "wan22replace"
+      ? new RegExp(`for ${resolution.replace(/p$/i, " p")}\\s*\\(≈\\s*\\$([\\d.]+)\\)`, "i")
+      : model === "wan"
       ? new RegExp(`credits\\/s\\s+for\\s+${resolution}\\s*\\(\\$([\\d.]+)\\/s`, "i")
       : model === "kling"
         ? new RegExp(`credits\\/s\\s*\\(\\$([\\d.]+)(?:\\/s)?\\)\\s+for\\s+${resolution}\\b`, "i")
@@ -101,7 +113,15 @@ export function parsePriceCard(
     if (Number.isFinite(usd) && usd > 0) usdRates[resolution] = usd;
   }
   // Fail closed if published input-billing rules no longer match this workflow.
-  const billsReferenceVideo = model !== "kling";
+  const followsDrivingVideo = model === "kling" || model === "wan22replace";
+  const billsReferenceVideo = !followsDrivingVideo;
+  if (
+    model === "wan22replace" &&
+    !/per video-second/i.test(text)
+  )
+    throw new Error(
+      "Kie billing rules changed. Check current pricing before rendering.",
+    );
   if (
     billsReferenceVideo &&
     !/input\s*(?:video\s*)?\+\s*output|input video duration\s*\+\s*output video duration|generated video duration\s*\+\s*input video duration|both input and output durations are billed/i.test(
@@ -163,7 +183,7 @@ export function estimateMotionCost(
     );
   // Conservative preflight estimate; provider bills the actual generated duration.
   const ref = Math.ceil(referenceSeconds - 0.000001),
-    out = card.model === "kling" ? ref : Math.ceil(outputSeconds - 0.000001);
+    out = card.model === "kling" || card.model === "wan22replace" ? ref : Math.ceil(outputSeconds - 0.000001);
   const precision = card.currency === "USD" ? 10000 : 100;
   const round = (n: number) => Math.ceil(n * precision - 0.000001) / precision;
   const outputCredits = round(out * rate),

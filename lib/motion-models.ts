@@ -85,6 +85,23 @@ export const MOTION_MODELS = [
     maxImages: 1,
   },
   {
+    id: "wan22replace",
+    label: "Wan 2.2 Animate Replace",
+    kieModel: "wan/2-2-animate-replace",
+    minSeconds: 2,
+    maxSeconds: 30,
+    minReference: 2,
+    maxReference: 30,
+    resolutions: ["480p"],
+    imageMB: 10,
+    videoMB: 10,
+    minSide: 200,
+    maxImageSide: 4096,
+    maxVideoSide: 2048,
+    maxRatio: 3,
+    maxImages: 1,
+  },
+  {
     id: "wan27r2v",
     label: "Wan 2.7 R2V",
     kieModel: "wan2.7-r2v",
@@ -187,7 +204,9 @@ export function defaultMotionPrompt(
     ? "Use the character from Image1, including their exact clothing and skin coverage. Reproduce only the body motion and timing from Video1. Do not copy the person, face, or clothing from Video1. If Image1 shows bare skin or very little clothing, keep that same coverage for the whole shot. Do not add garments, layers, fabric, or coverage that appear only in Video1. Keep Image1's outfit, colors, accessories and exposed skin consistent. Preserve the background and camera framing from Video1. A single continuous shot, natural movement."
     : id === "kling"
       ? "Reproduce the motion from the reference video using the character in the reference image. Keep the character identity consistent and the movement natural."
-      : "Use the first reference image for the character identity. Reproduce the movement in the reference video, keeping the video clothing, scene, camera framing and timing. A single continuous shot, consistent identity and natural motion.";
+      : id === "wan22replace"
+        ? "Replace the person in the driving video with the person in the reference image. Keep the video's motion, expressions, camera, background and lighting."
+        : "Use the first reference image for the character identity. Reproduce the movement in the reference video, keeping the video clothing, scene, camera framing and timing. A single continuous shot, consistent identity and natural motion.";
 }
 export type MotionInput = {
   model: MotionModelId;
@@ -227,7 +246,7 @@ export function motionPayload(o: MotionInput) {
     throw new Error("Choose a supported motion mode.");
   if (mode === "first-frame" && m.maxImages < 2)
     throw new Error(
-      "Kling accepts one reference image. Choose Wan 3, Official H3 or Seedance for First frame + reference.",
+      `${m.label} accepts one reference image. Choose Wan 3, Official H3 or Seedance for First frame + reference.`,
     );
   if (mode === "first-frame" && !o.firstFrameUrl)
     throw new Error("Add the corrected first frame for this mode.");
@@ -259,6 +278,13 @@ export function motionPayload(o: MotionInput) {
       video_urls: [o.videoUrl],
       mode: o.resolution,
       character_orientation: o.orientation,
+    };
+  else if (o.model === "wan22replace")
+    input = {
+      image_url: o.imageUrls[0],
+      video_url: o.videoUrl,
+      resolution: "480p",
+      nsfw_checker: o.nsfwChecker === true,
     };
   else if (o.model === "h3")
     input = {
