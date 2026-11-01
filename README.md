@@ -1,4 +1,4 @@
-# Aiorbust — local Next.js recreation
+# genjutsu-motion-control
 
 Recreated from https://aiorbust.ai/generations using the [REA skill](https://github.com/morluto/rea/blob/main/.agents/skills/reverse-engineer-anything/SKILL.md), shipped asset inspection, and live browser observations.
 
