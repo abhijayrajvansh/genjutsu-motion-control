@@ -1461,8 +1461,7 @@ body {
   white-space: nowrap;
 }
 .motion-input-grid {
-  --motion-preview-frame: 290px;
-  --motion-preview-media: 240px;
+  --motion-preview-ratio: 9 / 16;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
@@ -1514,20 +1513,19 @@ body {
 .motion-image-input > .file-picker:first-child .drop-zone.has-file,
 .driving-preview-host {
   box-sizing: border-box;
-  height: var(--motion-preview-frame);
-  min-height: var(--motion-preview-frame);
-  max-height: var(--motion-preview-frame);
+  height: auto;
   padding: 12px 8px;
   gap: 6px;
 }
 .motion-image-input > .file-picker:first-child .drop-zone img,
 .driving-preview-host .clip-preview-slot {
-  flex: 0 0 var(--motion-preview-media);
-  height: var(--motion-preview-media);
-  min-height: var(--motion-preview-media);
-  max-height: var(--motion-preview-media);
-  width: auto;
+  flex: none;
+  width: 100%;
   max-width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: var(--motion-preview-ratio);
 }
 .motion-image-input > .file-picker:first-child .drop-zone img {
   object-fit: contain;
@@ -1554,8 +1552,8 @@ body {
   justify-content: center;
 }
 .driving-preview-host .clip-preview {
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
   border-radius: 4px;
