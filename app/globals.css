@@ -404,8 +404,27 @@ em {
 .history-column .job-card > .between {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: flex-start;
+  align-items: start;
+  column-gap: 8px;
+  row-gap: 4px;
+}
+.job-mode-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
+  min-width: 0;
+}
+.job-mode-row > small {
+  min-width: 0;
+}
+.job-mode-row .job-card-tools {
+  margin-top: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 6px;
 }
 .generation-time {
   display: flex;
@@ -1071,6 +1090,10 @@ em {
 .job-card .between small {
   display: block;
   margin-top: 4px;
+}
+.history-column .job-card > .between > small,
+.history-column .job-card .job-mode-row > small {
+  margin-top: 0;
 }
 .job-status {
   font-size: 11px;

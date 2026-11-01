@@ -199,30 +199,30 @@ function MotionCard({
   return (
     <article className="job-card">
       <div className="between">
-        <div>
-          <div className="generation-title">
-            <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
-              {stateLabels[job.state]}
-            </span>
-            <strong>{(job.taskId || job.id).slice(0, 10)}</strong>
-          </div>
-          <small>{job.label} · {job.resolution}</small>
+        <div className="generation-title">
+          <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
+            {stateLabels[job.state]}
+          </span>
+          <strong>{(job.taskId || job.id).slice(0, 10)}</strong>
+        </div>
+        <GenerationTime created={job.created} />
+        <small>{job.label} · {job.resolution}</small>
+        <div className="job-mode-row">
           <small>
             {job.mode === "first-frame"
               ? "First frame + reference"
               : "Reference image + video"}
           </small>
+          <div className="job-card-tools">
+            <FavoriteButton active={favorite} onClick={onToggleFavorite} />
+            {showArchive && <ArchiveButton onClick={onArchive} />}
+            {showRestore && (
+              <button type="button" className="text-button" onClick={onArchive}>
+                Restore
+              </button>
+            )}
+          </div>
         </div>
-        <GenerationTime created={job.created} />
-      </div>
-      <div className="job-card-tools">
-        <FavoriteButton active={favorite} onClick={onToggleFavorite} />
-        {showArchive && <ArchiveButton onClick={onArchive} />}
-        {showRestore && (
-          <button type="button" className="text-button" onClick={onArchive}>
-            Restore
-          </button>
-        )}
       </div>
       {pending.includes(job.state) && (
         <RenderPreview image={job.previewImage} state={job.state} />

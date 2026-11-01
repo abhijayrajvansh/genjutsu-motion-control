@@ -355,24 +355,22 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                       return (
                         <article key={j.id} className="job-card">
                           <div className="between">
-                            <div>
-                              <div className="generation-title">
-                                <span className={`job-status ${j.status}`}>
-                                  {j.status === "processing" ? "Processing…" : "Ready"}
-                                </span>
-                                <strong>{j.id.slice(0, 10)}</strong>
-                              </div>
-                              <small>{j.model}</small>
-                              <small>
-                                {j.kind}
-                              </small>
+                            <div className="generation-title">
+                              <span className={`job-status ${j.status}`}>
+                                {j.status === "processing" ? "Processing…" : "Ready"}
+                              </span>
+                              <strong>{j.id.slice(0, 10)}</strong>
                             </div>
                             <GenerationTime created={j.created} />
-                          </div>
-                          <div className="job-card-tools">
-                          <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
-                          {activeView === "all" && <ArchiveButton onClick={() => archiveGeneration(j.id)} />}
-                          {activeView === "archives" && <button type="button" className="text-button" onClick={() => archiveGeneration(j.id)}>Restore</button>}
+                            <small>{j.model}</small>
+                            <div className="job-mode-row">
+                              <small>{j.kind}</small>
+                              <div className="job-card-tools">
+                                <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
+                                {activeView === "all" && <ArchiveButton onClick={() => archiveGeneration(j.id)} />}
+                                {activeView === "archives" && <button type="button" className="text-button" onClick={() => archiveGeneration(j.id)}>Restore</button>}
+                              </div>
+                            </div>
                           </div>
                           {j.status === "processing" ? (
                             <div className="processing">
