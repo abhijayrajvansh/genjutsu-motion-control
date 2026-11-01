@@ -54,10 +54,14 @@ export function MotionWorkflow({
   const kie = useKie();
   const providerName = kie.provider === "apimart" ? "APIMart" : "Kie";
   const modelChoices = MOTION_MODELS.filter((m) =>
-    kie.provider === "apimart" ? m.id === "wan" : !apimartOnly(m.id),
+    kie.provider === "apimart" ? m.id === "wan" || m.id === "wan22replace" : !apimartOnly(m.id),
   );
   const [saved, setSaved] = useSaved("clone.motion.kie-model", "wan"),
-    model = motionModel(modelChoices.some((m) => m.id === saved) ? saved : "wan");
+    model = motionModel(
+      modelChoices.some((m) => m.id === saved) && !(kie.provider === "apimart" && saved === "wan22replace")
+        ? saved
+        : "wan",
+    );
   useEffect(() => {
     if (saved === "wan27r2v" || saved === "wan27edit") setSaved("wan");
   }, [saved, setSaved]);
@@ -196,6 +200,7 @@ export function MotionWorkflow({
     kie.provider === "kie" && cost !== null && kie.balance !== null && kie.balance < cost.total;
   function changeModel(id: string) {
     const next = motionModel(id);
+    if (id === "wan22replace") kie.setProvider("kie");
     setSaved(id);
     setResolution(next.resolutions[0]);
     if (id === "kling" || id === "wan22replace") setSavedMode("reference");
