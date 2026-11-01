@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Asset, records, saveRecord } from "@/lib/storage";
 import {
-  APIMART_MODEL_IDS,
   apimartOnly,
   defaultMotionPrompt,
   motionModel,
@@ -54,12 +53,14 @@ export function MotionWorkflow({
 }) {
   const kie = useKie();
   const providerName = kie.provider === "apimart" ? "APIMart" : "Kie";
+  const modelChoices = MOTION_MODELS.filter((m) =>
+    kie.provider === "apimart" ? m.id === "wan" : !apimartOnly(m.id),
+  );
   const [saved, setSaved] = useSaved("clone.motion.kie-model", "wan"),
-    model = motionModel(
-      kie.provider === "apimart"
-        ? APIMART_MODEL_IDS.includes(saved as (typeof APIMART_MODEL_IDS)[number]) ? saved : "wan"
-        : MOTION_MODELS.some((m) => m.id === saved) && !apimartOnly(saved) ? saved : "wan",
-    );
+    model = motionModel(modelChoices.some((m) => m.id === saved) ? saved : "wan");
+  useEffect(() => {
+    if (saved === "wan27r2v" || saved === "wan27edit") setSaved("wan");
+  }, [saved, setSaved]);
   const [savedMode, setSavedMode] = useSaved(
     "clone.motion.kie-mode",
     "reference",
@@ -329,7 +330,7 @@ export function MotionWorkflow({
       <div className="motion-model-row">
         <Select
           label="Model"
-          options={MOTION_MODELS.filter((m) => kie.provider === "apimart" ? (APIMART_MODEL_IDS as readonly string[]).includes(m.id) : !apimartOnly(m.id)).map((m) => ({ value: m.id, label: m.label }))}
+          options={modelChoices.map((m) => ({ value: m.id, label: m.label }))}
           value={model.id}
           onChange={changeModel}
         />
