@@ -396,7 +396,7 @@ export function MotionWorkflow({
             mode === "first-frame"
               ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
               : model.id === "wan"
-                ? "Image1 supplies the character and clothing. Video1 supplies motion and timing only. Adjust the prompt before rendering."
+                ? "Image1 supplies the character, clothing and skin coverage, including minimal clothing. Video1 supplies motion and timing only. Adjust the prompt before rendering."
                 : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
           }
         />

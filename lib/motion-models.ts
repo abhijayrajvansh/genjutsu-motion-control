@@ -131,7 +131,7 @@ export function defaultMotionPrompt(
   if (mode === "first-frame")
     return "Continue naturally from the corrected opening image, following the reference video's movement and timing. Keep the identity, clothing, background and camera framing consistent with the opening image.";
   return id === "wan"
-    ? "Use the character and clothing from Image1. Reproduce only the body motion and timing from Video1. Do not copy the person, face, or clothing from Video1. Keep Image1's outfit, coverage, colors and accessories consistent for the whole shot. Preserve the background and camera framing from Video1. A single continuous shot, natural movement."
+    ? "Use the character from Image1, including their exact clothing and skin coverage. Reproduce only the body motion and timing from Video1. Do not copy the person, face, or clothing from Video1. If Image1 shows bare skin or very little clothing, keep that same coverage for the whole shot. Do not add garments, layers, fabric, or coverage that appear only in Video1. Keep Image1's outfit, colors, accessories and exposed skin consistent. Preserve the background and camera framing from Video1. A single continuous shot, natural movement."
     : id === "kling"
       ? "Reproduce the motion from the reference video using the character in the reference image. Keep the character identity consistent and the movement natural."
       : "Use the first reference image for the character identity. Reproduce the movement in the reference video, keeping the video clothing, scene, camera framing and timing. A single continuous shot, consistent identity and natural motion.";
