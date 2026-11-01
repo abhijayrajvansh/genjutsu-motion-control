@@ -32,6 +32,7 @@ export const PRICE_SOURCES: Record<
 export type MotionPriceCard = {
   model: MotionModelId;
   rates: Record<string, number>;
+  usdRates?: Record<string, number>;
   billsReferenceVideo: boolean;
   freeImages: number;
   extraImageCredits: number;
@@ -60,6 +61,7 @@ export function parsePriceCard(
   if (typeof text !== "string")
     throw new Error("No published price card for this model.");
   const rates: Record<string, number> = {};
+  const usdRates: Record<string, number> = {};
   for (const resolution of source.resolutions) {
     const pattern =
       model === "wan" || model === "kling"
@@ -79,6 +81,13 @@ export function parsePriceCard(
         "Kie pricing could not be verified for every resolution.",
       );
     rates[resolution] = value;
+    const usdPattern = model === "wan"
+      ? new RegExp(`credits\\/s\\s+for\\s+${resolution}\\s*\\(\\$([\\d.]+)\\/s`, "i")
+      : model === "kling"
+        ? new RegExp(`credits\\/s\\s*\\(\\$([\\d.]+)(?:\\/s)?\\)\\s+for\\s+${resolution}\\b`, "i")
+        : new RegExp(`${resolution}\\s*:\\s*[\\d.]+\\s+credits\\/s\\s*\\(\\$([\\d.]+)\\/s${model.startsWith("seed") ? ",\\s*with video" : ""}`, "i");
+    const usd = Number(text.match(usdPattern)?.[1]);
+    if (Number.isFinite(usd) && usd > 0) usdRates[resolution] = usd;
   }
   // Fail closed if published input-billing rules no longer match this workflow.
   const billsReferenceVideo = model !== "kling";
@@ -104,6 +113,7 @@ export function parsePriceCard(
   return {
     model,
     rates,
+    usdRates,
     billsReferenceVideo,
     freeImages,
     extraImageCredits,

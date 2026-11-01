@@ -180,9 +180,10 @@ function MotionCard({
     <article className="job-card">
       <div className="between">
         <div>
-          <strong>
-            {(job.taskId || job.id).slice(0, 10)}
-          </strong>
+          <div className="generation-title">
+            <FavoriteButton active={favorite} onClick={onToggleFavorite} />
+            <strong>{(job.taskId || job.id).slice(0, 10)}</strong>
+          </div>
           <small>
             {job.mode === "first-frame"
               ? "First frame + reference"
@@ -195,7 +196,6 @@ function MotionCard({
         <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
           {stateLabels[job.state]}
         </span>
-        <FavoriteButton active={favorite} onClick={onToggleFavorite} />
       </div>
       {pending.includes(job.state) && (
         <RenderPreview image={job.previewImage} state={job.state} />

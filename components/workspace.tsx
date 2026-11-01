@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
-import { KieProvider } from "./kie-connection";
+import { KieConnection, KieProvider } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
 import { GenerationTime } from "./generation-time";
 import { FavoriteButton } from "./favorite-button";
@@ -193,6 +193,9 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
               Easy Generations
             </Link>
           </nav>
+          <div className="header-kie-connection">
+            <KieConnection />
+          </div>
           <div className="header-end">
             <ThemeToggle />
             <button
@@ -203,48 +206,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
             >
               ☰
             </button>
-            <div className="account-wrap">
-              <button
-                className="account-button"
-                aria-haspopup="menu"
-                aria-expanded={menu === "account"}
-                onClick={() => setMenu(menu === "account" ? "" : "account")}
-              >
-                <span>
-                  <em>{credits}</em> {demo ? "demo credits" : "credits"}
-                </span>
-                <span className="avatar">H</span>
-                <Chevron />
-              </button>
-              {menu === "account" && (
-                <div className="dropdown account-menu" role="menu">
-                  <div className="account-label">
-                    Local workspace<small>Free plan</small>
-                  </div>
-                  <Link role="menuitem" href="/account">
-                    Account
-                  </Link>
-                  <Link role="menuitem" href="/pricing">
-                    Buy credits
-                  </Link>
-                  <a
-                    role="menuitem"
-                    href="https://www.skool.com/aiorbust"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Join the community ↗
-                  </a>
-                  <hr />
-                  <button role="menuitem" onClick={toggleDemo}>
-                    {demo ? "Disable demo mode" : "Enable demo mode"}
-                  </button>
-                  <small className="menu-note">
-                    Local preview only. No AI provider connected.
-                  </small>
-                </div>
-              )}
-            </div>
           </div>
         </div>
         {menu === "mobile" && (
@@ -359,7 +320,10 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                         <article key={j.id} className="job-card">
                           <div className="between">
                             <div>
-                              <strong>{j.id.slice(0, 10)}</strong>
+                              <div className="generation-title">
+                                <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
+                                <strong>{j.id.slice(0, 10)}</strong>
+                              </div>
                               <small>
                                 {j.kind}
                               </small>
@@ -370,7 +334,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                           <span className={`job-status ${j.status}`}>
                             {j.status === "processing" ? "Processing…" : "Ready"}
                           </span>
-                          <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
                           </div>
                           {j.status === "processing" ? (
                             <div className="processing">
@@ -463,19 +426,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     </>
   );
 }
-function Chevron() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 20 20"
-      width="14"
-      height="14"
-      fill="currentColor"
-    >
-      <path d="m5.23 7.21 4.77 4.77 4.77-4.77-1.06-1.06L10 9.63 6.29 6.15z" />
-    </svg>
-  );
-}
 function SecondaryPage({
   section,
   demo,
@@ -526,8 +476,9 @@ function SecondaryPage({
           <p>
             Files and generation previews stay in this browser’s IndexedDB.
             Motion Control sends selected media and your key through the local
-            server to Kie when you connect or generate. Other API key fields are
-            held in memory. External signup and community links open the named
+            server to Kie when you connect or generate. Successfully connected Kie
+            keys are saved in this browser’s local storage. Other API key fields
+            remain in memory. External signup and community links open the named
             third-party services.
           </p>
           <p>

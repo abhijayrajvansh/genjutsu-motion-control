@@ -203,12 +203,14 @@ export function Prompt({
   value,
   onChange,
   maxLength = 4000,
+  hintClassName,
   hint = "Sent as you wrote it. Refer to your pictures in order — the first is @image1, the second @image2.",
 }: {
   value: string;
   onChange: (v: string) => void;
   hint?: string;
   maxLength?: number;
+  hintClassName?: string;
 }) {
   return (
     <label className="field">
@@ -219,7 +221,7 @@ export function Prompt({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      <small>{hint}</small>
+      <small className={hintClassName}>{hint}</small>
     </label>
   );
 }
@@ -252,11 +254,13 @@ export function Modal({
   children,
   onClose,
   closeLabel = "Cancel",
+  className = "",
 }: {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
   closeLabel?: string;
+  className?: string;
 }) {
   const titleId = useId();
   const ref = useRef<HTMLDialogElement>(null);
@@ -268,7 +272,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="modal"
+      className={`modal ${className}`}
       aria-labelledby={titleId}
       onCancel={onClose}
       onClick={(e) => {
@@ -340,6 +344,10 @@ export function FilePicker({
   onPick,
   simple = false,
   onError,
+  loadedContent,
+  onPreview,
+  previewLabel,
+  previewDisabled = false,
 }: {
   label: string;
   hint?: string;
@@ -348,6 +356,10 @@ export function FilePicker({
   onPick: (a: Asset | null) => void;
   simple?: boolean;
   onError?: (s: string) => void;
+  loadedContent?: React.ReactNode;
+  onPreview?: () => void;
+  previewLabel?: string;
+  previewDisabled?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [previewing, setPreviewing] = useState(false),
@@ -419,7 +431,7 @@ export function FilePicker({
           </button>
         )}
       </div>
-      <button
+      {asset && loadedContent ? loadedContent : <button
         type="button"
         className={`drop-zone ${drag ? "dragging" : ""} ${asset ? "has-file" : ""} ${simple ? "simple" : ""}`}
         aria-label={asset ? `Preview ${label}: ${asset.name}` : undefined}
@@ -447,15 +459,15 @@ export function FilePicker({
         ) : (
           "Drop a file here, or click to choose"
         )}
-      </button>
+      </button>}
       {asset && (
         <div className="file-actions">
-          <Button type="button" secondary onClick={() => setPreviewing(true)}>
-            {asset.type.startsWith("video/")
+          <Button type="button" secondary disabled={previewDisabled} onClick={() => onPreview ? onPreview() : setPreviewing(true)}>
+            {previewLabel ?? (asset.type.startsWith("video/")
               ? "Play video"
               : asset.type.startsWith("audio/")
                 ? "Play audio"
-                : "Preview image"}
+                : "Preview image")}
           </Button>
           <Button type="button" secondary className="replace-file" onClick={browse}>
             Change

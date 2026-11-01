@@ -19,7 +19,7 @@ Motion Control uses **Reference image + video**. **First frame + reference** is 
 
 Motion Control now has a real Kie integration: file uploads, provider task creation, polling, errors, result playback and MP4 downloads. Supports Wan 3, Official H3, Seedance 2.0/2.5 and Kling 2.6 Motion Control. Local real-job metadata persists in the ignored `.data/motion/` directory. The older demo forms remain in the codebase but are hidden from the tab bar.
 
-Enter your key in **Motion Control → Kie API → Connect**, or configure `KIE_API_KEY` in `.env.local` and restart the server. The key is never committed or written into job records. **Load 2-second trial** prepares a small Wan 3 render; generating it uses your real Kie credits.
+Enter your key in the **header’s API key field**, then click **Connect**, or configure `KIE_API_KEY` in `.env.local` and restart the server. Successfully connected keys are saved in this browser’s local storage and restored on later visits; editing or clearing the field forgets the saved key. The key is never committed or written into job records. **Load 2-second trial** prepares a small Wan 3 render; generating it uses your real Kie credits.
 
 The Generate button shows a live **total Kie-credit estimate**, including billable input-video time. Current published prices are refreshed automatically; the backend rechecks the estimate and balance before submitting. Final provider billing may differ.
 

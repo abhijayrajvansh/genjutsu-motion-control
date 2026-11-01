@@ -19,9 +19,9 @@ import {
 } from "./controls";
 import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
-import { VideoClipEditor } from "./video-clip-editor";
+import { VideoClipControls, VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
-import { KieConnection, KieRequestError, useKie } from "./kie-connection";
+import { KieRequestError, useKie } from "./kie-connection";
 export function MotionWorkflow({
   initialVideo,
 }: {
@@ -49,6 +49,8 @@ export function MotionWorkflow({
     setExtras([]);
   }
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
+  const clipControls = useRef<VideoClipControls>(null);
+  const [clipPlaying, setClipPlaying] = useState(false);
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
@@ -62,7 +64,8 @@ export function MotionWorkflow({
     [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false),
     kie = useKie();
-  const selectedResolution = (model.resolutions as readonly string[]).includes(
+  const has480p = (model.resolutions as readonly string[]).includes("480p");
+  const selectedResolution = has480p ? "480p" : (model.resolutions as readonly string[]).includes(
     resolution,
   )
     ? resolution
@@ -239,20 +242,31 @@ export function MotionWorkflow({
   }
   return (
     <form className="generation-form" onSubmit={submit}>
-      <Select
-        label="Model"
-        options={MOTION_MODELS.map((m) => ({ value: m.id, label: m.label }))}
-        value={model.id}
-        onChange={changeModel}
-      />
-      <KieConnection />
-      <Choices
-        className="resolution-choices"
-        label="Resolution"
-        options={[...model.resolutions]}
-        value={selectedResolution}
-        onChange={setResolution}
-      />
+      <div className="motion-model-row">
+        <Select
+          label="Model"
+          options={MOTION_MODELS.map((m) => ({ value: m.id, label: m.label }))}
+          value={model.id}
+          onChange={changeModel}
+        />
+        <Select
+          label="Mode"
+          value={mode}
+          onChange={changeMode}
+          options={[
+            {
+              value: "reference",
+              label: "Reference image + video",
+            },
+            {
+              value: "first-frame",
+              label: "First frame + reference · Under construction",
+              hint: "Under construction. This mode is temporarily unavailable.",
+              disabled: true,
+            },
+          ]}
+        />
+      </div>
       {model.id === "kling" && (
         <Choices
           label="Character orientation"
@@ -272,23 +286,6 @@ export function MotionWorkflow({
           onChange={setOrientation}
         />
       )}
-      <Select
-        label="Mode"
-        value={mode}
-        onChange={changeMode}
-        options={[
-          {
-            value: "reference",
-            label: "Reference image + video",
-          },
-          {
-            value: "first-frame",
-            label: "First frame + reference · Under construction",
-            hint: "Under construction. This mode is temporarily unavailable.",
-            disabled: true,
-          },
-        ]}
-      />
       {mode === "first-frame" && (
         <div className="trial-panel">
           <small>
@@ -342,7 +339,16 @@ export function MotionWorkflow({
             label="Driving video"
             accept="video/mp4,video/quicktime"
             asset={video}
-            onPick={setVideo}
+            onPick={(asset) => { setClipPlaying(false); setVideo(asset); }}
+            loadedContent={video && clip && sourceSeconds > 0 ? (
+              <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
+                minimum={minimumClip} maximum={maximumClip} disabled={busy} compact playbackRef={clipControls}
+                onPlaybackChange={setClipPlaying}
+                onChange={(selection) => setClipDraft({ assetId: video.id, selection })} />
+            ) : undefined}
+            onPreview={clip ? () => clipControls.current?.togglePlayback() : undefined}
+            previewLabel={clipPlaying ? "Pause video" : "Play video"}
+            previewDisabled={busy || (!!clip && sourceSeconds < minimumClip)}
           />
         </div>
       </div>
@@ -365,23 +371,34 @@ export function MotionWorkflow({
           </button>
         )}
       </div>
-      {video && clip && sourceSeconds > 0 && (
-        <VideoClipEditor key={video.id} asset={video} sourceSeconds={sourceSeconds} selection={clip}
-          minimum={minimumClip} maximum={maximumClip} disabled={busy}
-          onChange={(selection) => setClipDraft({ assetId: video.id, selection })} />
-      )}
-      <Prompt
-        value={prompt}
-        onChange={setPrompt}
-        maxLength={2000}
-        hint={
-          mode === "first-frame"
-            ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
-            : model.id === "wan"
-              ? "Image1 is your character; Video1 is the movement reference. Adjust the prompt before rendering."
-              : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
-        }
+      <Select
+        label="Resolution"
+        options={model.resolutions.map((value) => {
+          const locked = has480p && value !== "480p";
+          const price = pricing.card?.usdRates?.[value] !== undefined
+            ? `${pricing.card.usdRates[value].toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 })}/s`
+            : pricing.card || pricing.error ? "Price unavailable" : "Loading price…";
+          return { value, label: `${value} · ${price}${locked ? " · Locked" : ""}`, disabled: locked };
+        })}
+        value={selectedResolution}
+        onChange={setResolution}
       />
+      <details className="prompt-override">
+        <summary>Override prompt</summary>
+        <Prompt
+          value={prompt}
+          onChange={setPrompt}
+          maxLength={2000}
+          hintClassName="motion-prompt-note"
+          hint={
+            mode === "first-frame"
+              ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
+              : model.id === "wan"
+                ? "Image1 is your character; Video1 is the movement reference. Adjust the prompt before rendering."
+                : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
+          }
+        />
+      </details>
       {!["h3", "kling"].includes(model.id) && (
         <label className="check">
           <input
@@ -528,8 +545,8 @@ export function MotionWorkflow({
             Reload latest version
           </Button>
           <small>
-            Uploaded files remain in the library. Reconnect your session key
-            after reloading if prompted.
+            Uploaded files remain in the library. Your saved key reconnects
+            automatically after reloading.
           </small>
         </div>
       )}

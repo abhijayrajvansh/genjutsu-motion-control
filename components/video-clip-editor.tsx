@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Asset } from "@/lib/storage";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 
@@ -8,7 +8,8 @@ function timecode(seconds: number) {
   return `${String(minutes).padStart(2, "0")}:${(seconds % 60).toFixed(2).padStart(5, "0")}`;
 }
 
-export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maximum, disabled, onChange }: {
+export type VideoClipControls = { togglePlayback: () => void };
+export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maximum, disabled, onChange, compact = false, playbackRef, onPlaybackChange }: {
   asset: Asset;
   sourceSeconds: number;
   selection: VideoSelection;
@@ -16,6 +17,9 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   maximum: number;
   disabled: boolean;
   onChange: (selection: VideoSelection) => void;
+  compact?: boolean;
+  playbackRef?: React.Ref<VideoClipControls>;
+  onPlaybackChange?: (playing: boolean) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const [url, setUrl] = useState("");
@@ -50,22 +54,23 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
     seek(Math.max(next.start, next.end - 1 / 30));
   }
   async function playSelection() {
-    if (!video.current) return;
+    if (!video.current || disabled || !valid || error) return;
     if (!video.current.paused) { video.current.pause(); return; }
     if (video.current.currentTime < selection.start || video.current.currentTime >= selection.end - 0.04)
       video.current.currentTime = selection.start;
     try { await video.current.play(); setError(""); }
     catch { setError("This browser could not play the clip. Try an H.264 MP4."); }
   }
+  useImperativeHandle(playbackRef, () => ({ togglePlayback: () => { void playSelection(); } }));
   return (
-    <section className="clip-editor" aria-label="Input video editor">
+    <section className={`clip-editor ${compact ? "clip-editor-inline" : ""}`} aria-label="Input video editor">
       <div className="between">
-        <strong>Input duration</strong>
+        {!compact && <strong>Input duration</strong>}
         <span className="clip-length">{displayLength}s selected</span>
       </div>
       <video ref={video} src={url || undefined} className="clip-preview" playsInline preload="auto"
         aria-label="Selected clip preview"
-        onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+        onPlay={() => { setPlaying(true); onPlaybackChange?.(true); }} onPause={() => { setPlaying(false); onPlaybackChange?.(false); }}
         onError={() => setError("This browser cannot preview the video. Try an H.264 MP4.")}
         onLoadedData={() => seek(selection.start)}
         onTimeUpdate={() => {
@@ -78,10 +83,11 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
           setCursor(element.currentTime);
         }}
       />
+      {compact && <small className="clip-file-name" title={asset.name}>{asset.name}</small>}
       <div className="clip-transport">
-        <button type="button" className="button secondary" disabled={disabled || !valid || !!error} onClick={playSelection}>
+        {!compact && <button type="button" className="button secondary" disabled={disabled || !valid || !!error} onClick={playSelection}>
           {playing ? "Pause" : "Play selection"}
-        </button>
+        </button>}
         <output aria-label="Video playhead">{timecode(cursor)} <span>/ {timecode(sourceSeconds)}</span></output>
       </div>
       <div className="clip-timeline">
@@ -108,7 +114,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
         </label>
       </div>
       <small>{timecode(selection.start)} → {timecode(selection.end)} · Output: {displayLength}s</small>
-      <small>Choose {minimum}–{maximum}s. Length snaps to whole seconds; move Start to position the segment. Only this selection is sent to Kie.</small>
+      {!compact && <small>Choose {minimum}–{maximum}s. Length snaps to whole seconds; move Start to position the segment. Only this selection is sent to Kie.</small>}
       {error && <p className="error" role="alert">{error}</p>}
     </section>
   );

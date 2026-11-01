@@ -423,6 +423,16 @@ em {
   gap: 8px;
   margin-top: 8px;
 }
+.generation-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.resolution-choices small {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
 .history-tabs {
   margin-bottom: 20px;
 }
@@ -823,6 +833,30 @@ em {
 }
 .modal::backdrop {
   background: #000b;
+}
+.modal.connection-error-modal {
+  width: 440px;
+}
+.connection-error-modal > p {
+  color: var(--muted-foreground);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.motion-prompt-note {
+  color: var(--warning-text);
+}
+.prompt-override > summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  width: fit-content;
+}
+.prompt-override > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.prompt-override[open] > summary {
+  margin-bottom: 12px;
 }
 .modal-heading {
   margin-bottom: 16px;
@@ -1236,9 +1270,35 @@ body {
   padding: 12px;
   gap: 8px;
 }
+.header-kie-connection {
+  width: min(400px, 40vw);
+  margin-left: auto;
+  min-width: 0;
+}
+.header-kie-connection .kie-compact {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.header-inner:has(.header-kie-connection) .header-end {
+  margin-left: 0;
+}
+@media (max-width: 767px) {
+  .header-inner {
+    flex-wrap: wrap;
+  }
+  .header-kie-connection {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+  .header-inner:has(.header-kie-connection) .header-end {
+    margin-left: auto;
+  }
+}
 .kie-key-row {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 4fr) minmax(64px, 1fr);
   gap: 8px;
   align-items: center;
 }
@@ -1257,10 +1317,37 @@ body {
   padding: 6px 4px;
   font-size: 12px;
 }
+.kie-key-row .button::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #8b8b8b;
+}
+.kie-key-row .button[data-connected="true"]::before {
+  background: #22c55e;
+}
+.kie-balance {
+  text-align: right;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
 .motion-input-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+.motion-model-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+.motion-model-row .select-trigger > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .motion-input-grid > div {
   min-width: 0;
@@ -1305,6 +1392,40 @@ body {
 }
 .clip-editor strong {
   font-size: 14px;
+}
+.clip-editor-inline {
+  padding: 8px;
+  gap: 8px;
+  border-style: dashed;
+}
+.clip-editor-inline > .between,
+.clip-editor-inline .clip-transport {
+  justify-content: flex-end;
+}
+.clip-editor-inline .clip-points {
+  gap: 8px;
+}
+.clip-editor-inline .clip-points .field {
+  font-size: 12px;
+}
+.clip-editor-inline .clip-points .field > span small {
+  display: none;
+}
+.clip-editor-inline .clip-points input[type="number"] {
+  height: 32px;
+  padding: 4px 6px;
+}
+.clip-editor-inline .clip-points .text-button {
+  font-size: 10px;
+}
+.clip-editor-inline > small {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.clip-editor-inline .clip-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .clip-length {
   color: var(--accent-text);

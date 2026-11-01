@@ -4,9 +4,10 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
-import { Button } from "./controls";
+import { Button, Modal } from "./controls";
 export class KieRequestError extends Error {
   code?: string;
   generationStarted?: boolean;
@@ -31,7 +32,9 @@ type Connection = {
   connect: () => Promise<void>;
 };
 const Context = createContext<Connection | null>(null);
+const SAVED_KEY = "clone.kie.api-key";
 export function KieProvider({ children }: { children: React.ReactNode }) {
+  const keyVersion = useRef(0);
   const [key, setKeyState] = useState(""),
     [configured, setConfigured] = useState(false),
     [connected, setConnected] = useState(false),
@@ -52,27 +55,49 @@ export function KieProvider({ children }: { children: React.ReactNode }) {
   );
   useEffect(() => {
     let active = true;
-    fetch("/api/kie/config", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (active) {
-          setConfigured(data.configured === true);
-          setConnected(data.configured === true);
-        }
-      })
-      .catch(() => {});
+    const version = keyVersion.current;
+    const controller = new AbortController();
+    async function restore() {
+      let saved = "";
+      try { saved = localStorage.getItem(SAVED_KEY)?.trim() ?? ""; } catch { /* Use the current page when storage is unavailable. */ }
+      await Promise.resolve();
+      if (!active || keyVersion.current !== version) return;
+      if (saved) setKeyState(saved);
+      const config = await fetch("/api/kie/config", { cache: "no-store", signal: controller.signal })
+        .then((response) => response.json()).catch(() => ({ configured: false }));
+      if (!active) return;
+      setConfigured(config.configured === true);
+      if (keyVersion.current !== version || (!saved && !config.configured)) return;
+      const response = await fetch("/api/kie/config", {
+        method: "POST", cache: "no-store", signal: controller.signal,
+        headers: saved ? { "x-kie-key": saved } : {},
+      });
+      const data = await response.json();
+      if (!active || keyVersion.current !== version) return;
+      setConnected(response.ok);
+      setBalance(response.ok ? data.credits : null);
+    }
+    void restore().catch(() => {});
     return () => {
       active = false;
+      controller.abort();
     };
   }, []);
   const connect = useCallback(async () => {
+    const version = keyVersion.current;
     const data = await request<{ credits: number }>("/api/kie/config", {
       method: "POST",
     });
+    if (keyVersion.current !== version) return;
     setConnected(true);
     setBalance(data.credits);
-  }, [request]);
+    if (key) {
+      try { localStorage.setItem(SAVED_KEY, key); } catch { /* Keep the current connection working. */ }
+    }
+  }, [request, key]);
   function setKey(v: string) {
+    keyVersion.current += 1;
+    try { localStorage.removeItem(SAVED_KEY); } catch { /* Storage may be disabled. */ }
     setKeyState(v.trim());
     setConnected(false);
     setBalance(null);
@@ -117,24 +142,24 @@ export function KieConnection() {
   }
   return (
     <section className="kie-connection kie-compact">
-      <div className="between">
-        <h3>Kie API</h3>
-        <span className={kie.connected ? "connected-label" : "disconnected-label"}>
-          {kie.connected ? "Connected" : "Not connected"}
-          {kie.balance !== null ? ` · ${kie.balance.toLocaleString()} credits` : ""}
-        </span>
-      </div>
       <div className="kie-key-row">
-        {!kie.configured ? (
+        {!kie.configured || !!kie.key ? (
           <input aria-label="Kie API key" type="password" placeholder="Paste API key" autoComplete="off" spellCheck={false}
             value={kie.key} onChange={(event) => { kie.setKey(event.target.value); setError(""); }} />
         ) : <small>Server key configured</small>}
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
+          data-connected={kie.connected}
+          aria-label={kie.connected ? "Connected, check Kie balance" : "Not connected, connect Kie"}
           title={kie.connected ? "Check Kie balance" : "Connect Kie"}>
           {busy ? "…" : kie.connected ? "Check" : "Connect"}
         </Button>
       </div>
-      {error && <p className="error" role="alert">{error}</p>}
+      {kie.balance !== null && <small className="kie-balance">{kie.balance.toLocaleString()} credits</small>}
+      {error && (
+        <Modal title="Kie connection failed" closeLabel="Close" className="connection-error-modal" onClose={() => setError("")}>
+          <p role="alert">{error}</p>
+        </Modal>
+      )}
     </section>
   );
 }

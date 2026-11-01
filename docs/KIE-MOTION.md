@@ -4,7 +4,7 @@
 
 Open http://127.0.0.1:3107/generations and select **Motion Control**.
 
-Paste your key from https://kie.ai/api-key into **Kie API**, then click **Connect**. The connection check reads your credit balance and does not start a render. The key stays in page memory; after a reload, reconnect to resume polling. It is not written into local job files, browser storage, source control, or logs.
+Paste your key from https://kie.ai/api-key into the header’s API key field, then click **Connect**. The connection check reads your credit balance and does not start a render. After a successful connection, the user-entered key is saved in this browser’s local storage under `clone.kie.api-key`. Later visits restore it and validate the balance before reconnecting. Editing or clearing the field removes the saved value until the new key connects successfully. The key is never written into local job files, source control, or logs.
 
 For persistent configuration, copy `.env.example` to `.env.local`, set `KIE_API_KEY`, and restart `npm start` or `npm run dev`. Never prefix it with `NEXT_PUBLIC_`. Do not send the key in chat. The server key is never returned to the browser.
 
@@ -23,7 +23,7 @@ The included input video was trimmed from Kie's example to exactly 2.000 seconds
 
 ## Input clip editor
 
-Upload an MP4/MOV source up to 200 MB, then scrub its local preview and set Start/End. The selected length uses whole seconds within the current model's limits; Start can be positioned to hundredths of a second. Output duration matches that selected length. Moving Start repositions the segment while retaining its length; End changes its length. The browser preview stops at the end of the selection.
+Upload an MP4/MOV source up to 200 MB, then scrub its inline preview in the Driving video tile and set Start/End. The same tile retains Play video, Change and Remove; there is no separate preview below the uploaders. The selected length uses whole seconds within the current model's limits; Start can be positioned to hundredths of a second. Output duration matches that selected length. Moving Start repositions the segment while retaining its length; End changes its length. The browser preview stops at the end of the selection.
 
 Generate sends the original source and `trimStart`/`trimEnd` to the local server. FFmpeg accurately seeks and re-encodes only that interval to H.264 MP4 at 30 fps, retaining audio when present. The server validates the trimmed file and recalculates pricing from its actual duration before any provider upload or task creation. Only the trimmed file is uploaded to Kie. Temporary source/trim files are removed after processing. Older requests without selection fields keep their existing whole-clip behavior.
 
@@ -77,7 +77,9 @@ The selected mode persists in localStorage and is shown on new history records. 
 
 Validated model request shapes for both modes, correct reference ordering, mandatory opening-frame prompt instructions, Kling rejection, and omission of incompatible strict-first-frame API fields. Exercised the live local multipart API with missing/invalid opening images and valid public sample media; only the free authentication check was reached with a dummy key. Browser checks confirmed mode switching, draft restoration, persistence after reload, first-frame library selection and Kling's disabled mode. Production build, TypeScript and ESLint passed. A funded generation and actual first-frame adherence remain unverified until the user configures Kie.
 
-## Live total-credit estimate
+## Resolution rates and total-credit estimate
+
+Each resolution dropdown option shows its live USD-per-second rate parsed directly from the same model’s published Kie price card. Seedance uses the with-video rate; no fixed conversion is substituted if a dollar rate is unavailable.
 
 The Motion Control form now displays the total estimated Kie credits on the Generate button and in a breakdown above it. It recalculates immediately when duration, resolution, model or selected clip changes; video metadata is read locally before any upload. Both modes include all selected images in the calculation.
 
