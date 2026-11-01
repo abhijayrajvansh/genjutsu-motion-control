@@ -149,12 +149,11 @@ export function KieConnection() {
         ) : <small>Server key configured</small>}
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
           data-connected={kie.connected}
-          aria-label={kie.connected ? "Connected, check Kie balance" : "Not connected, connect Kie"}
+          aria-label={kie.connected ? `Credits left: ${kie.balance?.toLocaleString() ?? "unknown"}. Check Kie balance` : "Not connected, connect Kie"}
           title={kie.connected ? "Check Kie balance" : "Connect Kie"}>
-          {busy ? "…" : kie.connected ? "Check" : "Connect"}
+          {busy ? "…" : kie.connected ? `Credits left: ${kie.balance?.toLocaleString() ?? "—"}` : "Connect"}
         </Button>
       </div>
-      {kie.balance !== null && <small className="kie-balance">{kie.balance.toLocaleString()} credits</small>}
       {error && (
         <Modal title="Kie connection failed" closeLabel="Close" className="connection-error-modal" onClose={() => setError("")}>
           <p role="alert">{error}</p>

@@ -124,7 +124,7 @@ function MotionCard({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch(`/api/kie/motion/${job.id}/download`, {
+      const response = await fetch(`/api/kie/motion/${job.id}/download${job.preserveInputAudio !== false ? "?originalAudio=true" : ""}`, {
         headers: connectionHeaders(),
       });
       if (!response.ok) {
@@ -184,6 +184,7 @@ function MotionCard({
             <FavoriteButton active={favorite} onClick={onToggleFavorite} />
             <strong>{(job.taskId || job.id).slice(0, 10)}</strong>
           </div>
+          <small>{job.label} · {job.resolution}</small>
           <small>
             {job.mode === "first-frame"
               ? "First frame + reference"

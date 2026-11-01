@@ -20,6 +20,7 @@ import {
 } from "@/lib/server/motion-store";
 import { inspectFile } from "@/lib/server/media-validation";
 import { trimDrivingVideo, videoPoster } from "@/lib/server/video-trim";
+import { saveInputAudio } from "@/lib/server/original-audio";
 import {
   motionModel,
   MOTION_MODELS,
@@ -95,7 +96,8 @@ export async function POST(req: Request) {
       seconds = Number(form.get("seconds")),
       resolution = String(form.get("resolution") || "");
     const orientation = form.get("orientation") === "image" ? "image" : "video",
-      audio = form.get("audio") === "true";
+      preserveInputAudio = form.get("preserveInputAudio") === "true",
+      audio = !preserveInputAudio && form.get("audio") === "true";
     const images = form
         .getAll("images")
         .filter((f): f is File => f instanceof File),
@@ -190,6 +192,7 @@ export async function POST(req: Request) {
       selection: prepared.selection,
       previewImage: await videoPoster(prepared.file),
       previewAttempted: true,
+      preserveInputAudio,
       prompt,
       seconds: model.id === "kling" ? media.duration : seconds,
       resolution,
@@ -201,6 +204,10 @@ export async function POST(req: Request) {
     };
     if (!(await createJob(stored)))
       return json({ job: publicJob(await readJob(id, owner)), reused: true });
+    if (preserveInputAudio) {
+      stored = { ...stored, inputHasAudio: await saveInputAudio(id, prepared.file) };
+      await updateJob(stored);
+    }
     async function upload(file: File) {
       const body = new FormData();
       body.set("file", file, file.name);

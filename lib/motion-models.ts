@@ -97,6 +97,8 @@ export type MotionState =
   | "submission_unknown";
 export type MotionMode = "reference" | "first-frame";
 export type MotionJob = {
+  preserveInputAudio?: boolean;
+  inputHasAudio?: boolean;
   previewImage?: string;
   selection?: { start: number; end: number; sourceSeconds: number };
   mode?: MotionMode;

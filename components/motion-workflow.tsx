@@ -54,6 +54,7 @@ export function MotionWorkflow({
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
+    [preserveInputAudio, setPreserveInputAudio] = useState(true),
     [image, setImage] = useState<Asset | null>(null),
     [video, setVideo] = useState<Asset | null>(initialVideo ?? null),
     [extras, setExtras] = useState<(Asset | null)[]>([]),
@@ -204,6 +205,7 @@ export function MotionWorkflow({
     body.set("trimEnd", String(clip.end));
     body.set("resolution", selectedResolution);
     body.set("audio", String(audio));
+    body.set("preserveInputAudio", String(preserveInputAudio));
     body.set("orientation", orientation);
     body.set("maxEstimatedCredits", String(cost.total));
     for (const a of [image, ...extras])
@@ -399,7 +401,11 @@ export function MotionWorkflow({
           }
         />
       </details>
-      {!["h3", "kling"].includes(model.id) && (
+      <label className="check">
+        <input type="checkbox" checked={preserveInputAudio} onChange={(event) => setPreserveInputAudio(event.target.checked)} />
+        <span>Keep original clip audio<small>Use the selected input segment’s soundtrack in the downloaded video.</small></span>
+      </label>
+      {!preserveInputAudio && !["h3", "kling"].includes(model.id) && (
         <label className="check">
           <input
             type="checkbox"
@@ -415,64 +421,18 @@ export function MotionWorkflow({
           </span>
         </label>
       )}
-      {model.id === "h3" && (
+      {!preserveInputAudio && model.id === "h3" && (
         <small>
           H3 always generates an audio track. Reference video duration is billed
           in addition to output duration.
         </small>
       )}
-      {model.id === "kling" && (
+      {!preserveInputAudio && model.id === "kling" && (
         <small>
           Output follows the usable driving-video length, with a three-second
           minimum. The provider may retain its original audio.
         </small>
       )}
-      <section
-        className="generation-cost"
-        aria-live="polite"
-        aria-label="Generation cost"
-      >
-        <div className="between">
-          <span>Estimated total</span>
-          <strong>
-            {cost
-              ? `${formatCredits(cost.total)} Kie credits`
-              : costProblem
-                ? "Unavailable"
-                : video
-                  ? "Calculating…"
-                  : "Add a driving video"}
-          </strong>
-        </div>
-        {cost && (
-          <>
-            <small>
-              Output: {formatCredits(cost.outputCredits)} credits
-              {pricing.card?.billsReferenceVideo
-                ? ` · Driving video: ${formatCredits(cost.referenceCredits)} credits`
-                : ""}
-              {cost.imageCredits
-                ? ` · Images: ${formatCredits(cost.imageCredits)} credits`
-                : ""}
-            </small>
-            <small>
-              {cost.outputSeconds}s output
-              {pricing.card?.billsReferenceVideo
-                ? ` + ${cost.referenceSeconds}s driving video`
-                : ""}
-              . Fractional seconds are rounded up for this estimate. Final Kie
-              billing can differ.
-            </small>
-          </>
-        )}
-        {pricing.card && (
-          <small>
-            <a href={pricing.card.sourceUrl} target="_blank" rel="noreferrer">
-              Kie pricing
-            </a>{" "}
-            checked {new Date(pricing.card.checkedAt).toLocaleTimeString()}.
-          </small>
-        )}
         {pricing.error && (
           <div className="error" role="alert">
             {pricing.error}
@@ -499,7 +459,6 @@ export function MotionWorkflow({
             Estimated total: {formatCredits(cost!.total)}.
           </small>
         )}
-      </section>
       <div className="motion-submit-bar">
         <div className="motion-submit-inner">
           <Button

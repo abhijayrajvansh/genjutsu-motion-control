@@ -38,6 +38,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [ready, setReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
+  const [historyLayout, setHistoryLayout] = useSaved("clone.generations.layout", "grid");
   const [savedFavorites, setSavedFavorites] = useSaved("clone.generations.favorites", "[]");
   let favoriteIds: string[] = [];
   try {
@@ -295,8 +296,20 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                   </div>
                 ))}
               </section>
-              <section className="history-column">
-                <h2>Your generations</h2>
+              <section className={`history-column ${historyLayout === "list" ? "history-list" : "history-grid"}`}>
+                <div className="history-heading">
+                  <h2>Your generations</h2>
+                  <div className="history-view-toggle" role="group" aria-label="Generation view">
+                    <button type="button" aria-pressed={historyLayout !== "list"} onClick={() => setHistoryLayout("grid")}>
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><rect x="2" y="2" width="6" height="6" rx="1" /><rect x="12" y="2" width="6" height="6" rx="1" /><rect x="2" y="12" width="6" height="6" rx="1" /><rect x="12" y="12" width="6" height="6" rx="1" /></svg>
+                      Grid
+                    </button>
+                    <button type="button" aria-pressed={historyLayout === "list"} onClick={() => setHistoryLayout("list")}>
+                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M7 4h11M7 10h11M7 16h11M2 4h1M2 10h1M2 16h1" /></svg>
+                      List
+                    </button>
+                  </div>
+                </div>
                 <div className="tabs history-tabs" role="tablist" aria-label="Generation history"
                   onKeyDown={(event) => {
                     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -324,6 +337,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                                 <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
                                 <strong>{j.id.slice(0, 10)}</strong>
                               </div>
+                              <small>{j.model}</small>
                               <small>
                                 {j.kind}
                               </small>

@@ -64,10 +64,10 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
   useImperativeHandle(playbackRef, () => ({ togglePlayback: () => { void playSelection(); } }));
   return (
     <section className={`clip-editor ${compact ? "clip-editor-inline" : ""}`} aria-label="Input video editor">
-      <div className="between">
-        {!compact && <strong>Input duration</strong>}
+      {!compact && <div className="between">
+        <strong>Input duration</strong>
         <span className="clip-length">{displayLength}s selected</span>
-      </div>
+      </div>}
       <video ref={video} src={url || undefined} className="clip-preview" playsInline preload="auto"
         aria-label="Selected clip preview"
         onPlay={() => { setPlaying(true); onPlaybackChange?.(true); }} onPause={() => { setPlaying(false); onPlaybackChange?.(false); }}

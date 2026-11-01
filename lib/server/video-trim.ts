@@ -9,7 +9,7 @@ import { ApiError } from "./kie";
 import { inspectFile } from "./media-validation";
 
 const execute = promisify(execFile);
-export async function providerVideoPoster(param: string): Promise<string | undefined> {
+export async function providerInputVideo(param: string): Promise<File | undefined> {
   try {
     const parameters = JSON.parse(param);
     const input = typeof parameters.input === "string" ? JSON.parse(parameters.input) : parameters.input;
@@ -44,12 +44,17 @@ export async function providerVideoPoster(param: string): Promise<string | undef
         if (size > limit) { await reader.cancel(); return undefined; }
         chunks.push(new Uint8Array(chunk.value));
       }
-      return await videoPoster(new File(chunks, "provider-clip.mp4", { type: "video/mp4" }));
+      return new File(chunks, "provider-clip.mp4", { type: "video/mp4" });
     }
   } catch {
     // Expired or unavailable inputs use the animated fallback instead.
   }
   return undefined;
+}
+
+export async function providerVideoPoster(param: string): Promise<string | undefined> {
+  const video = await providerInputVideo(param);
+  return video ? videoPoster(video) : undefined;
 }
 
 export async function videoPoster(file: File): Promise<string | undefined> {
