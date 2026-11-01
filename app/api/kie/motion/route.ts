@@ -97,7 +97,9 @@ export async function POST(req: Request) {
       resolution = String(form.get("resolution") || "");
     const orientation = form.get("orientation") === "image" ? "image" : "video",
       preserveInputAudio = form.get("preserveInputAudio") === "true",
-      audio = !preserveInputAudio && form.get("audio") === "true";
+      audio = !preserveInputAudio && form.get("audio") === "true",
+      seed = Number(form.get("seed") ?? 0),
+      nsfwChecker = form.get("nsfwChecker") === "true";
     const images = form
         .getAll("images")
         .filter((f): f is File => f instanceof File),
@@ -126,6 +128,8 @@ export async function POST(req: Request) {
         audio,
         imageUrls: images.map(() => "https://example.com/reference.png"),
         videoUrl: "https://example.com/reference.mp4",
+        seed,
+        nsfwChecker,
       });
     } catch (e) {
       throw new ApiError(
@@ -248,6 +252,8 @@ export async function POST(req: Request) {
       audio,
       imageUrls,
       videoUrl,
+      seed,
+      nsfwChecker,
     });
     stored = { ...stored, prompt: payload.input.prompt as string };
     await updateJob(stored);

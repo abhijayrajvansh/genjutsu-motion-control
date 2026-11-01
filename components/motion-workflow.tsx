@@ -54,6 +54,8 @@ export function MotionWorkflow({
   const [resolution, setResolution] = useState("480p"),
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
+    [seed, setSeed] = useState(0),
+    [nsfwChecker, setNsfwChecker] = useState(false),
     [preserveInputAudio, setPreserveInputAudio] = useState(true),
     [image, setImage] = useState<Asset | null>(null),
     [video, setVideo] = useState<Asset | null>(initialVideo ?? null),
@@ -205,6 +207,8 @@ export function MotionWorkflow({
     body.set("trimEnd", String(clip.end));
     body.set("resolution", selectedResolution);
     body.set("audio", String(audio));
+    body.set("seed", String(seed));
+    body.set("nsfwChecker", String(model.id === "wan" && nsfwChecker));
     body.set("preserveInputAudio", String(preserveInputAudio));
     body.set("orientation", orientation);
     body.set("maxEstimatedCredits", String(cost.total));
@@ -401,6 +405,33 @@ export function MotionWorkflow({
           }
         />
       </details>
+      {model.id === "wan" && (
+        <>
+          <label className="field">
+            Seed
+            <input
+              type="number"
+              min={0}
+              max={2147483647}
+              step={1}
+              value={seed}
+              onChange={(event) => setSeed(Math.max(0, Math.min(2147483647, Math.trunc(Number(event.target.value) || 0))))}
+            />
+            <small>0 asks Kie for a random seed. Any other whole number repeats that result.</small>
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={nsfwChecker}
+              onChange={(event) => setNsfwChecker(event.target.checked)}
+            />
+            <span>
+              NSFW checker
+              <small>Off sends nsfw_checker false, so Kie does not filter clothing or skin. On asks Kie to filter the result.</small>
+            </span>
+          </label>
+        </>
+      )}
       <label className="check">
         <input type="checkbox" checked={preserveInputAudio} onChange={(event) => setPreserveInputAudio(event.target.checked)} />
         <span>Keep original clip audio<small>Use the selected input segment’s soundtrack in the downloaded video.</small></span>

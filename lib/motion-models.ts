@@ -147,6 +147,8 @@ export type MotionInput = {
   orientation: "image" | "video";
   imageUrls: string[];
   videoUrl: string;
+  seed?: number;
+  nsfwChecker?: boolean;
 };
 export function motionPayload(o: MotionInput) {
   const m = motionModel(o.model);
@@ -210,7 +212,10 @@ export function motionPayload(o: MotionInput) {
       resolution: o.resolution,
       aspect_ratio: "adaptive",
     };
-  else if (o.model === "wan")
+  else if (o.model === "wan") {
+    const seed = o.seed ?? 0;
+    if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647)
+      throw new Error("Seed must be a whole number from 0 to 2147483647.");
     input = {
       prompt,
       ...refs,
@@ -218,7 +223,10 @@ export function motionPayload(o: MotionInput) {
       resolution: o.resolution.toUpperCase(),
       audio: o.audio,
       aspect_ratio: "adaptive",
+      seed,
+      nsfw_checker: o.nsfwChecker === true,
     };
+  }
   else
     input = {
       prompt,
