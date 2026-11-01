@@ -78,7 +78,7 @@ export function MotionWorkflow({
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
     [seed, setSeed] = useState(""),
-    [plannedSeed, setPlannedSeed] = useState(randomSeed),
+    [plannedSeed, setPlannedSeed] = useState<number | null>(null),
     [nsfwChecker, setNsfwChecker] = useState(false),
     [preserveInputAudio, setPreserveInputAudio] = useState(true),
     [image, setImage] = useState<Asset | null>(null),
@@ -91,6 +91,9 @@ export function MotionWorkflow({
     [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false),
     kie = useKie();
+  useEffect(() => {
+    setPlannedSeed((current) => current ?? randomSeed());
+  }, []);
   useEffect(() => {
     let live = true;
     records<Asset>("assets")
@@ -275,7 +278,7 @@ export function MotionWorkflow({
     body.set("trimEnd", String(clip.end));
     body.set("resolution", selectedResolution);
     body.set("audio", String(audio));
-    const typedSeed = seed.trim() === "" ? plannedSeed : Number(seed);
+    const typedSeed = seed.trim() === "" ? plannedSeed ?? randomSeed() : Number(seed);
     body.set("seed", String(typedSeed));
     body.set("nsfwChecker", String(model.id === "wan" && nsfwChecker));
     body.set("preserveInputAudio", String(preserveInputAudio));
@@ -515,11 +518,11 @@ export function MotionWorkflow({
               max={2147483647}
               step={1}
               value={seed}
-              placeholder={String(plannedSeed)}
+              placeholder={plannedSeed === null ? "" : String(plannedSeed)}
               onChange={(event) => setSeed(event.target.value)}
             />
             <small>
-              This generation will use seed {seed.trim() === "" ? plannedSeed : seed.trim()}. Leave the field empty to use the preview, or type a whole number from 0 to 2147483647.
+              This generation will use seed {seed.trim() === "" ? plannedSeed ?? "…" : seed.trim()}. Leave the field empty to use the preview, or type a whole number from 0 to 2147483647.
             </small>
           </label>
           <label className="check">

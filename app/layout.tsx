@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./reference.css";
 import "./globals.css";
 export const metadata: Metadata = {
@@ -10,14 +11,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try { document.documentElement.dataset.theme = localStorage.getItem("clone.theme") === "dark" ? "dark" : "light"; } catch {}`,
-          }}
-        />
-      </head>
-      <body>{children}</body>
+      <body>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`try { document.documentElement.dataset.theme = localStorage.getItem("clone.theme") === "dark" ? "dark" : "light"; } catch {}`}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }
