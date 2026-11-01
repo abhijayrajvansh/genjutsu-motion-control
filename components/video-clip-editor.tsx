@@ -384,7 +384,7 @@ export function VideoClipEditor({ asset, sourceSeconds, selection, minimum, maxi
         </div>
       </div>
       {!compact && <small>Choose {minimum}–{maximum}s. Drag the cyan handle to move the start, and the lime handle to move the end. Drag inside the selection to slide the whole clip. Length snaps to whole seconds. Only this selection is sent to Kie.</small>}
-      {compact && <small className="clip-selection-summary">{timecode(selection.start)} → {timecode(selection.end)} · Output: {displayLength}s</small>}
+      {compact && <small className="clip-selection-summary">{timecode(selection.start)} → {timecode(selection.end)} · Input: {displayLength}s</small>}
       {error && <p className="error" role="alert">{error}</p>}
     </section>
   );
