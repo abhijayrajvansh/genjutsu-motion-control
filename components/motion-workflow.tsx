@@ -482,9 +482,7 @@ export function MotionWorkflow({
         label="Resolution"
         options={model.resolutions.map((value) => {
           const locked = has480p && value !== "480p";
-          const price = pricing.card?.currency === "CNY"
-            ? `¥${formatCredits(pricing.card.rates[value])}/s`
-            : pricing.card?.usdRates?.[value] !== undefined
+          const price = pricing.card?.usdRates?.[value] !== undefined
             ? `${pricing.card.usdRates[value].toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 })}/s`
             : pricing.card || pricing.error ? "Price unavailable" : "Loading price…";
           return { value, label: `${value} · ${price}${locked ? " · Locked" : ""}`, disabled: locked };
@@ -610,7 +608,7 @@ export function MotionWorkflow({
           </small>
         )}
       {kie.provider === "apimart" && <small>
-        APIMart estimates are in CNY for output seconds. Cloudinary usage and optional moderation are extra. Account balance units depend on your APIMart account.
+        APIMart estimates are in USD for output seconds, converted at the latest available exchange rate. Cloudinary usage and optional moderation are extra. Account balance units depend on your APIMart account.
       </small>}
       {!kie.mediaReady && kie.provider === "apimart" && <p className="error" role="alert">
         Cloudinary is not configured. Set CLOUDINARY_URL in the server’s .env.local and restart to enable APIMart uploads.

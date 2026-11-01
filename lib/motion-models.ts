@@ -99,7 +99,7 @@ export type MotionMode = "reference" | "first-frame";
 export type MotionProvider = "kie" | "apimart";
 export type MotionJob = {
   provider?: MotionProvider;
-  estimatedCurrency?: "CNY";
+  estimatedCurrency?: "CNY" | "USD";
   preserveInputAudio?: boolean;
   inputHasAudio?: boolean;
   previewImage?: string;

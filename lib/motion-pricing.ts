@@ -31,7 +31,9 @@ export const PRICE_SOURCES: Record<
 };
 export type MotionPriceCard = {
   model: MotionModelId;
-  currency?: "CNY";
+  currency?: "CNY" | "USD";
+  usdExchangeRate?: number;
+  exchangeRateDate?: string;
   rates: Record<string, number>;
   usdRates?: Record<string, number>;
   billsReferenceVideo: boolean;
@@ -154,7 +156,8 @@ export function estimateMotionCost(
   // Conservative preflight estimate; provider bills the actual generated duration.
   const ref = Math.ceil(referenceSeconds - 0.000001),
     out = card.model === "kling" ? ref : Math.ceil(outputSeconds - 0.000001);
-  const round = (n: number) => Math.ceil(n * 100 - 0.000001) / 100;
+  const precision = card.currency === "USD" ? 10000 : 100;
+  const round = (n: number) => Math.ceil(n * precision - 0.000001) / precision;
   const outputCredits = round(out * rate),
     referenceCredits = card.billsReferenceVideo ? round(ref * rate) : 0,
     imageCredits = round(
@@ -187,6 +190,10 @@ export function parseApimartPriceCard(markdown: string, checkedAt: string): Moti
   return { model: "wan", currency: "CNY", rates, billsReferenceVideo: false, freeImages: Number.MAX_SAFE_INTEGER,
     extraImageCredits: 0, sourceUrl: APIMART_PRICE_URL, checkedAt };
 }
-export function formatMotionAmount(value: number, currency?: "CNY") {
-  return currency === "CNY" ? `¥${formatCredits(value)}` : `${formatCredits(value)} Kie credits`;
+export function formatMotionAmount(value: number, currency?: "CNY" | "USD", usdExchangeRate?: number) {
+  if (currency === "CNY") {
+    if (!usdExchangeRate || !Number.isFinite(usdExchangeRate)) return "USD estimate unavailable";
+    value *= usdExchangeRate;
+  }
+  return currency ? value.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 }) : `${formatCredits(value)} Kie credits`;
 }
