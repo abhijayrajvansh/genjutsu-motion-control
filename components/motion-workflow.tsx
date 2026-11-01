@@ -5,7 +5,6 @@ import {
   defaultMotionPrompt,
   motionModel,
   MOTION_MODELS,
-  MotionJob,
   MotionMode,
 } from "@/lib/motion-models";
 import {
@@ -216,13 +215,11 @@ export function MotionWorkflow({
       if (a) body.append("images", a.blob, a.name);
     body.set("video", video.blob, video.name);
     try {
-      const data = await kie.request<{ job: MotionJob }>("/api/kie/motion", {
+      await kie.request("/api/kie/motion", {
         method: "POST",
         body,
       });
-      setStage(
-        `Submitted to Kie. Task ${data.job.taskId ?? data.job.id}. Track it under Your generations.`,
-      );
+      setStage("");
       kie.changed();
     } catch (e) {
       setError(
@@ -540,7 +537,6 @@ export function MotionWorkflow({
           </small>
         </div>
       )}
-      {lastId && <small>Local job ID: {lastId}</small>}
     </form>
   );
 }
