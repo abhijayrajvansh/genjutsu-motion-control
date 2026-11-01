@@ -317,7 +317,10 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
               </section>
               <section className={`history-column ${historyLayout === "list" ? "history-list" : "history-grid"}`}>
                 <div className="history-heading">
-                  <h2>Your generations</h2>
+                  <div className="history-title">
+                    <h2>Your generations</h2>
+                    <a href="https://kie.ai/logs" target="_blank" rel="noreferrer">Kie logs</a>
+                  </div>
                   <div className="history-view-toggle" role="group" aria-label="Generation view">
                     <button type="button" aria-pressed={historyLayout !== "list"} onClick={() => setHistoryLayout("grid")}>
                       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><rect x="2" y="2" width="6" height="6" rx="1" /><rect x="12" y="2" width="6" height="6" rx="1" /><rect x="2" y="12" width="6" height="6" rx="1" /><rect x="12" y="12" width="6" height="6" rx="1" /></svg>

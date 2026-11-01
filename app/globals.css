@@ -446,6 +446,18 @@ em {
 .history-heading h2 {
   margin-bottom: 0;
 }
+.history-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+.history-title a {
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .history-view-toggle {
   display: flex;
   gap: 2px;
