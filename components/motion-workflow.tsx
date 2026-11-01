@@ -21,6 +21,11 @@ import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipControls, VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
+function randomSeed() {
+  const bytes = new Uint32Array(1);
+  crypto.getRandomValues(bytes);
+  return bytes[0] % 2147483647;
+}
 const MOTION_INPUTS_KEY = "clone.motion.inputs";
 type SavedMotionInputs = {
   imageId?: string | null;
@@ -73,6 +78,7 @@ export function MotionWorkflow({
     [orientation, setOrientation] = useState("video"),
     [audio, setAudio] = useState(false),
     [seed, setSeed] = useState(""),
+    [plannedSeed, setPlannedSeed] = useState(randomSeed),
     [nsfwChecker, setNsfwChecker] = useState(false),
     [preserveInputAudio, setPreserveInputAudio] = useState(true),
     [image, setImage] = useState<Asset | null>(null),
@@ -269,7 +275,8 @@ export function MotionWorkflow({
     body.set("trimEnd", String(clip.end));
     body.set("resolution", selectedResolution);
     body.set("audio", String(audio));
-    body.set("seed", String(seed));
+    const typedSeed = seed.trim() === "" ? plannedSeed : Number(seed);
+    body.set("seed", String(typedSeed));
     body.set("nsfwChecker", String(model.id === "wan" && nsfwChecker));
     body.set("preserveInputAudio", String(preserveInputAudio));
     body.set("orientation", orientation);
@@ -283,6 +290,7 @@ export function MotionWorkflow({
         body,
       });
       setStage("");
+      if (seed.trim() === "") setPlannedSeed(randomSeed());
       kie.changed();
     } catch (e) {
       setError(
@@ -495,10 +503,12 @@ export function MotionWorkflow({
               max={2147483647}
               step={1}
               value={seed}
-              placeholder="Random"
+              placeholder={String(plannedSeed)}
               onChange={(event) => setSeed(event.target.value)}
             />
-            <small>Leave empty for a new random result. Enter a whole number from 0 to 2147483647 to repeat that exact seed.</small>
+            <small>
+              This generation will use seed {seed.trim() === "" ? plannedSeed : seed.trim()}. Leave the field empty to use the preview, or type a whole number from 0 to 2147483647.
+            </small>
           </label>
           <label className="check">
             <input
