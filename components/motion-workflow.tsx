@@ -16,7 +16,7 @@ import {
   Select,
   useSaved,
 } from "./controls";
-import { estimateMotionCost, formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
+import { estimateMotionCost, formatMotionCredits } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
@@ -482,8 +482,8 @@ export function MotionWorkflow({
         label="Resolution"
         options={model.resolutions.map((value) => {
           const locked = has480p && value !== "480p";
-          const price = pricing.card?.usdRates?.[value] !== undefined
-            ? `${pricing.card.usdRates[value].toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 })}/s`
+          const price = pricing.card?.rates[value] !== undefined
+            ? `${formatMotionCredits(pricing.card.rates[value], pricing.card.currency, 4)}/s`
             : pricing.card || pricing.error ? "Price unavailable" : "Loading price…";
           return { value, label: `${value} · ${price}${locked ? " · Locked" : ""}`, disabled: locked };
         })}
@@ -497,9 +497,9 @@ export function MotionWorkflow({
           </span>
           <span>
             ({pricing.card.billsReferenceVideo ? `${cost.referenceSeconds}s input + ` : ""}{cost.outputSeconds}s output)
-            {" × "}{formatMotionAmount(pricing.card.rates[selectedResolution], pricing.card.currency)}/s
-            {cost.imageCredits > 0 && ` + ${formatMotionAmount(cost.imageCredits, pricing.card.currency)} image fees`}
-            {" = ~"}{formatMotionAmount(cost.total, pricing.card.currency)}
+            {" × "}{formatMotionCredits(pricing.card.rates[selectedResolution], pricing.card.currency, 4)}/s
+            {cost.imageCredits > 0 && ` + ${formatMotionCredits(cost.imageCredits, pricing.card.currency)} image fees`}
+            {" = ~"}{formatMotionCredits(cost.total, pricing.card.currency)}
           </span>
           <span>Estimate rounds billable durations up to whole seconds. Final cost is reported by {providerName}.</span>
         </div>
@@ -617,12 +617,12 @@ export function MotionWorkflow({
         )}
         {insufficient && (
           <small className="error">
-            Insufficient Kie balance: {formatMotionAmount(kie.balance!)} ·
-            Estimated total: {formatMotionAmount(cost!.total)}.
+            Insufficient Kie balance: {formatMotionCredits(kie.balance!)} ·
+            Estimated total: {formatMotionCredits(cost!.total)}.
           </small>
         )}
       {kie.provider === "apimart" && <small>
-        APIMart estimates use published Gold USD rates and include driving-video plus output duration. Cloudinary usage and optional moderation are extra. The header shows your remaining APIMart account credits.
+        APIMart estimates include driving-video plus output duration and convert published Gold USD rates at $0.10 per credit. Cloudinary usage and optional moderation are extra. The header shows your remaining APIMart account credits.
       </small>}
       {!kie.mediaReady && kie.provider === "apimart" && <p className="error" role="alert">
         Cloudinary is not configured. Set CLOUDINARY_URL in the server’s .env.local and restart to enable APIMart uploads.
@@ -644,7 +644,7 @@ export function MotionWorkflow({
             {busy
               ? "Uploading / submitting…"
               : cost
-                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${kie.provider === "kie" ? `${formatCredits(cost.total)} Kie credits` : formatMotionAmount(cost.total, pricing.card?.currency)}`
+                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatMotionCredits(cost.total, pricing.card?.currency)}`
                 : costProblem
                   ? "Generate — estimate unavailable"
                   : video
