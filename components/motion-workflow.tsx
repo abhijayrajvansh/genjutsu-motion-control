@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Asset, records, saveRecord } from "@/lib/storage";
 import {
+  APIMART_MODEL_IDS,
+  apimartOnly,
   defaultMotionPrompt,
   motionModel,
   MOTION_MODELS,
@@ -54,7 +56,9 @@ export function MotionWorkflow({
   const providerName = kie.provider === "apimart" ? "APIMart" : "Kie";
   const [saved, setSaved] = useSaved("clone.motion.kie-model", "wan"),
     model = motionModel(
-      kie.provider === "apimart" ? "wan" : MOTION_MODELS.some((m) => m.id === saved) ? saved : "wan",
+      kie.provider === "apimart"
+        ? APIMART_MODEL_IDS.includes(saved as (typeof APIMART_MODEL_IDS)[number]) ? saved : "wan"
+        : MOTION_MODELS.some((m) => m.id === saved) && !apimartOnly(saved) ? saved : "wan",
     );
   const [savedMode, setSavedMode] = useSaved(
     "clone.motion.kie-mode",
@@ -285,7 +289,7 @@ export function MotionWorkflow({
     body.set("audio", String(audio));
     const typedSeed = seed.trim() === "" ? plannedSeed ?? randomSeed() : Number(seed);
     body.set("seed", String(typedSeed));
-    body.set("nsfwChecker", String(model.id === "wan" && nsfwChecker));
+    body.set("nsfwChecker", String((model.id === "wan" || apimartOnly(model.id)) && nsfwChecker));
     body.set("preserveInputAudio", String(preserveInputAudio));
     body.set("orientation", orientation);
     body.set("maxEstimatedCredits", String(cost.total));
@@ -325,7 +329,7 @@ export function MotionWorkflow({
       <div className="motion-model-row">
         <Select
           label="Model"
-          options={MOTION_MODELS.filter((m) => kie.provider === "kie" || m.id === "wan").map((m) => ({ value: m.id, label: m.label }))}
+          options={MOTION_MODELS.filter((m) => kie.provider === "apimart" ? (APIMART_MODEL_IDS as readonly string[]).includes(m.id) : !apimartOnly(m.id)).map((m) => ({ value: m.id, label: m.label }))}
           value={model.id}
           onChange={changeModel}
         />
@@ -509,18 +513,22 @@ export function MotionWorkflow({
         <Prompt
           value={prompt}
           onChange={setPrompt}
-          maxLength={2000}
+          maxLength={apimartOnly(model.id) ? 5000 : 2000}
           hintClassName="motion-prompt-note"
           hint={
             mode === "first-frame"
               ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
               : model.id === "wan"
                 ? "Image1 supplies the character, clothing and skin coverage, including minimal clothing. Video1 supplies motion and timing only. Adjust the prompt before rendering."
-                : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
+                : model.id === "wan27r2v"
+                  ? "image 1 supplies the character. video 1 supplies motion and timing only. Output is 2–10 seconds at 720P or 1080P."
+                  : model.id === "wan27edit"
+                    ? "The driving clip is edited in place. Reference images set the person and clothing. The clip must be 2–10 seconds, and the output keeps that length."
+                    : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
           }
         />
       </details>
-      {model.id === "wan" && (
+      {(model.id === "wan" || apimartOnly(model.id)) && (
         <>
           <label className="field">
             <span className="seed-row">
@@ -577,8 +585,9 @@ export function MotionWorkflow({
           <span>
             Generate audio
             <small>
-              Leave off for the small trial. This does not copy the original
-              soundtrack.
+              {model.id === "wan27edit"
+                ? "On asks Video Edit to regenerate audio. Off keeps the source soundtrack."
+                : "Leave off for the small trial. This does not copy the original soundtrack."}
             </small>
           </span>
         </label>
@@ -622,7 +631,10 @@ export function MotionWorkflow({
           </small>
         )}
       {kie.provider === "apimart" && <small>
-        APIMart estimates include driving-video plus output duration and convert published Gold USD rates at $0.10 per credit. Cloudinary usage and optional moderation are extra. The header shows your remaining APIMart account credits.
+        {pricing.card?.billsReferenceVideo === false
+          ? "APIMart estimates use the output duration at the published Gold USD rate."
+          : "APIMart estimates include driving-video plus output duration."}{" "}
+        Rates convert at $0.10 per credit. Cloudinary usage and optional moderation are extra. The header shows your remaining APIMart account credits.
       </small>}
       {!kie.mediaReady && kie.provider === "apimart" && <p className="error" role="alert">
         Cloudinary is not configured. Set CLOUDINARY_URL in the server’s .env.local and restart to enable APIMart uploads.

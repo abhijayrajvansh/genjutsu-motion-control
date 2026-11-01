@@ -28,6 +28,16 @@ export const PRICE_SOURCES: Record<
     model: "kling-2.6/motion-control",
     resolutions: ["720p", "1080p"],
   },
+  wan27r2v: {
+    url: "https://apimart.ai/model/wan-2-7-r2v",
+    model: "wan2.7-r2v",
+    resolutions: ["720p", "1080p"],
+  },
+  wan27edit: {
+    url: "https://apimart.ai/model/wan-2-7-videoedit",
+    model: "wan2.7-videoedit",
+    resolutions: ["720p", "1080p"],
+  },
 };
 export type MotionPriceCard = {
   model: MotionModelId;
@@ -183,12 +193,17 @@ export function formatMotionCredits(value: number, currency?: "CNY" | "USD", max
   return `${credits.toLocaleString("en-US", { maximumFractionDigits })} ${unit}`;
 }
 
-export const APIMART_PRICE_URL = "https://apimart.ai/model/wan-3-0";
-export function parseApimartPriceCard(html: string, checkedAt: string): MotionPriceCard {
+export const APIMART_PRICE_PAGES: Partial<Record<MotionModelId, { url: string; variant: string; resolutions: string[]; billsReferenceVideo: boolean }>> = {
+  wan: { url: "https://apimart.ai/model/wan-3-0", variant: "wan3.0-video", resolutions: ["480p", "720p", "1080p"], billsReferenceVideo: true },
+  wan27r2v: { url: "https://apimart.ai/model/wan-2-7-r2v", variant: "wan2.7-r2v", resolutions: ["720p", "1080p"], billsReferenceVideo: false },
+  wan27edit: { url: "https://apimart.ai/model/wan-2-7-videoedit", variant: "wan2.7-videoedit", resolutions: ["720p", "1080p"], billsReferenceVideo: false },
+};
+export function parseApimartPriceCard(html: string, checkedAt: string, model: MotionModelId = "wan"): MotionPriceCard {
+  const page = APIMART_PRICE_PAGES[model];
+  if (!page) throw new Error("APIMart pricing is not configured for this model.");
   const plain = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-  // Select this exact variant's table, then the public Gold/current USD column.
   const table = html.match(/<table\b[\s\S]*?<\/table>/g)?.find((value) =>
-    /<code\b[^>]*>wan3\.0-video<\/code>/.test(value));
+    new RegExp(`<code\\b[^>]*>${page.variant.replace(/\./g, "\\.")}<\\/code>`).test(value));
   if (!table || !/Variant Tier Gold Current price Platinum Diamond Official/.test(plain(table)))
     throw new Error("APIMart pricing format changed.");
   const rates: Record<string, number> = {};
@@ -196,7 +211,7 @@ export function parseApimartPriceCard(html: string, checkedAt: string): MotionPr
   for (const row of table.match(/<tr\b[\s\S]*?<\/tr>/g) ?? []) {
     const code = row.match(/<code\b[^>]*>([^<]+)<\/code>/)?.[1];
     if (code) variant = code;
-    if (variant !== "wan3.0-video") continue;
+    if (variant !== page.variant) continue;
     const cells = (row.match(/<td\b[\s\S]*?<\/td>/g) ?? []).map(plain);
     const index = cells.findIndex((value) => /^(480|720|1080)P$/.test(value));
     if (index < 0) continue;
@@ -206,12 +221,12 @@ export function parseApimartPriceCard(html: string, checkedAt: string): MotionPr
       throw new Error("APIMart resolution price is unavailable.");
     rates[cells[index].toLowerCase()] = rate;
   }
-  if (["480p", "720p", "1080p"].some((resolution) => !rates[resolution]))
+  if (page.resolutions.some((resolution) => !rates[resolution]))
     throw new Error("APIMart pricing is missing a resolution.");
-  if (!/Total cost = \(reference video duration \+ generated video duration\)/.test(plain(html)))
+  if (page.billsReferenceVideo && !/Total cost = \(reference video duration \+ generated video duration\)/.test(plain(html)))
     throw new Error("APIMart billing rules changed.");
-  return { model: "wan", currency: "USD", rates, usdRates: rates, billsReferenceVideo: true,
-    freeImages: Number.MAX_SAFE_INTEGER, extraImageCredits: 0, sourceUrl: APIMART_PRICE_URL, checkedAt };
+  return { model, currency: "USD", rates, usdRates: rates, billsReferenceVideo: page.billsReferenceVideo,
+    freeImages: Number.MAX_SAFE_INTEGER, extraImageCredits: 0, sourceUrl: page.url, checkedAt };
 }
 export function formatMotionAmount(value: number, currency?: "CNY" | "USD") {
   if (currency === "CNY") return "USD estimate unavailable for legacy job";

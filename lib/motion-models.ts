@@ -84,6 +84,40 @@ export const MOTION_MODELS = [
     maxRatio: 2.5,
     maxImages: 1,
   },
+  {
+    id: "wan27r2v",
+    label: "Wan 2.7 R2V",
+    kieModel: "wan2.7-r2v",
+    minSeconds: 2,
+    maxSeconds: 10,
+    minReference: 2,
+    maxReference: 10,
+    resolutions: ["720p", "1080p"],
+    imageMB: 20,
+    videoMB: 100,
+    minSide: 240,
+    maxImageSide: 8000,
+    maxVideoSide: 4096,
+    maxRatio: 8,
+    maxImages: 4,
+  },
+  {
+    id: "wan27edit",
+    label: "Wan 2.7 Video Edit",
+    kieModel: "wan2.7-videoedit",
+    minSeconds: 2,
+    maxSeconds: 10,
+    minReference: 2,
+    maxReference: 10,
+    resolutions: ["720p", "1080p"],
+    imageMB: 20,
+    videoMB: 100,
+    minSide: 240,
+    maxImageSide: 8000,
+    maxVideoSide: 4096,
+    maxRatio: 8,
+    maxImages: 4,
+  },
 ] as const;
 export type MotionModelId = (typeof MOTION_MODELS)[number]["id"];
 export type MotionState =
@@ -97,6 +131,16 @@ export type MotionState =
   | "submission_unknown";
 export type MotionMode = "reference" | "first-frame";
 export type MotionProvider = "kie" | "apimart";
+export const APIMART_MODEL_IDS = ["wan", "wan27r2v", "wan27edit"] as const;
+export function apimartOnly(id: string) {
+  return id === "wan27r2v" || id === "wan27edit";
+}
+export function apimartTaskModel(id: string) {
+  if (id === "wan") return "wan3.0-video";
+  if (id === "wan27r2v") return "wan2.7-r2v";
+  if (id === "wan27edit") return "wan2.7-videoedit";
+  return undefined;
+}
 export type MotionJob = {
   provider?: MotionProvider;
   estimatedCurrency?: "CNY" | "USD";
@@ -135,6 +179,10 @@ export function defaultMotionPrompt(
 ) {
   if (mode === "first-frame")
     return "Continue naturally from the corrected opening image, following the reference video's movement and timing. Keep the identity, clothing, background and camera framing consistent with the opening image.";
+  if (id === "wan27r2v")
+    return "Use the character from image 1, including their exact clothing and skin coverage. Reproduce only the body motion and timing from video 1. Do not copy the person, face, or clothing from video 1. If image 1 shows bare skin or very little clothing, keep that same coverage for the whole shot. Do not add garments, layers, fabric, or coverage that appear only in video 1. Keep image 1's outfit, colors, accessories and exposed skin consistent. Preserve the background and camera framing from video 1. A single continuous shot, natural movement.";
+  if (id === "wan27edit")
+    return "Replace the person in the video with the character from the reference image, including their exact clothing and skin coverage. Keep the original body motion, timing, background and camera framing. Do not copy the original person's face or clothing.";
   return id === "wan"
     ? "Use the character from Image1, including their exact clothing and skin coverage. Reproduce only the body motion and timing from Video1. Do not copy the person, face, or clothing from Video1. If Image1 shows bare skin or very little clothing, keep that same coverage for the whole shot. Do not add garments, layers, fabric, or coverage that appear only in Video1. Keep Image1's outfit, colors, accessories and exposed skin consistent. Preserve the background and camera framing from Video1. A single continuous shot, natural movement."
     : id === "kling"
@@ -154,6 +202,8 @@ export type MotionInput = {
   videoUrl: string;
   seed?: number;
   nsfwChecker?: boolean;
+  videoWidth?: number;
+  videoHeight?: number;
 };
 export function motionPayload(o: MotionInput) {
   const m = motionModel(o.model);
@@ -169,8 +219,9 @@ export function motionPayload(o: MotionInput) {
     throw new Error("Choose a resolution supported by this model.");
   if (!o.imageUrls.length || o.imageUrls.length > m.maxImages)
     throw new Error("Invalid reference image count.");
-  if (!o.prompt.trim() || o.prompt.length > 2500)
-    throw new Error("Prompt must contain 1–2500 characters.");
+  const promptLimit = o.model === "wan27r2v" || o.model === "wan27edit" ? 5000 : 2500;
+  if (!o.prompt.trim() || o.prompt.length > promptLimit)
+    throw new Error(`Prompt must contain 1–${promptLimit} characters.`);
   const mode = o.mode ?? "reference";
   if (mode !== "reference" && mode !== "first-frame")
     throw new Error("Choose a supported motion mode.");
@@ -247,22 +298,75 @@ export function motionPayload(o: MotionInput) {
 }
 
 // Keep the same validated motion instructions and media ordering across providers.
+const APIMART_SIZES = [
+  ["16:9", 16 / 9],
+  ["9:16", 9 / 16],
+  ["1:1", 1],
+  ["4:3", 4 / 3],
+  ["3:4", 3 / 4],
+] as const;
+function nearestApimartSize(width: number, height: number) {
+  const ratio = width / height;
+  return APIMART_SIZES.reduce((best, item) =>
+    Math.abs(Math.log(ratio / item[1])) < Math.abs(Math.log(ratio / best[1])) ? item : best,
+  )[0];
+}
+function checkedSeed(seed: number | undefined) {
+  if (seed === undefined) return {};
+  if (!Number.isInteger(seed) || seed < 0 || seed > 2147483647)
+    throw new Error("Seed must be a whole number from 0 to 2147483647.");
+  return { seed };
+}
 export function apimartMotionPayload(o: MotionInput) {
-  if (o.model !== "wan") throw new Error("APIMart is available only for Wan 3.");
+  if (!APIMART_MODEL_IDS.includes(o.model as (typeof APIMART_MODEL_IDS)[number]))
+    throw new Error("APIMart supports Wan 3, Wan 2.7 R2V and Wan 2.7 Video Edit.");
   if (o.mode && o.mode !== "reference")
     throw new Error("APIMart motion control supports reference image + video mode only.");
-  const { input } = motionPayload(o);
-  return {
-    model: "wan3.0-video",
-    prompt: String(input.prompt).replace(/Image(\d+)/g, "图$1").replace(/Video(\d+)/g, "视频$1"),
-    generation_type: "reference",
-    image_urls: o.imageUrls,
-    video_urls: [o.videoUrl],
+  if (o.model === "wan") {
+    const { input } = motionPayload(o);
+    return {
+      model: "wan3.0-video",
+      prompt: String(input.prompt).replace(/Image(\d+)/g, "图$1").replace(/Video(\d+)/g, "视频$1"),
+      generation_type: "reference",
+      image_urls: o.imageUrls,
+      video_urls: [o.videoUrl],
+      resolution: o.resolution.toUpperCase(),
+      duration: o.seconds,
+      size: "adaptive",
+      audio: o.audio,
+      ...(o.seed === undefined ? {} : { seed: o.seed }),
+      nsfw_check: o.nsfwChecker === true,
+    };
+  }
+  const { input } = motionPayload({ ...o, model: o.model });
+  if (o.imageUrls.length + 1 > 5)
+    throw new Error("Wan 2.7 accepts at most 4 reference images with one driving video.");
+  const shared = {
+    prompt: String(input.prompt),
     resolution: o.resolution.toUpperCase(),
-    duration: o.seconds,
-    size: "adaptive",
-    audio: o.audio,
-    ...(o.seed === undefined ? {} : { seed: o.seed }),
+    prompt_extend: false,
+    watermark: false,
+    ...checkedSeed(o.seed),
     nsfw_check: o.nsfwChecker === true,
+  };
+  if (o.model === "wan27r2v") {
+    if (!o.videoWidth || !o.videoHeight)
+      throw new Error("The driving video has no readable dimensions.");
+    return {
+      model: "wan2.7-r2v",
+      ...shared,
+      image_with_roles: o.imageUrls.map((url) => ({ url, role: "reference_image" })),
+      video_urls: [o.videoUrl],
+      duration: o.seconds,
+      size: nearestApimartSize(o.videoWidth, o.videoHeight),
+    };
+  }
+  return {
+    model: "wan2.7-videoedit",
+    ...shared,
+    video_urls: [o.videoUrl],
+    image_urls: o.imageUrls,
+    duration: 0,
+    metadata: { audio_setting: o.audio ? "auto" : "origin" },
   };
 }

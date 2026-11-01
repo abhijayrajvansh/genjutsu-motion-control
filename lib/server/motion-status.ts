@@ -1,6 +1,6 @@
 import { apimart } from "./apimart";
 import "server-only";
-import { motionModel, MotionState } from "@/lib/motion-models";
+import { apimartTaskModel, motionModel, MotionState } from "@/lib/motion-models";
 import { ApiError, kie, redact } from "./kie";
 import { StoredMotionJob, updateJob } from "./motion-store";
 import { providerVideoPoster } from "./video-trim";
@@ -105,7 +105,8 @@ async function refreshApimartJob(job: StoredMotionJob, key: string) {
     id: string; model?: string; status: string; credits_cost?: number;
     result?: { videos?: { url: string | string[] }[] }; error?: { message?: string };
   } }>(`/v1/tasks/${encodeURIComponent(job.taskId!)}?language=en`, key);
-  if (!task || task.id !== job.taskId || (task.model && task.model !== "wan3.0-video"))
+  const expected = apimartTaskModel(job.model);
+  if (!task || task.id !== job.taskId || (task.model && task.model !== expected))
     throw new ApiError("The APIMart task does not match this job.", 409);
   const states: Record<string, MotionState> = { pending: "waiting", submitted: "waiting", processing: "generating", completed: "success", failed: "fail", cancelled: "fail" };
   const state = states[task.status];

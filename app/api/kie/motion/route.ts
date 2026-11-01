@@ -29,8 +29,11 @@ import {
   motionModel,
   MOTION_MODELS,
   MotionModelId,
+  MotionInput,
   motionPayload,
   apimartMotionPayload,
+  apimartOnly,
+  APIMART_MODEL_IDS,
 } from "@/lib/motion-models";
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -88,7 +91,10 @@ export async function POST(req: Request) {
       throw new ApiError("Choose a supported Kie motion model.");
     const model = motionModel(requestedModel);
     const provider = requestProvider(req);
-    if (provider === "apimart" && model.id !== "wan") throw new ApiError("APIMart supports Wan 3 only.");
+    if (provider === "apimart" && !APIMART_MODEL_IDS.includes(model.id as (typeof APIMART_MODEL_IDS)[number]))
+      throw new ApiError("APIMart supports Wan 3, Wan 2.7 R2V and Wan 2.7 Video Edit.");
+    if (provider !== "apimart" && apimartOnly(model.id))
+      throw new ApiError("Wan 2.7 R2V and Video Edit are available on APIMart.");
     if (provider === "apimart" && !cloudinaryConfigured()) throw new ApiError("Configure Cloudinary on the server: set CLOUDINARY_URL in .env.local and restart the server.", 503);
     const mode = String(form.get("mode") ?? "reference");
     if (mode !== "reference" && mode !== "first-frame")
@@ -127,24 +133,28 @@ export async function POST(req: Request) {
         `Supply 1–${model.maxImages} reference images and one driving video.`,
       );
     // Validate parameters before uploads or any billable request.
+    const previewPayload: MotionInput = {
+      model: model.id,
+      mode: mode as MotionInput["mode"],
+      firstFrameUrl:
+        mode === "first-frame"
+          ? "https://example.com/first-frame.png"
+          : undefined,
+      prompt,
+      seconds,
+      resolution,
+      orientation,
+      audio,
+      imageUrls: images.map(() => "https://example.com/reference.png"),
+      videoUrl: "https://example.com/reference.mp4",
+      seed,
+      nsfwChecker,
+      videoWidth: 1280,
+      videoHeight: 720,
+    };
     try {
-      motionPayload({
-        model: model.id,
-        mode,
-        firstFrameUrl:
-          mode === "first-frame"
-            ? "https://example.com/first-frame.png"
-            : undefined,
-        prompt,
-        seconds,
-        resolution,
-        orientation,
-        audio,
-        imageUrls: images.map(() => "https://example.com/reference.png"),
-        videoUrl: "https://example.com/reference.mp4",
-        seed,
-        nsfwChecker,
-      });
+      if (provider === "apimart") apimartMotionPayload(previewPayload);
+      else motionPayload(previewPayload);
     } catch (e) {
       throw new ApiError(
         e instanceof Error ? e.message : "Invalid model parameters.",
@@ -258,6 +268,24 @@ export async function POST(req: Request) {
     const videoUrl = await upload(prepared.file);
     stored = { ...stored, state: "submitting", updated: Date.now() };
     await updateJob(stored);
+    let task: { taskId: string };
+    if (provider === "apimart") {
+      const apimartPayload = apimartMotionPayload({
+        model: model.id, mode, prompt, seconds, resolution, orientation, audio, imageUrls, videoUrl, seed, nsfwChecker,
+        videoWidth: media.width, videoHeight: media.height,
+      });
+      stored = {
+        ...stored,
+        prompt: apimartPayload.prompt,
+        ...(typeof apimartPayload.seed === "number" ? { seed: apimartPayload.seed, seedChecked: true } : {}),
+      };
+      await updateJob(stored);
+      submitted = true;
+      const result = await apimart<{ data: { task_id: string }[] }>("/v1/videos/generations", key, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(apimartPayload),
+      });
+      task = { taskId: result.data?.[0]?.task_id };
+    } else {
     const payload = motionPayload({
       model: model.id as MotionModelId,
       mode,
@@ -281,20 +309,12 @@ export async function POST(req: Request) {
     };
     await updateJob(stored);
     submitted = true;
-    let task: { taskId: string };
-    if (provider === "apimart") {
-      const apimartPayload = apimartMotionPayload({ model: model.id, mode, prompt, seconds, resolution, orientation, audio, imageUrls, videoUrl, seed, nsfwChecker });
-      stored = { ...stored, prompt: apimartPayload.prompt };
-      await updateJob(stored);
-      const result = await apimart<{ data: { task_id: string }[] }>("/v1/videos/generations", key, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(apimartPayload),
-      });
-      task = { taskId: result.data?.[0]?.task_id };
-    } else task = await kie<{ taskId: string }>("/api/v1/jobs/createTask", key, {
+    task = await kie<{ taskId: string }>("/api/v1/jobs/createTask", key, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    }
     if (!task.taskId)
       throw new ApiError(
         "The provider did not return a task ID. Check provider tasks before trying again.",
