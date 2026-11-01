@@ -255,7 +255,7 @@ function MotionCard({
           {job.creditsConsumed !== undefined && !pending.includes(job.state)
             ? `Cost: ${formatCredits(job.creditsConsumed)} credits`
             : job.estimatedCredits !== undefined
-              ? `Cost: ${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency, 2, false)} (estimated)`
+              ? `Cost: ${formatMotionCredits(job.estimatedCredits, job.estimatedCurrency, 2, false)}`
               : "Cost: unavailable"}
           {" · "}
           <GenerationElapsed created={job.created} completedAt={job.state === "success" || job.state === "fail" ? job.completedAt ?? job.updated : undefined} />
