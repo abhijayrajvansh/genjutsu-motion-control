@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import type { MotionProvider } from "@/lib/motion-models";
 import { Button, Modal } from "./controls";
 export class KieRequestError extends Error {
   code?: string;
@@ -21,6 +22,9 @@ export class KieRequestError extends Error {
   }
 }
 type Connection = {
+  provider: MotionProvider;
+  setProvider: (provider: MotionProvider) => void;
+  mediaReady: boolean;
   key: string;
   setKey: (key: string) => void;
   configured: boolean;
@@ -32,9 +36,17 @@ type Connection = {
   connect: () => Promise<void>;
 };
 const Context = createContext<Connection | null>(null);
-const SAVED_KEY = "clone.kie.api-key";
+const savedKey = (provider: MotionProvider) => `clone.${provider}.api-key`;
 export function KieProvider({ children }: { children: React.ReactNode }) {
   const keyVersion = useRef(0);
+  const [provider, setProviderState] = useState<MotionProvider>("kie");
+  const [mediaReady, setMediaReady] = useState(true);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      try { if (localStorage.getItem("clone.motion.provider") === "apimart") setProviderState("apimart"); } catch { /* Browser storage unavailable. */ }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
   const [key, setKeyState] = useState(""),
     [configured, setConfigured] = useState(false),
     [connected, setConnected] = useState(false),
@@ -44,14 +56,14 @@ export function KieProvider({ children }: { children: React.ReactNode }) {
     async <T,>(url: string, init: RequestInit = {}): Promise<T> => {
       const response = await fetch(url, {
         ...init,
-        headers: { ...init.headers, ...(key ? { "x-kie-key": key } : {}) },
+        headers: { ...init.headers, "x-motion-provider": provider, ...(key ? { [provider === "apimart" ? "x-apimart-key" : "x-kie-key"]: key } : {}) },
         cache: "no-store",
       });
       const data = await response.json();
       if (!response.ok) throw new KieRequestError(response.status, data);
       return data as T;
     },
-    [key],
+    [key, provider],
   );
   useEffect(() => {
     let active = true;
@@ -59,18 +71,21 @@ export function KieProvider({ children }: { children: React.ReactNode }) {
     const controller = new AbortController();
     async function restore() {
       let saved = "";
-      try { saved = localStorage.getItem(SAVED_KEY)?.trim() ?? ""; } catch { /* Use the current page when storage is unavailable. */ }
+      try { saved = localStorage.getItem(savedKey(provider))?.trim() ?? ""; } catch { /* Use the current page when storage is unavailable. */ }
       await Promise.resolve();
       if (!active || keyVersion.current !== version) return;
-      if (saved) setKeyState(saved);
-      const config = await fetch("/api/kie/config", { cache: "no-store", signal: controller.signal })
+      setKeyState(saved);
+      setConnected(false);
+      setBalance(null);
+      const config = await fetch(`/api/kie/config?provider=${provider}`, { cache: "no-store", signal: controller.signal })
         .then((response) => response.json()).catch(() => ({ configured: false }));
       if (!active) return;
       setConfigured(config.configured === true);
+      setMediaReady(config.mediaReady === true);
       if (keyVersion.current !== version || (!saved && !config.configured)) return;
       const response = await fetch("/api/kie/config", {
         method: "POST", cache: "no-store", signal: controller.signal,
-        headers: saved ? { "x-kie-key": saved } : {},
+        headers: { "x-motion-provider": provider, ...(saved ? { [provider === "apimart" ? "x-apimart-key" : "x-kie-key"]: saved } : {}) },
       });
       const data = await response.json();
       if (!active || keyVersion.current !== version) return;
@@ -82,29 +97,38 @@ export function KieProvider({ children }: { children: React.ReactNode }) {
       active = false;
       controller.abort();
     };
-  }, []);
+  }, [provider]);
   const connect = useCallback(async () => {
     const version = keyVersion.current;
-    const data = await request<{ credits: number }>("/api/kie/config", {
+    const data = await request<{ credits: number | null }>("/api/kie/config", {
       method: "POST",
     });
     if (keyVersion.current !== version) return;
     setConnected(true);
     setBalance(data.credits);
     if (key) {
-      try { localStorage.setItem(SAVED_KEY, key); } catch { /* Keep the current connection working. */ }
+      try { localStorage.setItem(savedKey(provider), key); } catch { /* Keep the current connection working. */ }
     }
-  }, [request, key]);
+  }, [request, key, provider]);
   function setKey(v: string) {
     keyVersion.current += 1;
-    try { localStorage.removeItem(SAVED_KEY); } catch { /* Storage may be disabled. */ }
+    try { localStorage.removeItem(savedKey(provider)); } catch { /* Storage may be disabled. */ }
     setKeyState(v.trim());
     setConnected(false);
     setBalance(null);
   }
+  function setProvider(value: MotionProvider) {
+    keyVersion.current += 1;
+    setConnected(false); setBalance(null); setKeyState(""); setConfigured(false); setMediaReady(value === "kie");
+    setProviderState(value);
+    try { localStorage.setItem("clone.motion.provider", value); } catch { /* Browser storage unavailable. */ }
+  }
   return (
     <Context.Provider
       value={{
+        provider,
+        setProvider,
+        mediaReady,
         key,
         setKey,
         configured,
@@ -129,6 +153,7 @@ export function KieConnection() {
   const kie = useKie(),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const name = kie.provider === "apimart" ? "APIMart" : "Kie";
   async function connect() {
     setError("");
     setBusy(true);
@@ -143,19 +168,22 @@ export function KieConnection() {
   return (
     <section className="kie-connection kie-compact">
       <div className="kie-key-row">
+        <select aria-label="API provider" value={kie.provider} disabled={busy} onChange={(e) => { kie.setProvider(e.target.value as MotionProvider); setError(""); }}>
+          <option value="kie">Kie</option><option value="apimart">APIMart</option>
+        </select>
         {!kie.configured || !!kie.key ? (
-          <input aria-label="Kie API key" type="password" placeholder="Paste API key" autoComplete="off" spellCheck={false}
+          <input aria-label={`${name} API key`} type="password" placeholder="Paste API key" autoComplete="off" spellCheck={false}
             value={kie.key} onChange={(event) => { kie.setKey(event.target.value); setError(""); }} />
         ) : <small>Server key configured</small>}
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
           data-connected={kie.connected}
-          aria-label={kie.connected ? `Credits left: ${kie.balance?.toLocaleString() ?? "unknown"}. Check Kie balance` : "Not connected, connect Kie"}
-          title={kie.connected ? "Check Kie balance" : "Connect Kie"}>
-          {busy ? "…" : kie.connected ? `Credits left: ${kie.balance?.toLocaleString() ?? "—"}` : "Connect"}
+          aria-label={kie.connected ? `${name} balance: ${kie.balance?.toLocaleString() ?? "unlimited"}. Refresh balance` : `Connect ${name}`}
+          title={kie.connected ? `Check ${name} balance` : `Connect ${name}`}>
+          {busy ? "…" : kie.connected ? `${kie.provider === "kie" ? "Credits" : "Balance"}: ${kie.balance?.toLocaleString() ?? "Unlimited"}` : "Connect"}
         </Button>
       </div>
       {error && (
-        <Modal title="Kie connection failed" closeLabel="Close" className="connection-error-modal" onClose={() => setError("")}>
+        <Modal title={`${name} connection failed`} closeLabel="Close" className="connection-error-modal" onClose={() => setError("")}>
           <p role="alert">{error}</p>
         </Modal>
       )}

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { formatCredits } from "@/lib/motion-pricing";
+import { formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
@@ -16,8 +16,8 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
   onToggleFavorite: (id: string) => void;
   onArchive: (id: string) => void;
 }) {
-  const { connected, request, revision } = useKie(),
-    [jobs, setJobs] = useState<MotionJob[]>([]),
+  const { connected, request, revision, provider } = useKie(),
+    [snapshot, setSnapshot] = useState<{ request: typeof request; jobs: MotionJob[] } | null>(null),
     [error, setError] = useState(""),
     [refresh, setRefresh] = useState(0);
   useEffect(() => {
@@ -47,12 +47,12 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
           } else updated.push(job);
         }
         if (active) {
-          setJobs(updated);
+          setSnapshot({ request, jobs: updated });
         }
       } catch (e) {
         if (active)
           setError(
-            e instanceof Error ? e.message : "Could not load Kie history.",
+            e instanceof Error ? e.message : "Could not load provider history.",
           );
       } finally {
         busy = false;
@@ -65,6 +65,8 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
       clearInterval(timer);
     };
   }, [connected, request, revision, refresh]);
+  const jobs = snapshot?.request === request ? snapshot.jobs : [];
+  const name = provider === "apimart" ? "APIMart" : "Kie";
   const visibleJobs = jobs.filter((job) => {
     const isArchived = archived.includes(job.id);
     if (view === "archives") return isArchived;
@@ -75,7 +77,7 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
     <div className="motion-history">
       {!connected ? (
         <div className="empty-history">
-          Connect your Kie API key in Motion Control to view and resume real
+          Connect your {name} API key in the header to view and resume real
           generations.
         </div>
       ) : !visibleJobs.length && showEmpty ? (
@@ -84,7 +86,7 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
             ? "No favorites yet. Use the star on a generation to save it here."
             : view === "archives"
               ? "No archived generations yet. Use the bin on All generations to move one here."
-              : "No Kie generations yet. Load the two-second trial or upload your own reference image and driving video."}
+              : `No ${name} generations yet. Load the two-second trial or upload your own reference image and driving video.`}
         </div>
       ) : null}
       {error && (
@@ -166,9 +168,10 @@ function MotionCard({
       setBusy(false);
     }
   }
-  const { key } = useKie();
+  const { key, provider } = useKie();
+  const name = job.provider === "apimart" ? "APIMart" : "Kie";
   function connectionHeaders() {
-    return key ? { "x-kie-key": key } : undefined;
+    return { "x-motion-provider": provider, ...(key ? { [provider === "apimart" ? "x-apimart-key" : "x-kie-key"]: key } : {}) };
   }
   async function linkTask() {
     setBusy(true);
@@ -194,7 +197,7 @@ function MotionCard({
     generating: "Rendering",
     success: "Ready",
     fail: "Failed",
-    submission_unknown: "Check Kie logs",
+    submission_unknown: "Check provider tasks",
   };
   return (
     <article className="job-card">
@@ -250,10 +253,10 @@ function MotionCard({
         )}
         <small className="real-label">
           {job.creditsConsumed !== undefined && !pending.includes(job.state)
-            ? `Kie cost: ${formatCredits(job.creditsConsumed)} credits`
+            ? `${name} cost: ${formatCredits(job.creditsConsumed)} credits`
             : job.estimatedCredits !== undefined
-              ? `Kie cost: ~${formatCredits(job.estimatedCredits)} credits (estimated)`
-              : "Kie cost: unavailable"}
+              ? `${name} cost: ~${formatMotionAmount(job.estimatedCredits, job.estimatedCurrency)} (estimated)`
+              : `${name} cost: unavailable`}
         </small>
       </div>
       {job.error && <p className="error">{job.error}</p>}
@@ -261,14 +264,14 @@ function MotionCard({
         <div className="recover-task">
           <small>
             Check{" "}
-            <a href="https://kie.ai/logs" target="_blank" rel="noreferrer">
-              Kie logs
+            <a href={job.provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">
+              {name} tasks
             </a>{" "}
             before submitting again. If a task exists, paste its ID to resume it
             without another charge.
           </small>
           <TextField
-            label="Existing Kie task ID"
+            label={`Existing ${name} task ID`}
             value={taskId}
             onChange={(e) => setTaskId(e.target.value)}
           />

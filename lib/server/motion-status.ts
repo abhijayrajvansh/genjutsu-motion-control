@@ -1,3 +1,4 @@
+import { apimart } from "./apimart";
 import "server-only";
 import { motionModel, MotionState } from "@/lib/motion-models";
 import { ApiError, kie, redact } from "./kie";
@@ -15,6 +16,7 @@ export function seedFromTaskParam(param?: string) {
   }
 }
 export async function rememberSeed(job: StoredMotionJob, key: string) {
+  if (job.provider === "apimart") return job;
   if (job.model !== "wan" || job.seed !== undefined || job.seedChecked || !job.taskId) return job;
   try {
     const task = await kie<{ param?: string }>(
@@ -32,6 +34,7 @@ export async function rememberSeed(job: StoredMotionJob, key: string) {
 export async function refreshJob(job: StoredMotionJob, key: string) {
   if (!job.taskId || job.state === "success" || job.state === "fail")
     return job;
+  if (job.provider === "apimart") return refreshApimartJob(job, key);
   const task = await kie<{
     model: string;
     state: string;
@@ -91,6 +94,28 @@ export async function refreshJob(job: StoredMotionJob, key: string) {
         ? redact(task.failMsg || "Kie could not generate this video.", key)
         : undefined,
     creditsConsumed: task.creditsConsumed,
+  };
+  await updateJob(updated);
+  return updated;
+}
+
+async function refreshApimartJob(job: StoredMotionJob, key: string) {
+  const { data: task } = await apimart<{ data: {
+    id: string; model?: string; status: string; credits_cost?: number;
+    result?: { videos?: { url: string | string[] }[] }; error?: { message?: string };
+  } }>(`/v1/tasks/${encodeURIComponent(job.taskId!)}?language=en`, key);
+  if (!task || task.id !== job.taskId || (task.model && task.model !== "wan3.0-video"))
+    throw new ApiError("The APIMart task does not match this job.", 409);
+  const states: Record<string, MotionState> = { pending: "waiting", submitted: "waiting", processing: "generating", completed: "success", failed: "fail", cancelled: "fail" };
+  const state = states[task.status];
+  if (!state) throw new ApiError("APIMart returned an unknown task status.", 502);
+  const resultUrls = (task.result?.videos ?? []).flatMap((v) => Array.isArray(v.url) ? v.url : [v.url])
+    .filter((url): url is string => typeof url === "string" && url.startsWith("https://"));
+  if (state === "success" && !resultUrls.length) throw new ApiError("APIMart completed the task without a video URL.", 502);
+  const updated: StoredMotionJob = { ...job, state, updated: Date.now(),
+    resultUrls: resultUrls.length ? resultUrls : job.resultUrls,
+    error: state === "fail" ? redact(task.error?.message || "APIMart could not generate this video.", key) : undefined,
+    creditsConsumed: task.credits_cost,
   };
   await updateJob(updated);
   return updated;

@@ -31,6 +31,7 @@ export const PRICE_SOURCES: Record<
 };
 export type MotionPriceCard = {
   model: MotionModelId;
+  currency?: "CNY";
   rates: Record<string, number>;
   usdRates?: Record<string, number>;
   billsReferenceVideo: boolean;
@@ -170,4 +171,22 @@ export function estimateMotionCost(
 }
 export function formatCredits(value: number) {
   return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+}
+
+export const APIMART_PRICE_URL = "https://docs.apimart.ai/en/api-reference/videos/wan3.0-video/generation";
+export function parseApimartPriceCard(markdown: string, checkedAt: string): MotionPriceCard {
+  markdown = markdown.split("## Billing")[1]?.split("## Limits")[0]?.replace(/\*\*/g, "") || "";
+  const rates: Record<string, number> = {};
+  for (const resolution of ["480p", "720p", "1080p"]) {
+    const match = markdown.match(new RegExp(`\\|\\s*${resolution}\\s*\\|\\s*[¥￥]([\\d.]+)\\s*/\\s*s\\s*\\|`, "i"));
+    const rate = Number(match?.[1]);
+    if (!Number.isFinite(rate) || rate <= 0) throw new Error("APIMart pricing format changed.");
+    rates[resolution] = rate;
+  }
+  if (!/use the requested.*duration/i.test(markdown)) throw new Error("APIMart billing rules changed.");
+  return { model: "wan", currency: "CNY", rates, billsReferenceVideo: false, freeImages: Number.MAX_SAFE_INTEGER,
+    extraImageCredits: 0, sourceUrl: APIMART_PRICE_URL, checkedAt };
+}
+export function formatMotionAmount(value: number, currency?: "CNY") {
+  return currency === "CNY" ? `¥${formatCredits(value)}` : `${formatCredits(value)} Kie credits`;
 }

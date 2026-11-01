@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
-import { KieConnection, KieProvider } from "./kie-connection";
+import { KieConnection, KieProvider, useKie } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
 import { GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
@@ -24,6 +24,7 @@ export function Workspace({ section = "generations" }: { section?: string }) {
   );
 }
 function WorkspaceContent({ section = "generations" }: { section?: string }) {
+  const { provider } = useKie();
   const [savedTab, setTab] = useSaved("clone.generations.section", "Motion Control"),
     tab = tabs.includes(savedTab) ? savedTab : tabs[0],
     [menu, setMenu] = useState(""),
@@ -319,7 +320,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                 <div className="history-heading">
                   <div className="history-title">
                     <h2>Your generations</h2>
-                    <a href="https://kie.ai/logs" target="_blank" rel="noreferrer">Kie logs</a>
+                    <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>
                   </div>
                   <div className="history-view-toggle" role="group" aria-label="Generation view">
                     <button type="button" aria-pressed={historyLayout !== "list"} onClick={() => setHistoryLayout("grid")}>

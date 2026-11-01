@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Asset } from "@/lib/storage";
-import { MotionModelId } from "@/lib/motion-models";
+import { MotionModelId, MotionProvider } from "@/lib/motion-models";
 import { MotionPriceCard } from "@/lib/motion-pricing";
 export function useVideoLength(asset: Asset | null) {
   const [result, setResult] = useState<{
@@ -47,9 +47,10 @@ export function useVideoLength(asset: Asset | null) {
       : { id: asset.id, seconds: null }
     : null;
 }
-export function useMotionPricing(model: MotionModelId) {
+export function useMotionPricing(model: MotionModelId, provider: MotionProvider = "kie") {
   const [state, setState] = useState<{
       model: MotionModelId;
+      provider: MotionProvider;
       card?: MotionPriceCard;
       error?: string;
     } | null>(null),
@@ -59,17 +60,18 @@ export function useMotionPricing(model: MotionModelId) {
     const controller = new AbortController();
     async function load() {
       try {
-        const response = await fetch(`/api/kie/pricing?model=${model}`, {
+        const response = await fetch(`/api/kie/pricing?model=${model}&provider=${provider}`, {
           cache: "no-store",
           signal: controller.signal,
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Pricing unavailable.");
-        if (active) setState({ model, card: data.pricing });
+        if (active) setState({ model, provider, card: data.pricing });
       } catch (e) {
         if (active)
           setState({
             model,
+            provider,
             error: e instanceof Error ? e.message : "Pricing unavailable.",
           });
       }
@@ -81,10 +83,10 @@ export function useMotionPricing(model: MotionModelId) {
       controller.abort();
       clearInterval(interval);
     };
-  }, [model, revision]);
+  }, [model, provider, revision]);
   return {
-    card: state?.model === model ? state.card : undefined,
-    error: state?.model === model ? state.error : undefined,
+    card: state?.model === model && state.provider === provider ? state.card : undefined,
+    error: state?.model === model && state.provider === provider ? state.error : undefined,
     refresh: () => setRevision((r) => r + 1),
   };
 }

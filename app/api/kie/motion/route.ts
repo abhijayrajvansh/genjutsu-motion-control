@@ -1,13 +1,16 @@
-import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
+import { apimart, apimartBalance } from "@/lib/server/apimart";
+import { cloudinaryConfigured, uploadMotionMedia } from "@/lib/server/cloudinary";
+import { estimateMotionCost, formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
 import { currentMotionPricing } from "@/lib/server/motion-pricing";
 import {
   apiKey,
   ApiError,
   errorResponse,
   json,
-  keyId,
+  requestOwner,
   kie,
   sameOrigin,
+  requestProvider,
 } from "@/lib/server/kie";
 import {
   createJob,
@@ -27,13 +30,14 @@ import {
   MOTION_MODELS,
   MotionModelId,
   motionPayload,
+  apimartMotionPayload,
 } from "@/lib/motion-models";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 export async function GET(req: Request) {
   try {
     const key = apiKey(req);
-    const owner = keyId(key);
+    const owner = requestOwner(req, key);
     const jobs = [];
     for (const job of await listJobs(owner)) jobs.push(await rememberSeed(job, key));
     return json({ jobs: jobs.map(publicJob) });
@@ -47,7 +51,7 @@ export async function POST(req: Request) {
   try {
     sameOrigin(req);
     const key = apiKey(req),
-      owner = keyId(key);
+      owner = requestOwner(req, key);
     const contentLength = Number(req.headers.get("content-length") || 0);
     if (contentLength > 350 * 1024 * 1024)
       throw new ApiError("Upload is too large.", 413);
@@ -82,9 +86,13 @@ export async function POST(req: Request) {
     if (!MOTION_MODELS.some((model) => model.id === requestedModel))
       throw new ApiError("Choose a supported Kie motion model.");
     const model = motionModel(requestedModel);
+    const provider = requestProvider(req);
+    if (provider === "apimart" && model.id !== "wan") throw new ApiError("APIMart supports Wan 3 only.");
+    if (provider === "apimart" && !cloudinaryConfigured()) throw new ApiError("Configure Cloudinary on the server: set CLOUDINARY_URL in .env.local and restart the server.", 503);
     const mode = String(form.get("mode") ?? "reference");
     if (mode !== "reference" && mode !== "first-frame")
       throw new ApiError("Choose a supported motion mode.");
+    if (provider === "apimart" && mode !== "reference") throw new ApiError("APIMart motion control supports reference image + video only.");
     const firstFrame = form.get("firstFrame");
     if (mode === "first-frame" && model.maxImages < 2)
       throw new ApiError(
@@ -165,7 +173,7 @@ export async function POST(req: Request) {
       throw new ApiError(
         "Kling image orientation accepts a driving video up to 10 seconds.",
       );
-    const pricing = await currentMotionPricing(model.id);
+    const pricing = await currentMotionPricing(model.id, provider);
     const cost = estimateMotionCost(
       pricing,
       resolution,
@@ -179,22 +187,24 @@ export async function POST(req: Request) {
     if (cost.total > quoted + 0.001)
       return json(
         {
-          error: `The total estimate is now ${formatCredits(cost.total)} Kie credits. Refresh pricing and review the total before generating. No paid generation was started.`,
+          error: `The total estimate is now ${formatMotionAmount(cost.total, pricing.currency)}. Refresh pricing and review the total before generating. No paid generation was started.`,
           code: "PRICE_CHANGED",
           generationStarted: false,
           estimatedCredits: cost.total,
         },
         409,
       );
-    const balance = await kie<number>("/api/v1/chat/credit", key);
-    if (balance < cost.total)
+    const balance = provider === "apimart" ? await apimartBalance(key) : await kie<number>("/api/v1/chat/credit", key);
+    if (provider === "kie" && balance !== null && balance < cost.total)
       throw new ApiError(
-        `Not enough Kie credits: balance ${formatCredits(balance)}, estimated total ${formatCredits(cost.total)}.`,
+        `Not enough Kie credits: balance ${formatCredits(balance!)}, estimated total ${formatCredits(cost.total)}.`,
         402,
       );
     stored = {
       id,
       owner,
+      provider,
+      estimatedCurrency: pricing.currency,
       model: model.id,
       mode,
       label: model.label,
@@ -218,6 +228,7 @@ export async function POST(req: Request) {
       await updateJob(stored);
     }
     async function upload(file: File) {
+      if (provider === "apimart") return uploadMotionMedia(file, id);
       const body = new FormData();
       body.set("file", file, file.name);
       body.set("uploadPath", `aiorbust/motion/${id}`);
@@ -269,14 +280,23 @@ export async function POST(req: Request) {
     };
     await updateJob(stored);
     submitted = true;
-    const task = await kie<{ taskId: string }>("/api/v1/jobs/createTask", key, {
+    let task: { taskId: string };
+    if (provider === "apimart") {
+      const apimartPayload = apimartMotionPayload({ model: model.id, mode, prompt, seconds, resolution, orientation, audio, imageUrls, videoUrl, seed, nsfwChecker });
+      stored = { ...stored, prompt: apimartPayload.prompt };
+      await updateJob(stored);
+      const result = await apimart<{ data: { task_id: string }[] }>("/v1/videos/generations", key, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(apimartPayload),
+      });
+      task = { taskId: result.data?.[0]?.task_id };
+    } else task = await kie<{ taskId: string }>("/api/v1/jobs/createTask", key, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     if (!task.taskId)
       throw new ApiError(
-        "Kie did not return a task ID. Check Kie logs before trying again.",
+        "The provider did not return a task ID. Check provider tasks before trying again.",
         502,
       );
     stored = {

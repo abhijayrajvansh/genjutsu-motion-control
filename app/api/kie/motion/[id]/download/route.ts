@@ -1,6 +1,6 @@
 import { isIP } from "node:net";
 import { lookup } from "node:dns/promises";
-import { apiKey, ApiError, errorResponse, keyId, kie } from "@/lib/server/kie";
+import { apiKey, ApiError, errorResponse, requestOwner, kie } from "@/lib/server/kie";
 import { readJob, updateJob } from "@/lib/server/motion-store";
 import { refreshJob } from "@/lib/server/motion-status";
 import { attachInputAudio, saveInputAudio, savedAudioResult } from "@/lib/server/original-audio";
@@ -45,11 +45,11 @@ export async function GET(
   try {
     const key = apiKey(req),
       { id } = await params;
-    let job = await refreshJob(await readJob(id, keyId(key)), key);
+    let job = await refreshJob(await readJob(id, requestOwner(req, key)), key);
     if (job.state !== "success" || !job.resultUrls?.[0])
       throw new ApiError("The video is not ready to download.", 409);
     const resultUrl = job.resultUrls[0];
-    if (job.preserveInputAudio === undefined && new URL(req.url).searchParams.get("originalAudio") === "true") {
+    if (job.provider !== "apimart" && job.preserveInputAudio === undefined && new URL(req.url).searchParams.get("originalAudio") === "true") {
       if (!job.taskId) throw new ApiError("The original input clip is unavailable for this generation.", 409);
       const task = await kie<{ model?: string; param?: string }>(`/api/v1/jobs/recordInfo?taskId=${encodeURIComponent(job.taskId)}`, key);
       if (task.model && task.model !== motionModel(job.model).kieModel)

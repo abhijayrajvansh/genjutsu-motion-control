@@ -96,7 +96,10 @@ export type MotionState =
   | "fail"
   | "submission_unknown";
 export type MotionMode = "reference" | "first-frame";
+export type MotionProvider = "kie" | "apimart";
 export type MotionJob = {
+  provider?: MotionProvider;
+  estimatedCurrency?: "CNY";
   preserveInputAudio?: boolean;
   inputHasAudio?: boolean;
   previewImage?: string;
@@ -240,4 +243,25 @@ export function motionPayload(o: MotionInput) {
       aspect_ratio: "adaptive",
     };
   return { model: m.kieModel, input };
+}
+
+// Keep the same validated motion instructions and media ordering across providers.
+export function apimartMotionPayload(o: MotionInput) {
+  if (o.model !== "wan") throw new Error("APIMart is available only for Wan 3.");
+  if (o.mode && o.mode !== "reference")
+    throw new Error("APIMart motion control supports reference image + video mode only.");
+  const { input } = motionPayload(o);
+  return {
+    model: "wan3.0-video",
+    prompt: String(input.prompt).replace(/Image(\d+)/g, "图$1").replace(/Video(\d+)/g, "视频$1"),
+    generation_type: "reference",
+    image_urls: o.imageUrls,
+    video_urls: [o.videoUrl],
+    resolution: o.resolution.toUpperCase(),
+    duration: o.seconds,
+    size: "adaptive",
+    audio: o.audio,
+    ...(o.seed === undefined ? {} : { seed: o.seed }),
+    nsfw_check: o.nsfwChecker === true,
+  };
 }

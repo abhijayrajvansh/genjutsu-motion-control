@@ -22,13 +22,21 @@ export function sameOrigin(req: Request) {
       throw new ApiError("Cross-origin requests are not allowed.", 403);
   }
 }
-export function apiKey(req: Request) {
+export function requestProvider(req: Request): "kie" | "apimart" {
+  const provider = req.headers.get("x-motion-provider") || new URL(req.url).searchParams.get("provider") || "kie";
+  if (provider !== "kie" && provider !== "apimart") throw new ApiError("Invalid provider.");
+  return provider;
+}
+export function requestOwner(req: Request, key: string) {
+  return keyId(requestProvider(req) === "apimart" ? `apimart:${key}` : key);
+}
+export function apiKey(req: Request, provider = requestProvider(req)) {
   const key = (
-    req.headers.get("x-kie-key") ||
-    process.env.KIE_API_KEY ||
+    req.headers.get(provider === "apimart" ? "x-apimart-key" : "x-kie-key") ||
+    (provider === "apimart" ? process.env.APIMART_API_KEY : process.env.KIE_API_KEY) ||
     ""
   ).trim();
-  if (!key) throw new ApiError("Configure your Kie API key first.", 401);
+  if (!key) throw new ApiError(`Configure your ${provider === "apimart" ? "APIMart" : "Kie"} API key first.`, 401);
   if (key.length > 500 || /[\r\n]/.test(key))
     throw new ApiError("Invalid API key.", 401);
   return key;

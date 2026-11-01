@@ -16,7 +16,7 @@ import {
   Select,
   useSaved,
 } from "./controls";
-import { estimateMotionCost, formatCredits } from "@/lib/motion-pricing";
+import { estimateMotionCost, formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
 import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
@@ -50,9 +50,11 @@ export function MotionWorkflow({
 }: {
   initialVideo?: Asset | null;
 }) {
+  const kie = useKie();
+  const providerName = kie.provider === "apimart" ? "APIMart" : "Kie";
   const [saved, setSaved] = useSaved("clone.motion.kie-model", "wan"),
     model = motionModel(
-      MOTION_MODELS.some((m) => m.id === saved) ? saved : "wan",
+      kie.provider === "apimart" ? "wan" : MOTION_MODELS.some((m) => m.id === saved) ? saved : "wan",
     );
   const [savedMode, setSavedMode] = useSaved(
     "clone.motion.kie-mode",
@@ -88,8 +90,7 @@ export function MotionWorkflow({
     [busy, setBusy] = useState(false),
     [stage, setStage] = useState(""),
     [reloadNeeded, setReloadNeeded] = useState(false);
-  const submitting = useRef(false),
-    kie = useKie();
+  const submitting = useRef(false);
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const seed = randomSeed();
@@ -145,7 +146,7 @@ export function MotionWorkflow({
   )
     ? resolution
     : model.resolutions[0];
-  const pricing = useMotionPricing(model.id);
+  const pricing = useMotionPricing(model.id, kie.provider);
   const videoLength = useVideoLength(video);
   const sourceSeconds = videoLength?.seconds ?? 0;
   const minimumClip = Math.max(model.minSeconds, model.minReference);
@@ -187,7 +188,7 @@ export function MotionWorkflow({
       : null;
   const costProblem = pricing.error || inputError || videoLength?.error;
   const insufficient =
-    cost !== null && kie.balance !== null && kie.balance < cost.total;
+    kie.provider === "kie" && cost !== null && kie.balance !== null && kie.balance < cost.total;
   function changeModel(id: string) {
     const next = motionModel(id);
     setSaved(id);
@@ -227,7 +228,7 @@ export function MotionWorkflow({
       writeMotionInputs({ clip: null });
       setAudio(false);
       setStage(
-        "Trial ready: Wan 3 · 2 seconds · 480p · audio off. Connect Kie, then generate once.",
+        `Trial ready: Wan 3 · 2 seconds · 480p · audio off. Connect ${providerName}, then generate once.`,
       );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load the trial.");
@@ -241,7 +242,7 @@ export function MotionWorkflow({
     setError("");
     setReloadNeeded(false);
     if (!kie.connected) {
-      setError("Connect your Kie API key first.");
+      setError(`Connect your ${providerName} API key first.`);
       return;
     }
     if (!image || !video) {
@@ -310,7 +311,7 @@ export function MotionWorkflow({
         if (e.code === "PRICE_CHANGED") pricing.refresh();
       } else {
         setStage(
-          "No automatic retry was made. Check Your generations and Kie logs before resubmitting.",
+          `No automatic retry was made. Check Your generations and ${providerName} tasks before resubmitting.`,
         );
       }
       kie.changed();
@@ -324,7 +325,7 @@ export function MotionWorkflow({
       <div className="motion-model-row">
         <Select
           label="Model"
-          options={MOTION_MODELS.map((m) => ({ value: m.id, label: m.label }))}
+          options={MOTION_MODELS.filter((m) => kie.provider === "kie" || m.id === "wan").map((m) => ({ value: m.id, label: m.label }))}
           value={model.id}
           onChange={changeModel}
         />
@@ -481,7 +482,9 @@ export function MotionWorkflow({
         label="Resolution"
         options={model.resolutions.map((value) => {
           const locked = has480p && value !== "480p";
-          const price = pricing.card?.usdRates?.[value] !== undefined
+          const price = pricing.card?.currency === "CNY"
+            ? `¥${formatCredits(pricing.card.rates[value])}/s`
+            : pricing.card?.usdRates?.[value] !== undefined
             ? `${pricing.card.usdRates[value].toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 })}/s`
             : pricing.card || pricing.error ? "Price unavailable" : "Loading price…";
           return { value, label: `${value} · ${price}${locked ? " · Locked" : ""}`, disabled: locked };
@@ -543,7 +546,7 @@ export function MotionWorkflow({
             />
             <span>
               NSFW checker
-              <small>Off sends nsfw_checker false, so Kie does not filter clothing or skin. On asks Kie to filter the result.</small>
+              <small>{kie.provider === "apimart" ? "Ask APIMart to moderate the prompt and reference images before generation." : "Ask Kie to enable its NSFW checker for this generation."}</small>
             </span>
           </label>
         </>
@@ -606,6 +609,12 @@ export function MotionWorkflow({
             Estimated total: {formatCredits(cost!.total)}.
           </small>
         )}
+      {kie.provider === "apimart" && <small>
+        APIMart estimates are in CNY for output seconds. Cloudinary usage and optional moderation are extra. Account balance units depend on your APIMart account.
+      </small>}
+      {!kie.mediaReady && kie.provider === "apimart" && <p className="error" role="alert">
+        Cloudinary is not configured. Set CLOUDINARY_URL in the server’s .env.local and restart to enable APIMart uploads.
+      </p>}
       <div className="motion-submit-bar">
         <div className="motion-submit-inner">
           <Button
@@ -614,6 +623,7 @@ export function MotionWorkflow({
               !cost ||
               insufficient ||
               !kie.connected ||
+              !kie.mediaReady ||
               !image ||
               !video ||
               (mode === "first-frame" && !firstFrame)
@@ -622,7 +632,7 @@ export function MotionWorkflow({
             {busy
               ? "Uploading / submitting…"
               : cost
-                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatCredits(cost.total)} Kie credits`
+                ? `Generate${model.id === "kling" ? "" : ` ${duration}s video`} — ~${formatMotionAmount(cost.total, pricing.card?.currency)}`
                 : costProblem
                   ? "Generate — estimate unavailable"
                   : video
