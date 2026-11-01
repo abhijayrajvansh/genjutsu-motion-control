@@ -357,7 +357,9 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                           <div className="between">
                             <div>
                               <div className="generation-title">
-                                <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
+                                <span className={`job-status ${j.status}`}>
+                                  {j.status === "processing" ? "Processing…" : "Ready"}
+                                </span>
                                 <strong>{j.id.slice(0, 10)}</strong>
                               </div>
                               <small>{j.model}</small>
@@ -368,9 +370,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                             <GenerationTime created={j.created} />
                           </div>
                           <div className="job-card-tools">
-                          <span className={`job-status ${j.status}`}>
-                            {j.status === "processing" ? "Processing…" : "Ready"}
-                          </span>
+                          <FavoriteButton active={favoriteIds.includes(j.id)} onClick={() => toggleFavorite(j.id)} />
                           {activeView === "all" && <ArchiveButton onClick={() => archiveGeneration(j.id)} />}
                           {activeView === "archives" && <button type="button" className="text-button" onClick={() => archiveGeneration(j.id)}>Restore</button>}
                           </div>

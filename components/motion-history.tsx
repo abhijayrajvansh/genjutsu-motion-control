@@ -201,7 +201,9 @@ function MotionCard({
       <div className="between">
         <div>
           <div className="generation-title">
-            <FavoriteButton active={favorite} onClick={onToggleFavorite} />
+            <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
+              {stateLabels[job.state]}
+            </span>
             <strong>{(job.taskId || job.id).slice(0, 10)}</strong>
           </div>
           <small>{job.label} · {job.resolution}</small>
@@ -214,9 +216,7 @@ function MotionCard({
         <GenerationTime created={job.created} />
       </div>
       <div className="job-card-tools">
-        <span className={`job-status ${job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing"}`}>
-          {stateLabels[job.state]}
-        </span>
+        <FavoriteButton active={favorite} onClick={onToggleFavorite} />
         {showArchive && <ArchiveButton onClick={onArchive} />}
         {showRestore && (
           <button type="button" className="text-button" onClick={onArchive}>
