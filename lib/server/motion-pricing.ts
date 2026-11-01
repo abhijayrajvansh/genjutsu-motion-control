@@ -22,26 +22,14 @@ export async function currentMotionPricing(
   if (cached && cached.expires > Date.now()) return cached.promise;
   const promise = (async (): Promise<MotionPriceCard> => {
     try {
-      const response = await fetch(provider === "apimart" ? APIMART_PRICE_URL + ".md" : PRICE_SOURCES[model].url, {
+      const response = await fetch(provider === "apimart" ? APIMART_PRICE_URL : PRICE_SOURCES[model].url, {
         cache: "no-store",
         headers: { "User-Agent": "Mozilla/5.0" },
         signal: AbortSignal.timeout(12000),
         redirect: "error",
       });
       if (!response.ok) throw new Error("Pricing unavailable.");
-      if (provider === "apimart") {
-        const card = parseApimartPriceCard(await response.text(), new Date().toISOString());
-        const fxResponse = await fetch("https://api.frankfurter.dev/v2/rate/CNY/USD", {
-          cache: "no-store", redirect: "error", signal: AbortSignal.timeout(12000),
-        });
-        if (!fxResponse.ok) throw new Error("Exchange rate unavailable.");
-        const fx = await fxResponse.json();
-        if (fx.base !== "CNY" || fx.quote !== "USD" || typeof fx.rate !== "number" || !Number.isFinite(fx.rate) || fx.rate <= 0 || typeof fx.date !== "string" ||
-            !/^\d{4}-\d{2}-\d{2}$/.test(fx.date) || !Number.isFinite(Date.parse(fx.date)) || Math.abs(Date.now() - Date.parse(fx.date)) > 7 * 86400000)
-          throw new Error("Invalid or stale exchange rate.");
-        const usdRates = Object.fromEntries(Object.entries(card.rates).map(([resolution, rate]) => [resolution, rate * fx.rate]));
-        return { ...card, currency: "USD", rates: usdRates, usdRates, usdExchangeRate: fx.rate, exchangeRateDate: fx.date };
-      }
+      if (provider === "apimart") return parseApimartPriceCard(await response.text(), new Date().toISOString());
       return parsePriceCard(
         await response.text(),
         model,

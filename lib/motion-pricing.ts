@@ -32,8 +32,6 @@ export const PRICE_SOURCES: Record<
 export type MotionPriceCard = {
   model: MotionModelId;
   currency?: "CNY" | "USD";
-  usdExchangeRate?: number;
-  exchangeRateDate?: string;
   rates: Record<string, number>;
   usdRates?: Record<string, number>;
   billsReferenceVideo: boolean;
@@ -176,24 +174,37 @@ export function formatCredits(value: number) {
   return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 }
 
-export const APIMART_PRICE_URL = "https://docs.apimart.ai/en/api-reference/videos/wan3.0-video/generation";
-export function parseApimartPriceCard(markdown: string, checkedAt: string): MotionPriceCard {
-  markdown = markdown.split("## Billing")[1]?.split("## Limits")[0]?.replace(/\*\*/g, "") || "";
+export const APIMART_PRICE_URL = "https://apimart.ai/model/wan-3-0";
+export function parseApimartPriceCard(html: string, checkedAt: string): MotionPriceCard {
+  const plain = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+  // Select this exact variant's table, then the public Gold/current USD column.
+  const table = html.match(/<table\b[\s\S]*?<\/table>/g)?.find((value) =>
+    /<code\b[^>]*>wan3\.0-video<\/code>/.test(value));
+  if (!table || !/Variant Tier Gold Current price Platinum Diamond Official/.test(plain(table)))
+    throw new Error("APIMart pricing format changed.");
   const rates: Record<string, number> = {};
-  for (const resolution of ["480p", "720p", "1080p"]) {
-    const match = markdown.match(new RegExp(`\\|\\s*${resolution}\\s*\\|\\s*[¥￥]([\\d.]+)\\s*/\\s*s\\s*\\|`, "i"));
+  let variant = "";
+  for (const row of table.match(/<tr\b[\s\S]*?<\/tr>/g) ?? []) {
+    const code = row.match(/<code\b[^>]*>([^<]+)<\/code>/)?.[1];
+    if (code) variant = code;
+    if (variant !== "wan3.0-video") continue;
+    const cells = (row.match(/<td\b[\s\S]*?<\/td>/g) ?? []).map(plain);
+    const index = cells.findIndex((value) => /^(480|720|1080)P$/.test(value));
+    if (index < 0) continue;
+    const match = cells[index + 1]?.match(/Credits\s*\(\s*~\$([\d.]+)\s*\)\s*\/sec/);
     const rate = Number(match?.[1]);
-    if (!Number.isFinite(rate) || rate <= 0) throw new Error("APIMart pricing format changed.");
-    rates[resolution] = rate;
+    if (!Number.isFinite(rate) || rate <= 0 || rates[cells[index].toLowerCase()] !== undefined)
+      throw new Error("APIMart resolution price is unavailable.");
+    rates[cells[index].toLowerCase()] = rate;
   }
-  if (!/use the requested.*duration/i.test(markdown)) throw new Error("APIMart billing rules changed.");
-  return { model: "wan", currency: "CNY", rates, billsReferenceVideo: false, freeImages: Number.MAX_SAFE_INTEGER,
-    extraImageCredits: 0, sourceUrl: APIMART_PRICE_URL, checkedAt };
+  if (["480p", "720p", "1080p"].some((resolution) => !rates[resolution]))
+    throw new Error("APIMart pricing is missing a resolution.");
+  if (!/Total cost = \(reference video duration \+ generated video duration\)/.test(plain(html)))
+    throw new Error("APIMart billing rules changed.");
+  return { model: "wan", currency: "USD", rates, usdRates: rates, billsReferenceVideo: true,
+    freeImages: Number.MAX_SAFE_INTEGER, extraImageCredits: 0, sourceUrl: APIMART_PRICE_URL, checkedAt };
 }
-export function formatMotionAmount(value: number, currency?: "CNY" | "USD", usdExchangeRate?: number) {
-  if (currency === "CNY") {
-    if (!usdExchangeRate || !Number.isFinite(usdExchangeRate)) return "USD estimate unavailable";
-    value *= usdExchangeRate;
-  }
+export function formatMotionAmount(value: number, currency?: "CNY" | "USD") {
+  if (currency === "CNY") return "USD estimate unavailable for legacy job";
   return currency ? value.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 4 }) : `${formatCredits(value)} Kie credits`;
 }

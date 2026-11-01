@@ -19,7 +19,9 @@ Original clip audio is saved locally before generation and attached when downloa
 
 ## Pricing and task recovery
 
-The app fetches the billing table from APIMart's published Wan documentation, caches it for five minutes, and fails closed if the pricing or billing rules cannot be parsed. At implementation, rates are ¥0.30/s at 480P, ¥0.60/s at 720P, and ¥1.20/s at 1080P. The documentation bills requested output seconds; reference input is not added to the estimate. The server converts the published CNY rates to USD using Frankfurter’s latest CNY/USD reference rate. The rate and its publication date are included with the price card; rates older than seven days are rejected. Resolution rates, generation totals, and history estimates display USD. New jobs persist USD estimates; older CNY history estimates are converted for display using the latest rate. The two-second trial costs approximately $0.09 at the rate checked during implementation; the displayed estimate updates with exchange rates. These estimates exclude Cloudinary charges and any optional moderation charge.
+The app fetches the exact `wan3.0-video` price table from https://apimart.ai/model/wan-3-0, caches it for five minutes, and fails closed if the table or reference-video billing rule cannot be parsed. It uses the public Gold/current USD column: $0.0329/s at 480P, $0.0658/s at 720P, and $0.1315/s at 1080P at verification. Platinum and Diamond discounts may lower actual charges. The pricing index lists starting prices only; it is not a price for all resolutions.
+
+The model page explicitly bills reference-video duration plus generated-video duration. This conflicts with the API documentation's output-only CNY billing text, which was the earlier integration's source. Estimates now follow the model price page and include both durations. The two-second input plus two-second output trial estimates $0.1316 at 480P. USD rates come directly from APIMart; there is no external exchange-rate dependency. New jobs store USD estimates. Previously saved USD estimates retain their reviewed values; legacy CNY estimates show that a USD estimate is unavailable rather than applying an invented conversion. Cloudinary usage and optional moderation remain additional costs.
 
 APIMart token balance units depend on account configuration, so the header displays raw account balance and does not compare it to USD estimates. APIMart enforces available funds when accepting the request. History labels actual provider-reported `credits_cost` as APIMart credits separately from USD estimates. Optional moderation may incur additional cost; generation estimates do not include that charge.
 
@@ -37,4 +39,5 @@ The trial was checked in the browser for provider switching, APIMart labels, loa
 - https://cloudinary.com/documentation/upload_images
 - https://cloudinary.com/documentation/authentication_signatures
 
-- https://frankfurter.dev/
+- https://apimart.ai/model/wan-3-0
+- https://apimart.ai/pricing

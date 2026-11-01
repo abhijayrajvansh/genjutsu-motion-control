@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { formatCredits, formatMotionAmount } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
-import { useMotionPricing } from "./motion-cost";
 import { useKie } from "./kie-connection";
 import { Button, TextField } from "./controls";
 import { GenerationTime } from "./generation-time";
@@ -66,7 +65,6 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
       clearInterval(timer);
     };
   }, [connected, request, revision, refresh]);
-  const pricing = useMotionPricing("wan", provider);
   const jobs = snapshot?.request === request ? snapshot.jobs : [];
   const name = provider === "apimart" ? "APIMart" : "Kie";
   const visibleJobs = jobs.filter((job) => {
@@ -111,7 +109,6 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
             <MotionCard
               key={job.id}
               job={job}
-              usdExchangeRate={pricing.card?.usdExchangeRate}
               favorite={favorites.includes(job.id)}
               showArchive={view === "all"}
               showRestore={view === "archives"}
@@ -126,7 +123,6 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
 }
 function MotionCard({
   job,
-  usdExchangeRate,
   onChange,
   favorite,
   showArchive,
@@ -135,7 +131,6 @@ function MotionCard({
   onArchive,
 }: {
   job: MotionJob;
-  usdExchangeRate?: number;
   onChange: () => void;
   favorite: boolean;
   showArchive: boolean;
@@ -260,7 +255,7 @@ function MotionCard({
           {job.creditsConsumed !== undefined && !pending.includes(job.state)
             ? `${name} cost: ${formatCredits(job.creditsConsumed)} credits`
             : job.estimatedCredits !== undefined
-              ? `${name} cost: ~${formatMotionAmount(job.estimatedCredits, job.estimatedCurrency, usdExchangeRate)} (estimated)`
+              ? `${name} cost: ~${formatMotionAmount(job.estimatedCredits, job.estimatedCurrency)} (estimated)`
               : `${name} cost: unavailable`}
         </small>
       </div>
