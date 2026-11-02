@@ -22,6 +22,8 @@ import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
+import { FinalOutputSourcing } from "./final-output-sourcing";
+import { buildMotionSourcePrompt, MOTION_PROMPT_LIMIT, MotionSource, MotionSourcingField, readMotionSourcing } from "@/lib/motion-sourcing";
 function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
@@ -68,12 +70,6 @@ export function MotionWorkflow({
     "reference",
   );
   const mode = (savedMode === "reference" ? savedMode : "reference") as MotionMode;
-  const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
-  const promptKey = `${model.id}:${mode}`;
-  const prompt = promptDrafts[promptKey] ?? defaultMotionPrompt(model.id, mode);
-  function setPrompt(value: string) {
-    setPromptDrafts((drafts) => ({ ...drafts, [promptKey]: value }));
-  }
   function changeMode(value: string) {
     setSavedMode(value);
     setError("");
@@ -98,6 +94,37 @@ export function MotionWorkflow({
     [stage, setStage] = useState(""),
     [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false);
+  const [savedSourcing, setSavedSourcing] = useSaved("clone.motion.output-sourcing.v1", "{}");
+  const sourcing = readMotionSourcing(savedSourcing);
+  const actionKey = video?.id ?? "pending";
+  const action = sourcing.actions[actionKey] ?? "";
+  const supportsSourcing = model.id === "wan" && mode === "reference";
+  const generatedPrompt = supportsSourcing
+    ? buildMotionSourcePrompt(sourcing.sources, action)
+    : defaultMotionPrompt(model.id, mode);
+  const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
+  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}`;
+  const prompt = promptDrafts[promptKey] ?? generatedPrompt;
+  const promptLimit = apimartOnly(model.id) ? 5000 : MOTION_PROMPT_LIMIT;
+  function setPrompt(value: string) {
+    setPromptDrafts(drafts => ({ ...drafts, [promptKey]: value }));
+  }
+  function resetPrompt() {
+    setPromptDrafts(drafts => {
+      const next = { ...drafts };
+      delete next[promptKey];
+      return next;
+    });
+  }
+  function changeSource(field: MotionSourcingField, source: MotionSource) {
+    setSavedSourcing(JSON.stringify({ ...sourcing, sources: { ...sourcing.sources, [field]: source } }));
+    // Rebuild every cached draft so switching videos cannot restore stale assignments.
+    setPromptDrafts({});
+  }
+  function changeAction(value: string) {
+    setSavedSourcing(JSON.stringify({ ...sourcing, actions: { ...sourcing.actions, [actionKey]: value } }));
+    resetPrompt();
+  }
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const seed = randomSeed();
@@ -249,6 +276,10 @@ export function MotionWorkflow({
     if (submitting.current) return;
     setError("");
     setReloadNeeded(false);
+    if (!prompt.trim() || prompt.length > promptLimit) {
+      setError(`Prompt must contain 1–${promptLimit} characters.`);
+      return;
+    }
     if (!kie.connected) {
       setError(`Connect your ${providerName} API key first.`);
       return;
@@ -498,19 +529,23 @@ export function MotionWorkflow({
         value={selectedResolution}
         onChange={setResolution}
       />
+      {supportsSourcing && (
+        <FinalOutputSourcing sources={sourcing.sources} onChange={changeSource}
+          action={action} onActionChange={changeAction} />
+      )}
       <details className="prompt-override">
         <summary>Override prompt</summary>
         <Prompt
           value={prompt}
           onChange={setPrompt}
-          onUseDefault={() => setPrompt(defaultMotionPrompt(model.id, mode))}
-          maxLength={apimartOnly(model.id) ? 5000 : 2000}
+          onUseDefault={resetPrompt}
+          maxLength={promptLimit}
           hintClassName="motion-prompt-note"
           hint={
             mode === "first-frame"
               ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
               : model.id === "wan"
-                ? "Image1 @Image1 supplies the character, clothing and skin coverage. Video1 @Video1 supplies the complete action sequence, including body movement, head movement, expressions, hair movement and timing. Adjust the prompt before rendering."
+                ? `Built from Final Output Sourcing and this video's action details. You can edit it manually. Use default restores those choices. ${prompt.length}/${promptLimit} characters.`
                 : model.id === "wan27r2v"
                   ? "image 1 supplies the character. video 1 supplies motion and timing only. Output is 2–10 seconds at 720P or 1080P."
                   : model.id === "wan27edit"

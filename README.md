@@ -55,6 +55,12 @@ npm run build
 
 See [reconstruction notes](docs/RECONSTRUCTION.md) for evidence and the scope of verification.
 
+## Final Output Sourcing
+
+For Wan 3 motion control, choose **Input image** or **Input video** for each of the 12 components in **Final Output Sourcing**, above **Override prompt**. The generated prompt assigns each component exclusively to that source. Source choices persist in this browser. Optional **Clip-specific action** instructions are saved separately for each selected driving video, so a hair-release instruction does not carry over to another clip. An image supplies static poses and expressions rather than a motion sequence.
+
+Changing a source or action description rebuilds the prompt and replaces manual edits. **Use default** restores the generated prompt using the current choices. You can still edit the final prompt before submitting. These are model instructions; the controls do not guarantee exact visual compliance. This section is available for Wan 3, which accepts the generated prompt; Kie Replace does not accept prompt instructions.
+
 ## Download Instagram reels
 
 With Google Chrome installed, use Fastvideosave's available download servers:

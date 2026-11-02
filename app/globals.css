@@ -986,6 +986,54 @@ em {
 .motion-prompt-note {
   color: var(--warning-text);
 }
+.output-sourcing {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.output-sourcing-intro {
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.output-sourcing-row {
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+}
+.output-sourcing-row legend {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.output-sourcing-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.output-sourcing-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.output-sourcing-options input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--foreground);
+}
+.output-sourcing-action > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
 .prompt-override > summary {
   cursor: pointer;
   font-size: 14px;
