@@ -46,6 +46,7 @@ test('image opening guidance retains reference mode and driving video in both pr
     imageUrls: ['https://example.com/appearance.png'], videoUrl: 'https://example.com/motion.mp4',
   };
   const kie = motionPayload(input);
+  assert.equal(kie.input.prompt, input.prompt);
   assert.deepEqual(kie.input.reference_video_urls, ['https://example.com/motion.mp4']);
   assert.equal(kie.input.first_frame_url, undefined);
   const apimart = apimartMotionPayload(input);
@@ -54,4 +55,6 @@ test('image opening guidance retains reference mode and driving video in both pr
   assert.deepEqual(apimart.image_urls, ['https://example.com/appearance.png']);
   assert.equal(apimart.image_with_roles, undefined);
   assert.ok(apimart.prompt.includes('The first frame exactly matches 图1 @图1'));
+  assert.ok(apimart.prompt.includes("FACIAL IDENTITY — HIGHEST PRIORITY: Always use 图1 @图1's facial identity in every frame, including the first."));
+  assert.ok(apimart.prompt.includes('Use 视频1 @视频1 only for facial motion; never the face from 视频1 @视频1.'));
 });

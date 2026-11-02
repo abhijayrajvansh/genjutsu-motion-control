@@ -101,7 +101,7 @@ export function MotionWorkflow({
     ? buildMotionSourcePrompt(sourcing.sources)
     : defaultMotionPrompt(model.id, mode);
   const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
-  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}:${supportsSourcing ? "concise-image-face-v4" : "default"}`;
+  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}:${supportsSourcing ? "face-priority-v5" : "default"}`;
   const prompt = promptDrafts[promptKey] ?? generatedPrompt;
   const promptLimit = apimartOnly(model.id) ? 5000 : MOTION_PROMPT_LIMIT;
   function setPrompt(value: string) {

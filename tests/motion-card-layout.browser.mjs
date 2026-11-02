@@ -40,6 +40,7 @@ try {
   assert.ok(await identity.getByRole('radio', { name: 'Input video', exact: true }).isDisabled());
   const prompt = page.getByRole('textbox', { name: 'Prompt', exact: true });
   assert.ok((await prompt.inputValue()).startsWith('A photorealistic video of the character from Image1 @Image1.'));
+  assert.ok((await prompt.inputValue()).includes('FACIAL IDENTITY — HIGHEST PRIORITY:'));
   await page.getByRole('group', { name: 'Opening frame source', exact: true })
     .getByRole('radio', { name: 'Input image', exact: true }).check();
   assert.ok((await prompt.inputValue()).includes('The first frame exactly matches Image1 @Image1.'));

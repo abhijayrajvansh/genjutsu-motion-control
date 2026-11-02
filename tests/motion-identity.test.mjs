@@ -12,6 +12,11 @@ test('image identity leads the concise prompt even for a stale video-identity va
   const sources = { ...readMotionSourcing('{}').sources, identity: 'video', openingFrame: 'image' };
   const prompt = buildMotionSourcePrompt(sources);
   assert.ok(prompt.startsWith('A photorealistic video of the character from Image1 @Image1.'));
+  assert.ok(prompt.indexOf('FACIAL IDENTITY — HIGHEST PRIORITY:') < prompt.indexOf('Keep body proportions'));
+  assert.ok(prompt.includes('facial identity in every frame, including the first'));
+  assert.ok(prompt.includes('face shape, eyes, eyebrows, nose, lips and jawline through all angles and expressions'));
+  assert.ok(prompt.includes('Use Video1 @Video1 only for facial motion'));
+  assert.ok(prompt.includes("Do not blend faces or drift toward the video's identity"));
   assert.ok(prompt.includes('never the face from Video1 @Video1'));
   assert.ok(prompt.includes('The first frame exactly matches Image1 @Image1.'));
   assert.ok(prompt.includes('clothing and skin coverage'));

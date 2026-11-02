@@ -63,7 +63,8 @@ export function buildMotionSourcePrompt(sources: MotionSources) {
     return `${group.verb} ${parts.join(", ")} from ${source === "image" ? "Image1 @Image1" : "Video1 @Video1"} only.`;
   })).filter(Boolean);
   return [
-    "A photorealistic video of the character from Image1 @Image1. Always use Image1 @Image1's facial identity, never the face from Video1 @Video1.",
+    "A photorealistic video of the character from Image1 @Image1.",
+    "FACIAL IDENTITY — HIGHEST PRIORITY: Always use Image1 @Image1's facial identity in every frame, including the first. Preserve its face shape, eyes, eyebrows, nose, lips and jawline through all angles and expressions. Use Video1 @Video1 only for facial motion; never the face from Video1 @Video1. Do not blend faces or drift toward the video's identity.",
     ...assignments,
     "The character performs the exact same movements, gestures, actions, expressions and hair motion as Video1 @Video1, with the same timing.",
     sources.openingFrame === "image"

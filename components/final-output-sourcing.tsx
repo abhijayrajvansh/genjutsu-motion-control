@@ -17,7 +17,7 @@ export function FinalOutputSourcing({ sources, onChange }: {
     <section className="output-sourcing" aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>Final Output Sourcing</h2>
       <p className="output-sourcing-intro">
-        Face identity always comes from the input image. Choose the other appearance and scene sources. Movement, expressions, hair motion and timing follow the input video.
+        The prompt gives the input image&apos;s face identity highest priority in every frame. The video supplies facial expressions and motion, never facial features. Choose the other appearance and scene sources. Movement, hair motion and timing follow the input video.
         Changes rebuild the visible prompt below.
       </p>
       <div className="output-sourcing-fields">
