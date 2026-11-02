@@ -25,6 +25,7 @@ import { inspectFile } from "@/lib/server/media-validation";
 import { trimDrivingVideo, videoPoster } from "@/lib/server/video-trim";
 import { saveInputAudio } from "@/lib/server/original-audio";
 import { rememberSeed } from "@/lib/server/motion-status";
+import { saveMotionInputs } from "@/lib/server/motion-inputs";
 import {
   motionModel,
   MOTION_MODELS,
@@ -234,6 +235,7 @@ export async function POST(req: Request) {
     };
     if (!(await createJob(stored)))
       return json({ job: publicJob(await readJob(id, owner)), reused: true });
+    await saveMotionInputs(id, images, prepared.file, mode === "first-frame" && firstFrame instanceof File ? firstFrame : undefined, video.name);
     if (preserveInputAudio) {
       stored = { ...stored, inputHasAudio: await saveInputAudio(id, prepared.file) };
       await updateJob(stored);

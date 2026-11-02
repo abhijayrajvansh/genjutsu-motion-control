@@ -58,6 +58,16 @@ Rendering and ready cards share the same preview dimensions (9:16 in Grid and mo
 
 See [reconstruction notes](docs/RECONSTRUCTION.md) for evidence and the scope of verification.
 
+## Generation inputs
+
+Every Motion Control card has a **View inputs** button. Its dialog shows that generation's reference photo and submitted driving video, with playback, filenames and the selected clip's start/end times. Extra reference images and corrected opening frames are included when present. Closing the dialog stops playback and releases its preview URLs.
+
+Refresh a card with the circular-arrow icon immediately to the left of its favorite star. The footer's full-width refresh button is removed.
+
+New submissions retain exact copies of the uploaded reference images and the prepared driving clip in the ignored `.data/motion-inputs/` directory before a paid task is created. Input endpoints use the same API-key ownership checks as the generation itself. Files survive browser reloads and input changes.
+
+For older Kie jobs, opening the dialog attempts to recover media from the original task parameters and caches accessible files locally. Expired links and missing input records are reported without substituting the output video or the currently selected inputs. Older APIMart jobs did not retain upload URLs, so their original files may be unavailable. Viewing inputs does not create a generation.
+
 ## Direct motion prompt
 
 Motion Control uses one fully editable **Prompt** directly. **Final Output Sourcing** is disconnected and hidden; its saved radio choices no longer build, append to, or rewrite the prompt. Changing input files leaves your text intact.

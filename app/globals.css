@@ -555,7 +555,8 @@ em {
     margin-top: 16px;
   }
 }
-.favorite-button {
+.favorite-button,
+.job-refresh-button {
   display: grid;
   place-items: center;
   width: 24px;
@@ -567,7 +568,8 @@ em {
   color: var(--text-secondary);
   background: transparent;
 }
-.favorite-button:hover {
+.favorite-button:hover,
+.job-refresh-button:hover {
   background: var(--muted);
 }
 .favorite-button[aria-pressed="true"] {
@@ -977,6 +979,49 @@ em {
 }
 .modal::backdrop {
   background: #000b;
+}
+.motion-inputs-modal {
+  width: 900px;
+}
+.motion-inputs-info {
+  color: var(--muted-foreground);
+  margin: 12px 0 20px;
+}
+.motion-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.motion-inputs-grid figure {
+  margin: 0;
+  min-width: 0;
+}
+.motion-inputs-grid h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+.motion-inputs-grid img,
+.motion-inputs-grid video {
+  display: block;
+  width: 100%;
+  height: min(55vh, 520px);
+  object-fit: contain;
+  border-radius: 10px;
+  background: var(--raised);
+}
+.motion-inputs-grid figcaption {
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.motion-inputs-grid small,
+.motion-inputs-grid p {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted-foreground);
+}
+@media (max-width: 600px) {
+  .motion-inputs-grid { grid-template-columns: minmax(0, 1fr); }
 }
 .modal.connection-error-modal {
   width: 440px;

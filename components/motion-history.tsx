@@ -7,6 +7,7 @@ import { Button, TextField } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
+import { MotionInputsDialog } from "./motion-inputs-dialog";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
 export function MotionHistory({ showEmpty = true, favorites, archived, view, onToggleFavorite, onArchive }: {
   showEmpty?: boolean;
@@ -223,6 +224,7 @@ function MotionCard({
   const { request } = useKie(),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
+    [showInputs, setShowInputs] = useState(false),
     [taskId, setTaskId] = useState("");
   async function download() {
     setBusy(true);
@@ -303,6 +305,12 @@ function MotionCard({
               : "Reference image + video"}
           </small>
           <div className="job-card-tools">
+            <button type="button" className="job-refresh-button" aria-label="Refresh status" title="Refresh status" onClick={onChange} disabled={busy}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 11a8 8 0 1 0-2.34 5.66" />
+                <path d="M20 4v7h-7" />
+              </svg>
+            </button>
             <FavoriteButton active={favorite} onClick={onToggleFavorite} />
             {showArchive && <ArchiveButton onClick={onArchive} />}
             {showRestore && (
@@ -370,6 +378,7 @@ function MotionCard({
         </p>
       )}
       <div className="job-actions">
+        <Button secondary onClick={() => setShowInputs(true)}>View inputs</Button>
         {(job.state === "success" || pending.includes(job.state)) && (
           <>
             <Button disabled={busy || job.state !== "success"} onClick={download}>
@@ -377,10 +386,8 @@ function MotionCard({
             </Button>
           </>
         )}
-        <Button secondary onClick={onChange} disabled={busy}>
-          Refresh status
-        </Button>
       </div>
+      {showInputs && <MotionInputsDialog job={job} onClose={() => setShowInputs(false)} />}
     </article>
   );
 }

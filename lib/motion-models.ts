@@ -158,6 +158,12 @@ export function apimartTaskModel(id: string) {
   if (id === "wan27edit") return "wan2.7-videoedit";
   return undefined;
 }
+export type MotionInputMedia = {
+  id: string;
+  kind: "image" | "video" | "first-frame";
+  name: string;
+  type: string;
+};
 export type MotionJob = {
   provider?: MotionProvider;
   estimatedCurrency?: "CNY" | "USD";
