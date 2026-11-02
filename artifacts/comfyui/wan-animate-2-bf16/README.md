@@ -65,3 +65,13 @@ On first opening, close the Templates chooser, then open **Workflows → wan-ani
 The three tmux sessions are `wan-bf16-comfy`, `wan-bf16-access` and `wan-bf16-cloudflare`. Logs are under `logs/`; the public URL appears in `logs/cloudflared.log`. Run `bash /workspace/wan-animate-2/start-services.sh` to start any missing sessions. Configure the rental's startup command to call that script after `.installed` exists. A Quick Tunnel URL changes when Cloudflared restarts; the access token persists on disk.
 
 Rentals continue billing while running, and stopping an instance can still incur storage charges. Export wanted outputs before destroying a rental. Deployment IDs, credentials and render receipts belong in the ignored `.data/deployments/wan-animate-2/` directory, never in this artifact.
+
+## Download, verify, then stop a rental
+
+`scripts/finish-wan-job.py --config /absolute/path/config.json` watches one explicitly selected job. Its configuration specifies the job and instance IDs, an SSH alias/config, the remote ComfyUI paths, local Desktop destination, absolute `ffmpeg`/`ffprobe`/`vastai` paths, expected source frame count, polling interval and private state-file path. Use `--once` for a single check or `--no-stop` to test backup without stopping the rental.
+
+After successful generation, it copies every saved output video and the generation history. Each video must match the server's byte count and SHA-256, pass full decoding, and match its declared frame count. Full-length output is checked separately from auxiliary single-frame videos. Unique filenames preserve all outputs; `generation.mp4` and `comparison.mp4` point to the longest corresponding videos.
+
+Only after a durable local verification receipt is written does the watcher request `vastai stop instance` for the configured instance. It confirms the provider's stopped state and records it in `download-receipt.json`. New queued/running jobs defer stopping; failed jobs or failed downloads preserve the running instance for recovery. It never destroys an instance. Retries and restarts recheck local files before issuing a stop.
+
+A macOS LaunchAgent can run the watcher under `caffeinate -i`, poll every minute and restart it after failures. This operates independently of the chat. Keep the Mac connected to the internet and its lid open until backup completes. Current-job handoff details belong in `.data/deployments/wan-animate-2/handoff.json`; runtime configuration and state belong in the user's private `~/.local/share/genjutsu-watchers/` directory.

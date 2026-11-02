@@ -11,3 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Instagram reel downloads
 
 When the user sends Instagram links to download or asks to resume the reel-download queue, follow [helping-user-download-reels.md](helping-user-download-reels.md). It records the script, destination, queue controls, validation, and recovery steps established with the user.
+
+## Wan Animate 2 rental handoffs
+
+Deployment and completion-watcher instructions are in [the BF16 workflow README](artifacts/comfyui/wan-animate-2-bf16/README.md). For an active download-and-stop request, read the private `.data/deployments/wan-animate-2/handoff.json` and its referenced watcher state before acting. Preserve the required order: download the selected job's outputs, verify the local videos, then stop the specified instance. Keep credentials and job receipts out of Git.
