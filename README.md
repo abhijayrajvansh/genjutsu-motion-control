@@ -55,6 +55,19 @@ npm run build
 
 See [reconstruction notes](docs/RECONSTRUCTION.md) for evidence and the scope of verification.
 
+## Download Instagram reels
+
+With Google Chrome installed, use Fastvideosave's available download servers:
+
+```bash
+npm run reels -- https://www.instagram.com/p/POST_ID/
+npm run reels -- --watch
+```
+
+Pass multiple URLs, or paste URLs into watch mode while earlier downloads run. Ctrl-D finishes the queue and exits. Files save to `~/Desktop/sonali/ideas`; use `--output /another/directory` to change the destination. The script opens a separate Chrome window, tries each server in order, checks MP4 headers (and the video stream when ffprobe is installed), and skips existing valid files with the same post ID. Multi-video results receive numbered filenames. A `.reel-downloads.jsonl` file in the destination records sources and successful downloads. Failed links are reported and can be submitted again.
+
+The script depends on Fastvideosave's current page structure and public-post availability. If the site requests human verification, complete it in the browser; the script does not solve challenges.
+
 ## APIMart with Cloudflare R2
 
 Select **APIMart** in the header and connect an APIMart API key. APIMart is available for Wan 3, Wan 2.7 R2V, and Wan 2.7 Video Edit. Switching back to Kie restores its separately saved key and existing models/history.
