@@ -6,7 +6,7 @@
   "model_repository": "Comfy-Org/Wan-Animate-2",
   "model_revision": "e7181fe1896b7f2ce34120d1a3663413548240d7",
   "workflow_file": "wan-animate-2-base-bf16.workflow.json",
-  "workflow_sha256": "113a6d55e8be7fb2523f7dbdff81d3fe2302b15b12342b877fa2b516177be86c",
+  "workflow_sha256": "5ce3356eccd6da5eddef73eef4a4bed79020d0f489221e97a89bed9009203ed3",
   "model_download_bytes": 45674319163,
   "models": [
     {
@@ -48,11 +48,39 @@
     "width": 480,
     "height": 832,
     "fragment_length": 81,
-    "acceleration_lora": false
+    "acceleration_lora": false,
+    "unet_compute_dtype": "bfloat16"
   },
-  "runtime_verified": false,
-  "note": "Prepared and structurally checked only; no GPU rental, model-weight download or render has been performed.",
+  "runtime_verified": true,
+  "note": "Rendered successfully on an RTX 6000 Ada 48GB with explicit BF16 execution. See README for the measured short-clip configuration and scope.",
   "template_license": "MIT",
   "template_license_file": "LICENSE",
-  "template_license_url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/cdccb2ee7a7cd0baee4630cf7186283a98ab408f/LICENSE"
+  "template_license_url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/cdccb2ee7a7cd0baee4630cf7186283a98ab408f/LICENSE",
+  "verification": {
+    "date": "2026-11-03",
+    "comfyui_revision": "384577510969e0ed59506f8eb5fcf6e6df15a3d1",
+    "gpu": "RTX 6000 Ada 48GB",
+    "peak_vram_mib_observed": 45252.0,
+    "execution_seconds": 807.583,
+    "unet_compute_dtype": "bfloat16",
+    "runtime_versions": {
+      "torch": "2.14.1+cu130",
+      "torchvision": "0.29.1+cu130",
+      "torchaudio": "2.11.0+cu130",
+      "transformers": "5.22.1",
+      "huggingface_hub": "2.4.0",
+      "comfyui-frontend-package": "1.57.6",
+      "aiohttp": "3.14.5"
+    },
+    "output": {
+      "codec": "h264",
+      "width": 480,
+      "height": 832,
+      "fps": 24,
+      "frames": 48,
+      "seconds": 2
+    },
+    "model_checksums_verified": true,
+    "authenticated_browser_workflow_verified": true
+  }
 }

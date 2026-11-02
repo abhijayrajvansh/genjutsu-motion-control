@@ -226,60 +226,6 @@
       }
     },
     {
-      "id": 574,
-      "type": "MarkdownNote",
-      "pos": [
-        -6183.250755945088,
-        4073.9863298054797
-      ],
-      "size": [
-        610,
-        1290
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "title": "BF16 Base – read before running",
-      "properties": {},
-      "widgets_values": [
-        "# Wan-Animate-2 – BF16 Base\n\nUse this workflow with wan_animate_2_bf16.safetensors (base, not distilled).\n\nSettings: 40 steps, Euler, CFG 3, shift 5. No step-distillation LoRA. UMT5 text encoder uses FP16. Motion cache uses CPU and default precision.\n\n1. Install the four files listed in the Model Links note.\n2. Upload your reference image and a SHORT driving clip (about 2–3 seconds for the first test).\n3. Edit the appearance/background prompt to describe your reference character and desired scene. Edit the pose prompt to describe the driving action. The included text is upstream sample text; replace it for your inputs.\n4. Set matching reference/video framing and the output aspect ratio. Initial output is 480x832; change width and height for landscape inputs.\n5. Queue only after verifying model selection and input files.\n\nThe loop processes the driving video across 81-frame fragments; fragment_length is NOT a total-duration limit. Trim your clip before uploading for the initial test.\n\nThe model is intended to transfer video motion to the image character. Exact identity, clothing, timing and background preservation are not guaranteed. The background is generated from the prompt; this is not a masked background-preserving video editor.\n\nModel files total roughly 45.7 GB. This is disk usage, not a VRAM requirement. Keep ComfyUI automatic model offloading available. CPU cache consumes system RAM. Peak VRAM, speed and output quality have not been benchmarked for this preset.\n"
-      ],
-      "widgets_values_named": {
-        "text": "# Wan-Animate-2 – BF16 Base\n\nUse this workflow with wan_animate_2_bf16.safetensors (base, not distilled).\n\nSettings: 40 steps, Euler, CFG 3, shift 5. No step-distillation LoRA. UMT5 text encoder uses FP16. Motion cache uses CPU and default precision.\n\n1. Install the four files listed in the Model Links note.\n2. Upload your reference image and a SHORT driving clip (about 2–3 seconds for the first test).\n3. Edit the appearance/background prompt to describe your reference character and desired scene. Edit the pose prompt to describe the driving action. The included text is upstream sample text; replace it for your inputs.\n4. Set matching reference/video framing and the output aspect ratio. Initial output is 480x832; change width and height for landscape inputs.\n5. Queue only after verifying model selection and input files.\n\nThe loop processes the driving video across 81-frame fragments; fragment_length is NOT a total-duration limit. Trim your clip before uploading for the initial test.\n\nThe model is intended to transfer video motion to the image character. Exact identity, clothing, timing and background preservation are not guaranteed. The background is generated from the prompt; this is not a masked background-preserving video editor.\n\nModel files total roughly 45.7 GB. This is disk usage, not a VRAM requirement. Keep ComfyUI automatic model offloading available. CPU cache consumes system RAM. Peak VRAM, speed and output quality have not been benchmarked for this preset.\n"
-      },
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
-      "id": 575,
-      "type": "MarkdownNote",
-      "pos": [
-        -7101.523437499999,
-        4073.125
-      ],
-      "size": [
-        840,
-        1290
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "title": "Model Links",
-      "properties": {},
-      "widgets_values": [
-        "# Required models – BF16 Base\n\n- [wan_animate_2_bf16.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/diffusion_models/wan_animate_2_bf16.safetensors) → `models/diffusion_models/wan_animate_2_bf16.safetensors` (32.79 GB)\n- [umt5_xxl_fp16.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/text_encoders/umt5_xxl_fp16.safetensors) → `models/text_encoders/umt5_xxl_fp16.safetensors` (11.37 GB)\n- [clip_vision_h.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/clip_vision/clip_vision_h.safetensors) → `models/clip_vision/clip_vision_h.safetensors` (1.26 GB)\n- [Wan2_1_VAE_bf16.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/vae/Wan2_1_VAE_bf16.safetensors) → `models/vae/Wan2_1_VAE_bf16.safetensors` (0.25 GB)\n\nUse your own input image and short driving video. No LoRA is required for this preset.\n"
-      ],
-      "widgets_values_named": {
-        "text": "# Required models – BF16 Base\n\n- [wan_animate_2_bf16.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/diffusion_models/wan_animate_2_bf16.safetensors) → `models/diffusion_models/wan_animate_2_bf16.safetensors` (32.79 GB)\n- [umt5_xxl_fp16.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/text_encoders/umt5_xxl_fp16.safetensors) → `models/text_encoders/umt5_xxl_fp16.safetensors` (11.37 GB)\n- [clip_vision_h.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/clip_vision/clip_vision_h.safetensors) → `models/clip_vision/clip_vision_h.safetensors` (1.26 GB)\n- [Wan2_1_VAE_bf16.safetensors](https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/vae/Wan2_1_VAE_bf16.safetensors) → `models/vae/Wan2_1_VAE_bf16.safetensors` (0.25 GB)\n\nUse your own input image and short driving video. No LoRA is required for this preset.\n"
-      },
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
       "id": 672,
       "type": "04554b7f-9d5a-4160-a710-20673bc4782d",
       "pos": [
@@ -411,7 +357,7 @@
         "previewExposures": []
       },
       "widgets_values": [
-        "Character Description: Cartoon character lost\nBackground description: The background is an empty white room",
+        "Character Description: The pink-haired character from the reference image, wearing a cropped black leather jacket with gold details, black shorts and gold mechanical arms. Preserve the reference face and outfit.\nBackground description: An empty white studio with soft light.",
         "A girl doing energetic street dance with rhythmic steps and dynamic arm gestures, background stationary\n",
         "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
         1,
@@ -430,7 +376,7 @@
         "Wan2_1_VAE_bf16.safetensors"
       ],
       "widgets_values_named": {
-        "text_1": "Character Description: Cartoon character lost\nBackground description: The background is an empty white room",
+        "text_1": "Character Description: The pink-haired character from the reference image, wearing a cropped black leather jacket with gold details, black shorts and gold mechanical arms. Preserve the reference face and outfit.\nBackground description: An empty white studio with soft light.",
         "text_2": "A girl doing energetic street dance with rhythmic steps and dynamic arm gestures, background stationary\n",
         "text": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
         "pose_strength": 1,
@@ -866,12 +812,14 @@
               30,
               8,
               "sRGB",
+              "auto",
               "none"
             ],
             "widgets_values_named": {
               "fps": 30,
               "bit_depth": 8,
               "color_space": "sRGB",
+              "chroma_subsampling": "auto",
               "codec": "none"
             }
           },
@@ -2557,10 +2505,10 @@
               "Node name for S&R": "CLIPTextEncode"
             },
             "widgets_values": [
-              "Character Description: Cartoon character lost\nBackground description: The background is an empty white room"
+              "Character Description: The pink-haired character from the reference image, wearing a cropped black leather jacket with gold details, black shorts and gold mechanical arms. Preserve the reference face and outfit.\nBackground description: An empty white studio with soft light."
             ],
             "widgets_values_named": {
-              "text": "Character Description: Cartoon character lost\nBackground description: The background is an empty white room"
+              "text": "Character Description: The pink-haired character from the reference image, wearing a cropped black leather jacket with gold details, black shorts and gold mechanical arms. Preserve the reference face and outfit.\nBackground description: An empty white studio with soft light."
             },
             "color": "#232",
             "bgcolor": "#353"
@@ -4023,33 +3971,6 @@
             }
           },
           {
-            "id": 669,
-            "type": "MarkdownNote",
-            "pos": [
-              1571.623693647654,
-              7875.8948963958455
-            ],
-            "size": [
-              752.90625,
-              473.375
-            ],
-            "flags": {},
-            "order": 7,
-            "mode": 0,
-            "inputs": [],
-            "outputs": [],
-            "title": "Loop math (exact frame count)",
-            "properties": {},
-            "widgets_values": [
-              "# Start Loop math - why these numbers line up\n\n`b` = `#635` (fragment_length)   |   `F` = `#537` (driving-video frame count)\n\nEach continuation repeats the previous segment's **last** frame as its own first frame\n(`CONTINUE_MOTION_FRAMES = 1` in `WanAnimate2ToVideo`), and `#604 ImageFromBatch`\ntrims that duplicate - so a segment of length `b` only adds `b - 1` frames.\n\n    k continuations   =>   sum(lengths) = F + k      (k extra frames feed the k repeats)\n\nKeeping segment 0 inside one context window (1 <= len0 <= b):\n\n    #636    k    = floor((F - 2) / (b - 1))\n    #639    len0 = 4 * ceil((F - (b-1)*k - 1) / 4) + 1      <- rounded up to a legal 4n+1\n    #645    n    = k + 1                  (num_iterations)\n\n`#639` rounds **up**, so the loop always generates at least F frames, and `#667`\n(`ImageFromBatch`, length = F) trims the tail back to exactly F.\n\n    Exact w/o trim?  =  (F % 4 == 1) and (b % 4 == 1)\n      True  -> generated == F, `#668` bypasses the trim\n      False -> generated  > F, `#668` applies the trim        (any F still works)\n\n`b` should be a legal Wan length (81, 85, 89 ...) : `latent_T = ((len-1)//4)+1`.\n\nFormula and requirements verified against ComfyUI `nodes_wan.py` + the Wan VAE kernel."
-            ],
-            "widgets_values_named": {
-              "text": "# Start Loop math - why these numbers line up\n\n`b` = `#635` (fragment_length)   |   `F` = `#537` (driving-video frame count)\n\nEach continuation repeats the previous segment's **last** frame as its own first frame\n(`CONTINUE_MOTION_FRAMES = 1` in `WanAnimate2ToVideo`), and `#604 ImageFromBatch`\ntrims that duplicate - so a segment of length `b` only adds `b - 1` frames.\n\n    k continuations   =>   sum(lengths) = F + k      (k extra frames feed the k repeats)\n\nKeeping segment 0 inside one context window (1 <= len0 <= b):\n\n    #636    k    = floor((F - 2) / (b - 1))\n    #639    len0 = 4 * ceil((F - (b-1)*k - 1) / 4) + 1      <- rounded up to a legal 4n+1\n    #645    n    = k + 1                  (num_iterations)\n\n`#639` rounds **up**, so the loop always generates at least F frames, and `#667`\n(`ImageFromBatch`, length = F) trims the tail back to exactly F.\n\n    Exact w/o trim?  =  (F % 4 == 1) and (b % 4 == 1)\n      True  -> generated == F, `#668` bypasses the trim\n      False -> generated  > F, `#668` applies the trim        (any F still works)\n\n`b` should be a legal Wan length (81, 85, 89 ...) : `latent_T = ((len-1)//4)+1`.\n\nFormula and requirements verified against ComfyUI `nodes_wan.py` + the Wan VAE kernel."
-            },
-            "color": "#222",
-            "bgcolor": "#000"
-          },
-          {
             "id": 597,
             "type": "SamplerCustom",
             "pos": [
@@ -4743,12 +4664,14 @@
               30,
               "auto",
               "sRGB",
+              "auto",
               "none"
             ],
             "widgets_values_named": {
               "fps": 30,
               "bit_depth": "auto",
               "color_space": "sRGB",
+              "chroma_subsampling": "auto",
               "codec": "none"
             }
           }
@@ -5709,10 +5632,10 @@
     "VHS_MetadataImage": true,
     "VHS_KeepIntermediate": true,
     "ds": {
-      "scale": 0.2559399836992964,
+      "scale": 0.41005289211233803,
       "offset": [
-        7543.214395416197,
-        -3326.8242637491976
+        5852.005373429232,
+        -3877.4516086353033
       ]
     }
   },
