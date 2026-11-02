@@ -47,8 +47,11 @@ async function validate(file) {
   // Also check for an actual video stream when ffprobe is installed.
   try {
     const { stdout } = await probe('ffprobe', ['-v', 'error', '-select_streams', 'v:0',
-      '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', file]);
-    if (stdout.trim() !== 'video') throw new Error('Downloaded file has no video stream');
+      '-show_entries', 'stream=codec_type', '-of', 'json', file]);
+    const streams = JSON.parse(stdout).streams ?? [];
+    if (!streams.some(stream => stream.codec_type === 'video')) {
+      throw new Error('Downloaded file has no video stream');
+    }
   } catch (error) { if (error.code !== 'ENOENT') throw error; }
 }
 
