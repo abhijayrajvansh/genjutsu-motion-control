@@ -503,6 +503,7 @@ export function MotionWorkflow({
         <Prompt
           value={prompt}
           onChange={setPrompt}
+          onUseDefault={() => setPrompt(defaultMotionPrompt(model.id, mode))}
           maxLength={apimartOnly(model.id) ? 5000 : 2000}
           hintClassName="motion-prompt-note"
           hint={

@@ -204,6 +204,7 @@ export function Prompt({
   onChange,
   maxLength = 4000,
   hintClassName,
+  onUseDefault,
   hint = "Sent as you wrote it. Refer to your pictures in order — the first is @image1, the second @image2.",
 }: {
   value: string;
@@ -211,18 +212,29 @@ export function Prompt({
   hint?: string;
   maxLength?: number;
   hintClassName?: string;
+  onUseDefault?: () => void;
 }) {
+  const id = useId();
   return (
-    <label className="field">
-      <span>Prompt</span>
+    <div className="field">
+      <span className="between">
+        <label htmlFor={id}>Prompt</label>
+        {onUseDefault && (
+          <button type="button" className="text-button" onClick={onUseDefault}>
+            Use default
+          </button>
+        )}
+      </span>
       <textarea
+        id={id}
+        aria-describedby={`${id}-hint`}
         rows={5}
         maxLength={maxLength}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      <small className={hintClassName}>{hint}</small>
-    </label>
+      <small id={`${id}-hint`} className={hintClassName}>{hint}</small>
+    </div>
   );
 }
 export function Duration({
