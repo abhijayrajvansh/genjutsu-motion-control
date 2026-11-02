@@ -97,6 +97,10 @@ For media uploads, copy `.env.example` to `.env.local` and set `R2_ACCOUNT_ID`, 
 
 See [APIMart setup, pricing and verification](docs/APIMART-MOTION.md). Live R2 uploads and a funded APIMart render require configured credentials.
 
+## Wan-Animate-2 Base BF16 workflow
+
+[Prepared BF16 workflow and setup notes](artifacts/comfyui/wan-animate-2-bf16/README.md) provide the selected `wan_animate_2_bf16.safetensors` base model with an FP16 text encoder. The standalone ComfyUI graph removes the template's step-distillation LoRA, uses 40 Euler steps with CFG 3, and keeps the motion cache on CPU. The four required model files total 45.67 GB; their pinned URLs and hashes are in the adjacent manifest. Structural checks are complete; GPU import, memory measurements and rendered quality remain unverified.
+
 ## MiniMax H3 on a Vast.ai RTX 5090
 
 [setup-h3-vast.sh](setup-h3-vast.sh) installs the extracted RunComfy H3 + SAM3 character-swap workflow into a separate directory on a Linux RTX 5090 32GB rental. Choose an SSH-enabled Ubuntu 22.04/24.04 image with NVIDIA driver 580+, preferably 96–128GB RAM and 150–200GB persistent disk. The script does not rent an instance or manage billing.

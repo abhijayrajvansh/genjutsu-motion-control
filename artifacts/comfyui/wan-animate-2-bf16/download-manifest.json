@@ -1,0 +1,58 @@
+{
+  "model": "Wan-Animate-2 Base BF16",
+  "upstream_workflow_url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/cdccb2ee7a7cd0baee4630cf7186283a98ab408f/templates/video_wan_animate2.json",
+  "upstream_workflow_revision": "cdccb2ee7a7cd0baee4630cf7186283a98ab408f",
+  "upstream_workflow_sha256": "951fb2140c55ef8011a1ddc60639b0c76a5bd99a77212a7ef587af1b7df74652",
+  "model_repository": "Comfy-Org/Wan-Animate-2",
+  "model_revision": "e7181fe1896b7f2ce34120d1a3663413548240d7",
+  "workflow_file": "wan-animate-2-base-bf16.workflow.json",
+  "workflow_sha256": "113a6d55e8be7fb2523f7dbdff81d3fe2302b15b12342b877fa2b516177be86c",
+  "model_download_bytes": 45674319163,
+  "models": [
+    {
+      "filename": "wan_animate_2_bf16.safetensors",
+      "destination": "models/diffusion_models/wan_animate_2_bf16.safetensors",
+      "size_bytes": 32789894104,
+      "sha256": "642e906c7deaa27072a90ea433319b18f274da438ba75e350373467a0421f177",
+      "download_url": "https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/diffusion_models/wan_animate_2_bf16.safetensors"
+    },
+    {
+      "filename": "umt5_xxl_fp16.safetensors",
+      "destination": "models/text_encoders/umt5_xxl_fp16.safetensors",
+      "size_bytes": 11366399385,
+      "sha256": "7b8850f1961e1cf8a77cca4c964a358d303f490833c6c087d0cff4b2f99db2af",
+      "download_url": "https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/text_encoders/umt5_xxl_fp16.safetensors"
+    },
+    {
+      "filename": "clip_vision_h.safetensors",
+      "destination": "models/clip_vision/clip_vision_h.safetensors",
+      "size_bytes": 1264219396,
+      "sha256": "64a7ef761bfccbadbaa3da77366aac4185a6c58fa5de5f589b42a65bcc21f161",
+      "download_url": "https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/clip_vision/clip_vision_h.safetensors"
+    },
+    {
+      "filename": "Wan2_1_VAE_bf16.safetensors",
+      "destination": "models/vae/Wan2_1_VAE_bf16.safetensors",
+      "size_bytes": 253806278,
+      "sha256": "1ab9a32cc2c740f6e39d80d367ce5dcc28db8c71b79b28670546b8973e9d75f9",
+      "download_url": "https://huggingface.co/Comfy-Org/Wan-Animate-2/resolve/e7181fe1896b7f2ce34120d1a3663413548240d7/vae/Wan2_1_VAE_bf16.safetensors"
+    }
+  ],
+  "settings": {
+    "steps": 40,
+    "cfg": 3.0,
+    "sampler": "euler",
+    "shift": 5,
+    "cache_device": "cpu",
+    "cache_dtype": "default",
+    "width": 480,
+    "height": 832,
+    "fragment_length": 81,
+    "acceleration_lora": false
+  },
+  "runtime_verified": false,
+  "note": "Prepared and structurally checked only; no GPU rental, model-weight download or render has been performed.",
+  "template_license": "MIT",
+  "template_license_file": "LICENSE",
+  "template_license_url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/cdccb2ee7a7cd0baee4630cf7186283a98ab408f/LICENSE"
+}
