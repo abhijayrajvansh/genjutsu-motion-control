@@ -8,6 +8,7 @@
     "start": "next start --hostname 127.0.0.1 --port 3107",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.mjs",
     "reels": "node scripts/download-reels.mjs"
   },
   "dependencies": {

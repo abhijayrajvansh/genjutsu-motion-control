@@ -39,7 +39,7 @@ export function FinalOutputSourcing({ sources, onChange }: {
           </fieldset>
         ))}
       </div>
-      <small>Input image = Image1 @Image1. Input video = Video1 @Video1. The video supplies the full performance; appearance choices do not freeze the character’s pose or hairstyle.</small>
+      <small>Input image = Image1 @Image1. Input video = Video1 @Video1. Opening frame source adds prompt guidance while retaining the driving video; it cannot guarantee an exact first-frame match. The video supplies the full performance.</small>
     </section>
   );
 }

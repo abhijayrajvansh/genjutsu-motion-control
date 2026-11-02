@@ -61,6 +61,8 @@ For Wan 3 motion control, **Final Output Sourcing** separates appearance and sce
 
 The live **Prompt** is always visible immediately beneath the source controls. Changing a source rebuilds it and replaces manual edits; **Use default** restores it from the current choices. The prompt explicitly requests the full video's performance, poses, trajectories, pauses, expressions, hair transitions, and original timing, while keeping appearance separate from pose. There is no separate action-description field.
 
+**Opening frame source** adds guidance at the start of this prompt. **Input image** requests Image1's face, pose, outfit, background and framing at the opening instant before continuing the driving video's actions; subsequent appearance and scene choices still apply. **Input video**, the default for existing settings, follows the selected video's opening pose and framing with the chosen character appearance. The choice persists across reloads. Both options retain the driving video in reference mode. This is model-dependent prompt guidance, not a strict first-frame lock: APIMart does not permit a strict `first_frame` input together with a reference video.
+
 This follows the appearance-image/motion-video separation documented for [Kling 3.0 Motion Control](https://fal.ai/models/fal-ai/kling-video/v3/pro/motion-control/api), while retaining Wan 3 and its existing provider payloads. It does not add Kling-specific API controls or turn Wan into a dedicated motion-transfer model. Actual fidelity still requires a rendered comparison; prompts cannot guarantee exact correspondence. Kie Replace retains its existing prompt-free workflow.
 
 ## Download Instagram reels
