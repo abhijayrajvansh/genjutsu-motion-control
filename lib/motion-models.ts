@@ -201,7 +201,7 @@ export function defaultMotionPrompt(
   if (id === "wan27edit")
     return "Replace the person in the video with the character from the reference image, including their exact clothing and skin coverage. Keep the original body motion, timing, background and camera framing. Do not copy the original person's face or clothing.";
   return id === "wan"
-    ? "Use the character from Image1, including their exact clothing and skin coverage. Reproduce only the body motion and timing from Video1. Do not copy the person, face, or clothing from Video1. If Image1 shows bare skin or very little clothing, keep that same coverage for the whole shot. Do not add garments, layers, fabric, or coverage that appear only in Video1. Keep Image1's outfit, colors, accessories and exposed skin consistent. Preserve the background and camera framing from Video1. A single continuous shot, natural movement."
+    ? "Use Image1 @Image1 as the reference for the character’s identity, face, clothing, colours, accessories, and skin coverage. Use Video1 @Video1 as the reference for the complete action sequence, including body movement, head movement, expressions, hair movement, and timing."
     : id === "kling"
       ? "Reproduce the motion from the reference video using the character in the reference image. Keep the character identity consistent and the movement natural."
       : id === "wan22replace"

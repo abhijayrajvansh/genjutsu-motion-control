@@ -509,7 +509,7 @@ export function MotionWorkflow({
             mode === "first-frame"
               ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
               : model.id === "wan"
-                ? "Image1 supplies the character, clothing and skin coverage, including minimal clothing. Video1 supplies motion and timing only. Adjust the prompt before rendering."
+                ? "Image1 @Image1 supplies the character, clothing and skin coverage. Video1 @Video1 supplies the complete action sequence, including body movement, head movement, expressions, hair movement and timing. Adjust the prompt before rendering."
                 : model.id === "wan27r2v"
                   ? "image 1 supplies the character. video 1 supplies motion and timing only. Output is 2–10 seconds at 720P or 1080P."
                   : model.id === "wan27edit"
