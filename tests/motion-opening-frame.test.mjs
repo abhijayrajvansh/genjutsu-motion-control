@@ -55,6 +55,8 @@ test('image opening guidance retains reference mode and driving video in both pr
   assert.deepEqual(apimart.image_urls, ['https://example.com/appearance.png']);
   assert.equal(apimart.image_with_roles, undefined);
   assert.ok(apimart.prompt.includes('The first frame exactly matches 图1 @图1'));
-  assert.ok(apimart.prompt.includes("FACIAL IDENTITY — HIGHEST PRIORITY: Always use 图1 @图1's facial identity in every frame, including the first."));
-  assert.ok(apimart.prompt.includes('Use 视频1 @视频1 only for facial motion; never the face from 视频1 @视频1.'));
+  assert.ok(apimart.prompt.startsWith('Edit 视频1 @视频1: replace the person with the character from 图1 @图1'));
+  assert.ok(apimart.prompt.includes("FACIAL IDENTITY — HIGHEST PRIORITY: Replace the original face with 图1 @图1's face in every frame, including the first."));
+  assert.ok(apimart.prompt.includes('Transfer facial motion only from 视频1 @视频1, without its identity or face blending.'));
+  assert.ok(apimart.prompt.includes("Replace the video's entire outfit with 图1 @图1's clothing and skin coverage"));
 });

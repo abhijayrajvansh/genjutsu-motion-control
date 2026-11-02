@@ -47,7 +47,6 @@ export function buildMotionSourcePrompt(sources: MotionSources) {
   const groups: { verb: string; fields: { id: MotionSourcingField; text: string }[] }[] = [
     { verb: "Keep", fields: [
       { id: "body", text: "body proportions and skin tone" },
-      { id: "clothing", text: "clothing and skin coverage" },
       { id: "accessories", text: "accessories" },
       { id: "hairAppearance", text: "hair color, length and texture" },
     ] },
@@ -63,13 +62,16 @@ export function buildMotionSourcePrompt(sources: MotionSources) {
     return `${group.verb} ${parts.join(", ")} from ${source === "image" ? "Image1 @Image1" : "Video1 @Video1"} only.`;
   })).filter(Boolean);
   return [
-    "A photorealistic video of the character from Image1 @Image1.",
-    "FACIAL IDENTITY — HIGHEST PRIORITY: Always use Image1 @Image1's facial identity in every frame, including the first. Preserve its face shape, eyes, eyebrows, nose, lips and jawline through all angles and expressions. Use Video1 @Video1 only for facial motion; never the face from Video1 @Video1. Do not blend faces or drift toward the video's identity.",
+    "Edit Video1 @Video1: replace the person with the character from Image1 @Image1 throughout the clip. Photorealistic result.",
+    "FACIAL IDENTITY — HIGHEST PRIORITY: Replace the original face with Image1 @Image1's face in every frame, including the first. Preserve its facial features through all angles and expressions. Transfer facial motion only from Video1 @Video1, without its identity or face blending.",
+    sources.clothing === "image"
+      ? "Replace the video's entire outfit with Image1 @Image1's clothing and skin coverage from first to last frame. Do not retain or blend in Video1 @Video1's garments, colors or layers."
+      : "Keep clothing and skin coverage from Video1 @Video1 only, while replacing the face with Image1 @Image1's identity.",
     ...assignments,
     "The character performs the exact same movements, gestures, actions, expressions and hair motion as Video1 @Video1, with the same timing.",
     sources.openingFrame === "image"
       ? "The first frame exactly matches Image1 @Image1."
       : "The first frame follows Video1 @Video1's opening pose and framing, with Image1 @Image1's face.",
-    "One continuous shot. Keep the same face throughout; no face blending.",
+    "One continuous shot. Apply the replacement from the first frame; no reveal, morphing or delayed outfit change.",
   ].join("\n\n");
 }

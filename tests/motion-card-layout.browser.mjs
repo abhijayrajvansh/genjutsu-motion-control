@@ -39,8 +39,15 @@ try {
   assert.ok(await identity.getByRole('radio', { name: 'Input image', exact: true }).isChecked());
   assert.ok(await identity.getByRole('radio', { name: 'Input video', exact: true }).isDisabled());
   const prompt = page.getByRole('textbox', { name: 'Prompt', exact: true });
-  assert.ok((await prompt.inputValue()).startsWith('A photorealistic video of the character from Image1 @Image1.'));
+  assert.ok((await prompt.inputValue()).startsWith('Edit Video1 @Video1: replace the person with the character from Image1 @Image1'));
   assert.ok((await prompt.inputValue()).includes('FACIAL IDENTITY — HIGHEST PRIORITY:'));
+  const clothing = page.getByRole('group', { name: 'Clothing', exact: true });
+  assert.ok((await prompt.inputValue()).includes("Replace the video's entire outfit with Image1 @Image1's clothing and skin coverage"));
+  await clothing.getByRole('radio', { name: 'Input video', exact: true }).check();
+  assert.ok((await prompt.inputValue()).includes('Keep clothing and skin coverage from Video1 @Video1 only'));
+  assert.ok(!(await prompt.inputValue()).includes("Replace the video's entire outfit"));
+  await clothing.getByRole('radio', { name: 'Input image', exact: true }).check();
+  assert.ok((await prompt.inputValue()).includes("Do not retain or blend in Video1 @Video1's garments"));
   await page.getByRole('group', { name: 'Opening frame source', exact: true })
     .getByRole('radio', { name: 'Input image', exact: true }).check();
   assert.ok((await prompt.inputValue()).includes('The first frame exactly matches Image1 @Image1.'));
