@@ -1028,11 +1028,12 @@ em {
   margin: 0;
   accent-color: var(--foreground);
 }
-.output-sourcing-action > span {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+.output-sourcing-options label:has(input:disabled) {
+  cursor: default;
+  color: var(--muted-foreground);
+}
+.motion-live-prompt textarea {
+  min-height: 360px;
 }
 .prompt-override > summary {
   cursor: pointer;

@@ -18,43 +18,41 @@ export type MotionSourcingField = (typeof MOTION_SOURCING_FIELDS)[number]["id"];
 export type MotionSources = Record<MotionSourcingField, MotionSource>;
 export type MotionSourcingSettings = {
   sources: MotionSources;
-  actions: Record<string, string>;
 };
-export const MOTION_ACTION_LIMIT = 600;
 export const MOTION_PROMPT_LIMIT = 2500;
+
+export function isVideoMotionField(field: MotionSourcingField) {
+  return field === "bodyMovement" || field === "expressions" || field === "hairMovement" || field === "timing";
+}
 
 export function readMotionSourcing(value: string): MotionSourcingSettings {
   let parsed: Partial<MotionSourcingSettings> | null = null;
   try { parsed = JSON.parse(value); } catch { /* Use defaults for invalid saved settings. */ }
   const sources = Object.fromEntries(MOTION_SOURCING_FIELDS.map(field => {
     const source = parsed?.sources?.[field.id];
-    return [field.id, source === "image" || source === "video" ? source : field.defaultSource];
+    return [field.id, isVideoMotionField(field.id) ? "video"
+      : source === "image" || source === "video" ? source : field.defaultSource];
   })) as MotionSources;
-  const actions = Object.fromEntries(Object.entries(parsed?.actions ?? {})
-    .filter((entry): entry is [string, string] => typeof entry[1] === "string")
-    .map(([key, action]) => [key, action.slice(0, MOTION_ACTION_LIMIT)]));
-  return { sources, actions };
+  // Older saved action descriptions are deliberately ignored, while appearance choices survive.
+  return { sources };
 }
 
-export function buildMotionSourcePrompt(sources: MotionSources, action = "") {
-  const lines = MOTION_SOURCING_FIELDS.map(field => {
+export function buildMotionSourcePrompt(sources: MotionSources) {
+  const appearance = MOTION_SOURCING_FIELDS.filter(field => !isVideoMotionField(field.id)).map(field => {
     const source = sources[field.id];
     const reference = source === "image" ? "Image1 @Image1" : "Video1 @Video1";
-    let instruction: string = field.description;
-    if (source === "image") {
-      if (field.id === "bodyMovement") instruction = "hold the pictured body and head pose; do not copy video gestures";
-      if (field.id === "expressions") instruction = "hold the pictured expression, gaze and mouth pose";
-      if (field.id === "hairMovement") instruction = "keep the pictured hair arrangement; do not copy video hair actions";
-      if (field.id === "camera") instruction = "match the still image's framing and angle; keep the camera fixed";
-      if (field.id === "timing") instruction = "hold the pictured state throughout; do not copy video action timing";
-    }
+    const instruction = field.id === "camera" && source === "image"
+      ? "framing and angle from the image; fixed camera"
+      : field.description;
     return `${field.label}: ${reference} only (${instruction}).`;
   });
-  const details = action.trim().slice(0, MOTION_ACTION_LIMIT);
   return [
-    "FINAL OUTPUT SOURCING\nUse only the assigned source for each component below. Exclude that component from the other input.",
-    lines.join("\n"),
-    details ? `CLIP-SPECIFIC ACTION\n${details}\nApply these details only where compatible with the source assignments above.` : "",
-    "CONTINUITY\nKeep the selected identity, body appearance, clothing and skin coverage consistent. Preserve the selected hair color, length and texture while allowing hair arrangement to change with the selected hair action. One continuous shot, natural movement.",
-  ].filter(Boolean).join("\n\n");
+    "MOTION REFERENCE — Video1 @Video1\nUse the selected input video segment as the complete motion blueprint. Transfer its entire performance to the selected character, matching the action at each corresponding moment. Do not create a new performance.",
+    "Body and head movement: Video1 @Video1 only. Follow every body, head, arm, hand and finger action, gesture, turn and interaction in the same order, direction and trajectory. Match poses, speed and pauses. Do not add, omit, reverse or replace actions.",
+    "Facial expressions: Video1 @Video1 only. Match expressions, gaze, blinks and mouth movements at the corresponding moments while retaining the selected facial identity.",
+    "Hair movement: Video1 @Video1 only. Follow every visible hair movement and hairstyle transition in the source, including its timing and direction. Hair arrangement may change with the action; the appearance image must not freeze it.",
+    "Timing: Video1 @Video1 only. Preserve the selected segment's action order, pace, pauses and transitions from beginning to end. No added choreography or retiming.",
+    `APPEARANCE AND SCENE\nUse only the assigned source for each component; exclude that component from the other input.\n${appearance.join("\n")}`,
+    "CONTINUITY\nAppearance references define identity, anatomy, clothing and hair color, length and texture, not a fixed pose, expression or hairstyle. Keep the selected outfit and skin coverage consistent while the character performs the source video's actions. One continuous shot.",
+  ].join("\n\n");
 }

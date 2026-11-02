@@ -23,7 +23,7 @@ import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
 import { FinalOutputSourcing } from "./final-output-sourcing";
-import { buildMotionSourcePrompt, MOTION_PROMPT_LIMIT, MotionSource, MotionSourcingField, readMotionSourcing } from "@/lib/motion-sourcing";
+import { buildMotionSourcePrompt, isVideoMotionField, MOTION_PROMPT_LIMIT, MotionSource, MotionSourcingField, readMotionSourcing } from "@/lib/motion-sourcing";
 function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
@@ -96,14 +96,12 @@ export function MotionWorkflow({
   const submitting = useRef(false);
   const [savedSourcing, setSavedSourcing] = useSaved("clone.motion.output-sourcing.v1", "{}");
   const sourcing = readMotionSourcing(savedSourcing);
-  const actionKey = video?.id ?? "pending";
-  const action = sourcing.actions[actionKey] ?? "";
   const supportsSourcing = model.id === "wan" && mode === "reference";
   const generatedPrompt = supportsSourcing
-    ? buildMotionSourcePrompt(sourcing.sources, action)
+    ? buildMotionSourcePrompt(sourcing.sources)
     : defaultMotionPrompt(model.id, mode);
   const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
-  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}`;
+  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}:${supportsSourcing ? "video-motion-v2" : "default"}`;
   const prompt = promptDrafts[promptKey] ?? generatedPrompt;
   const promptLimit = apimartOnly(model.id) ? 5000 : MOTION_PROMPT_LIMIT;
   function setPrompt(value: string) {
@@ -117,13 +115,10 @@ export function MotionWorkflow({
     });
   }
   function changeSource(field: MotionSourcingField, source: MotionSource) {
+    if (isVideoMotionField(field)) return;
     setSavedSourcing(JSON.stringify({ ...sourcing, sources: { ...sourcing.sources, [field]: source } }));
     // Rebuild every cached draft so switching videos cannot restore stale assignments.
     setPromptDrafts({});
-  }
-  function changeAction(value: string) {
-    setSavedSourcing(JSON.stringify({ ...sourcing, actions: { ...sourcing.actions, [actionKey]: value } }));
-    resetPrompt();
   }
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -359,6 +354,22 @@ export function MotionWorkflow({
       submitting.current = false;
     }
   }
+  const promptControl = (
+    <Prompt
+      value={prompt}
+      onChange={setPrompt}
+      onUseDefault={resetPrompt}
+      maxLength={promptLimit}
+      hintClassName="motion-prompt-note"
+      hint={supportsSourcing
+        ? `Updates from the source choices above. Video1 @Video1 supplies every action and its timing. Use default restores the generated prompt after manual edits. ${prompt.length}/${promptLimit} characters.`
+        : mode === "first-frame"
+          ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
+          : model.id === "wan22replace"
+            ? "Kie Replace uses the reference image and the driving video only. This prompt is saved on the job and is not sent."
+            : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."}
+    />
+  );
   return (
     <form className="generation-form" onSubmit={submit}>
       <div className="motion-model-row">
@@ -530,32 +541,16 @@ export function MotionWorkflow({
         onChange={setResolution}
       />
       {supportsSourcing && (
-        <FinalOutputSourcing sources={sourcing.sources} onChange={changeSource}
-          action={action} onActionChange={changeAction} />
+        <FinalOutputSourcing sources={sourcing.sources} onChange={changeSource} />
       )}
-      <details className="prompt-override">
-        <summary>Override prompt</summary>
-        <Prompt
-          value={prompt}
-          onChange={setPrompt}
-          onUseDefault={resetPrompt}
-          maxLength={promptLimit}
-          hintClassName="motion-prompt-note"
-          hint={
-            mode === "first-frame"
-              ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
-              : model.id === "wan"
-                ? `Built from Final Output Sourcing and this video's action details. You can edit it manually. Use default restores those choices. ${prompt.length}/${promptLimit} characters.`
-                : model.id === "wan27r2v"
-                  ? "image 1 supplies the character. video 1 supplies motion and timing only. Output is 2–10 seconds at 720P or 1080P."
-                  : model.id === "wan27edit"
-                    ? "The driving clip is edited in place. Reference images set the person and clothing. The clip must be 2–10 seconds, and the output keeps that length."
-                    : model.id === "wan22replace"
-                      ? "Kie Replace uses the reference image and the driving video only. This prompt is saved on the job and is not sent."
-                      : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."
-          }
-        />
-      </details>
+      {supportsSourcing ? (
+        <section className="motion-live-prompt" aria-label="Output prompt">{promptControl}</section>
+      ) : (
+        <details className="prompt-override">
+          <summary>Override prompt</summary>
+          {promptControl}
+        </details>
+      )}
       {(model.id === "wan" || apimartOnly(model.id)) && (
         <label className="field">
           <span className="seed-row">

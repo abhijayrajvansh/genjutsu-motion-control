@@ -57,9 +57,11 @@ See [reconstruction notes](docs/RECONSTRUCTION.md) for evidence and the scope of
 
 ## Final Output Sourcing
 
-For Wan 3 motion control, choose **Input image** or **Input video** for each of the 12 components in **Final Output Sourcing**, above **Override prompt**. The generated prompt assigns each component exclusively to that source. Source choices persist in this browser. Optional **Clip-specific action** instructions are saved separately for each selected driving video, so a hair-release instruction does not carry over to another clip. An image supplies static poses and expressions rather than a motion sequence.
+For Wan 3 motion control, **Final Output Sourcing** separates appearance and scene choices from the driving performance. Choose **Input image** or **Input video** for identity, body appearance, clothing, accessories, hair appearance, background, camera, and lighting. Body/head movement, expressions, hair motion, and timing are fixed to **Input video**. Source choices persist in this browser. Older image-based motion choices are normalized to video, and saved clip-specific action descriptions are ignored.
 
-Changing a source or action description rebuilds the prompt and replaces manual edits. **Use default** restores the generated prompt using the current choices. You can still edit the final prompt before submitting. These are model instructions; the controls do not guarantee exact visual compliance. This section is available for Wan 3, which accepts the generated prompt; Kie Replace does not accept prompt instructions.
+The live **Prompt** is always visible immediately beneath the source controls. Changing a source rebuilds it and replaces manual edits; **Use default** restores it from the current choices. The prompt explicitly requests the full video's performance, poses, trajectories, pauses, expressions, hair transitions, and original timing, while keeping appearance separate from pose. There is no separate action-description field.
+
+This follows the appearance-image/motion-video separation documented for [Kling 3.0 Motion Control](https://fal.ai/models/fal-ai/kling-video/v3/pro/motion-control/api), while retaining Wan 3 and its existing provider payloads. It does not add Kling-specific API controls or turn Wan into a dedicated motion-transfer model. Actual fidelity still requires a rendered comparison; prompts cannot guarantee exact correspondence. Kie Replace retains its existing prompt-free workflow.
 
 ## Download Instagram reels
 
