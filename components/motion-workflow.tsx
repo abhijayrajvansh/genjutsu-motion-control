@@ -23,7 +23,7 @@ import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
 import { FinalOutputSourcing } from "./final-output-sourcing";
-import { buildMotionSourcePrompt, isVideoMotionField, MOTION_PROMPT_LIMIT, MotionSource, MotionSourcingField, readMotionSourcing } from "@/lib/motion-sourcing";
+import { buildMotionSourcePrompt, fixedMotionSource, MOTION_PROMPT_LIMIT, MotionSource, MotionSourcingField, readMotionSourcing } from "@/lib/motion-sourcing";
 function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
@@ -101,7 +101,7 @@ export function MotionWorkflow({
     ? buildMotionSourcePrompt(sourcing.sources)
     : defaultMotionPrompt(model.id, mode);
   const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
-  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}:${supportsSourcing ? "opening-source-v3" : "default"}`;
+  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}:${supportsSourcing ? "concise-image-face-v4" : "default"}`;
   const prompt = promptDrafts[promptKey] ?? generatedPrompt;
   const promptLimit = apimartOnly(model.id) ? 5000 : MOTION_PROMPT_LIMIT;
   function setPrompt(value: string) {
@@ -115,7 +115,7 @@ export function MotionWorkflow({
     });
   }
   function changeSource(field: MotionSourcingField, source: MotionSource) {
-    if (isVideoMotionField(field)) return;
+    if (fixedMotionSource(field) !== undefined) return;
     setSavedSourcing(JSON.stringify({ ...sourcing, sources: { ...sourcing.sources, [field]: source } }));
     // Rebuild every cached draft so switching videos cannot restore stale assignments.
     setPromptDrafts({});

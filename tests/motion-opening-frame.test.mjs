@@ -20,14 +20,13 @@ test('saved image opening survives normalization without changing clothing selec
   assert.equal(result.sources.clothing, 'video');
 });
 
-test('changing opening source changes the first prompt section while retaining video motion', () => {
+test('changing opening source changes the requested first frame while retaining video motion', () => {
   const sources = readMotionSourcing('{}').sources;
   for (const [choice, reference] of [['image', 'Image1 @Image1'], ['video', 'Video1 @Video1']]) {
     const prompt = buildMotionSourcePrompt({ ...sources, openingFrame: choice });
-    const firstSection = prompt.split('\n\n')[0];
-    assert.ok(firstSection.includes(`OPENING FRAME — ${reference}`), firstSection);
-    assert.ok(prompt.includes('Body and head movement: Video1 @Video1 only'));
-    assert.ok(prompt.includes('Timing: Video1 @Video1 only'));
+    assert.ok(prompt.includes(`The first frame ${choice === 'image' ? 'exactly matches' : 'follows'} ${reference}`), prompt);
+    assert.ok(prompt.includes('exact same movements, gestures, actions'));
+    assert.ok(prompt.includes('same timing'));
   }
 });
 
@@ -54,5 +53,5 @@ test('image opening guidance retains reference mode and driving video in both pr
   assert.deepEqual(apimart.video_urls, ['https://example.com/motion.mp4']);
   assert.deepEqual(apimart.image_urls, ['https://example.com/appearance.png']);
   assert.equal(apimart.image_with_roles, undefined);
-  assert.ok(apimart.prompt.split('\n\n')[0].includes('OPENING FRAME — 图1 @图1'));
+  assert.ok(apimart.prompt.includes('The first frame exactly matches 图1 @图1'));
 });

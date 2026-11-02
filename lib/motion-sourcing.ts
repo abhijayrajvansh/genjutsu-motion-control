@@ -26,38 +26,49 @@ export function isVideoMotionField(field: MotionSourcingField) {
   return field === "bodyMovement" || field === "expressions" || field === "hairMovement" || field === "timing";
 }
 
+export function fixedMotionSource(field: MotionSourcingField): MotionSource | undefined {
+  if (field === "identity") return "image";
+  return isVideoMotionField(field) ? "video" : undefined;
+}
+
 export function readMotionSourcing(value: string): MotionSourcingSettings {
   let parsed: Partial<MotionSourcingSettings> | null = null;
   try { parsed = JSON.parse(value); } catch { /* Use defaults for invalid saved settings. */ }
   const sources = Object.fromEntries(MOTION_SOURCING_FIELDS.map(field => {
     const source = parsed?.sources?.[field.id];
-    return [field.id, isVideoMotionField(field.id) ? "video"
-      : source === "image" || source === "video" ? source : field.defaultSource];
+    return [field.id, fixedMotionSource(field.id)
+      ?? (source === "image" || source === "video" ? source : field.defaultSource)];
   })) as MotionSources;
   // Older saved action descriptions are deliberately ignored, while appearance choices survive.
   return { sources };
 }
 
 export function buildMotionSourcePrompt(sources: MotionSources) {
-  const opening = sources.openingFrame === "image"
-    ? "OPENING FRAME — Image1 @Image1\nBegin with the face, pose, outfit, background and framing of Image1 @Image1. Prioritize this opening reference at the first instant, then follow the selected appearance and scene sources below while continuing Video1 @Video1's action sequence without cuts. Do not hold the image still."
-    : "OPENING FRAME — Video1 @Video1\nBegin with the opening pose and framing of the selected Video1 @Video1 segment, applying the selected character appearance. Continue its action sequence without cuts.";
-  const appearance = MOTION_SOURCING_FIELDS.filter(field => field.id !== "openingFrame" && !isVideoMotionField(field.id)).map(field => {
-    const source = sources[field.id];
-    const reference = source === "image" ? "Image1 @Image1" : "Video1 @Video1";
-    const instruction = field.id === "camera" && source === "image"
-      ? "framing and angle from the image; fixed camera"
-      : field.description;
-    return `${field.label}: ${reference} only (${instruction}).`;
-  });
+  const groups: { verb: string; fields: { id: MotionSourcingField; text: string }[] }[] = [
+    { verb: "Keep", fields: [
+      { id: "body", text: "body proportions and skin tone" },
+      { id: "clothing", text: "clothing and skin coverage" },
+      { id: "accessories", text: "accessories" },
+      { id: "hairAppearance", text: "hair color, length and texture" },
+    ] },
+    { verb: "Match", fields: [
+      { id: "background", text: "background" },
+      { id: "lighting", text: "lighting" },
+      { id: "camera", text: sources.camera === "image" ? "camera framing and angle (fixed camera)" : "camera movement" },
+    ] },
+  ];
+  const assignments = groups.flatMap(group => (["image", "video"] as const).map(source => {
+    const parts = group.fields.filter(field => sources[field.id] === source).map(field => field.text);
+    if (!parts.length) return "";
+    return `${group.verb} ${parts.join(", ")} from ${source === "image" ? "Image1 @Image1" : "Video1 @Video1"} only.`;
+  })).filter(Boolean);
   return [
-    opening,
-    "MOTION REFERENCE — Video1 @Video1\nUse the selected input video segment as the complete motion blueprint. Transfer its entire performance to the selected character, matching the action at each corresponding moment. Do not create a new performance.",
-    "Body and head movement: Video1 @Video1 only. Follow every body, head, arm, hand and finger action, gesture, turn and interaction in the same order, direction and trajectory. Match poses, speed and pauses. Do not add, omit, reverse or replace actions.",
-    "Facial expressions: Video1 @Video1 only. Match expressions, gaze, blinks and mouth movements at the corresponding moments while retaining the selected facial identity.",
-    "Hair movement: Video1 @Video1 only. Follow every visible hair movement and hairstyle transition in the source, including its timing and direction. Hair arrangement may change with the action; the appearance image must not freeze it.",
-    "Timing: Video1 @Video1 only. Preserve the selected segment's action order, pace, pauses and transitions from beginning to end. No added choreography or retiming.",
-    `APPEARANCE AND SCENE\nUse only the assigned source for each component; exclude that component from the other input.\n${appearance.join("\n")}`,
-    "CONTINUITY\nAppearance references define identity, anatomy, clothing and hair color, length and texture, not a fixed pose, expression or hairstyle. Keep the selected outfit and skin coverage consistent while the character performs the source video's actions. One continuous shot.",
+    "A photorealistic video of the character from Image1 @Image1. Always use Image1 @Image1's facial identity, never the face from Video1 @Video1.",
+    ...assignments,
+    "The character performs the exact same movements, gestures, actions, expressions and hair motion as Video1 @Video1, with the same timing.",
+    sources.openingFrame === "image"
+      ? "The first frame exactly matches Image1 @Image1."
+      : "The first frame follows Video1 @Video1's opening pose and framing, with Image1 @Image1's face.",
+    "One continuous shot. Keep the same face throughout; no face blending.",
   ].join("\n\n");
 }

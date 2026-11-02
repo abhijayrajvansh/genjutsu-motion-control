@@ -1,7 +1,7 @@
 "use client";
 import { useId } from "react";
 import {
-  isVideoMotionField,
+  fixedMotionSource,
   MOTION_SOURCING_FIELDS,
   MotionSource,
   MotionSources,
@@ -17,7 +17,7 @@ export function FinalOutputSourcing({ sources, onChange }: {
     <section className="output-sourcing" aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>Final Output Sourcing</h2>
       <p className="output-sourcing-intro">
-        Choose the appearance and scene sources. Movement, expressions, hair motion and timing always follow the input video.
+        Face identity always comes from the input image. Choose the other appearance and scene sources. Movement, expressions, hair motion and timing follow the input video.
         Changes rebuild the visible prompt below.
       </p>
       <div className="output-sourcing-fields">
@@ -29,8 +29,8 @@ export function FinalOutputSourcing({ sources, onChange }: {
               {(["image", "video"] as const).map(source => (
                 <label key={source}>
                   <input type="radio" name={`${id}-${field.id}`} value={source}
-                    checked={isVideoMotionField(field.id) ? source === "video" : sources[field.id] === source}
-                    disabled={isVideoMotionField(field.id)}
+                    checked={(fixedMotionSource(field.id) ?? sources[field.id]) === source}
+                    disabled={fixedMotionSource(field.id) !== undefined}
                     onChange={() => onChange(field.id, source)} />
                   {source === "image" ? "Input image" : "Input video"}
                 </label>

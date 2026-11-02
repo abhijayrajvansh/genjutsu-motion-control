@@ -370,9 +370,9 @@ function MotionCard({
         </p>
       )}
       <div className="job-actions">
-        {job.state === "success" && (
+        {(job.state === "success" || pending.includes(job.state)) && (
           <>
-            <Button disabled={busy} onClick={download}>
+            <Button disabled={busy || job.state !== "success"} onClick={download}>
               {busy ? "Downloading…" : "Download video"}
             </Button>
           </>

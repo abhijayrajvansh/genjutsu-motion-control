@@ -448,6 +448,12 @@ em {
   gap: 6px;
   min-width: 0;
 }
+.generation-title > strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .resolution-choices small {
   font-size: 11px;
   color: var(--muted-foreground);
@@ -545,11 +551,8 @@ em {
     left: auto;
     width: 100%;
     height: auto;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 9 / 16;
     margin-top: 16px;
-  }
-  .history-list .job-card > .real-result {
-    aspect-ratio: auto 9 / 16;
   }
 }
 .favorite-button {
@@ -2118,8 +2121,9 @@ body {
   margin-bottom: 20px;
 }
 .real-result {
+  display: block;
   width: 100%;
-  aspect-ratio: auto 9 / 16;
+  aspect-ratio: 9 / 16;
   height: auto;
   max-height: none;
   object-fit: contain;
@@ -2131,7 +2135,7 @@ body {
   position: relative;
   isolation: isolate;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 9 / 16;
   overflow: hidden;
   border-radius: 8px;
   margin-top: 16px;

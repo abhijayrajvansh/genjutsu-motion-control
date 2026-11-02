@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.mjs",
+    "test:layout": "node tests/motion-card-layout.browser.mjs",
     "reels": "node scripts/download-reels.mjs"
   },
   "dependencies": {
