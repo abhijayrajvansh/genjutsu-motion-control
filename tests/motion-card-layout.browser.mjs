@@ -5,7 +5,13 @@ import { chromium } from 'playwright';
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 try {
   const page = await browser.newPage();
+  await page.addInitScript(() => {
+    localStorage.setItem('clone.motion.output-sourcing.v1', JSON.stringify({ sources: {
+      identity: 'video', clothing: 'video', openingFrame: 'video', background: 'image',
+    } }));
+  });
   let finished = false;
+  let submittedPrompt;
   const created = Date.now() - 10000;
   const fixture = {
     id: '11111111-1111-4111-8111-111111111111', taskId: 'task_layout_rendering',
@@ -26,7 +32,20 @@ try {
       return route.fulfill({ json: request.method() === 'GET'
         ? { configured: true, mediaReady: true } : { connected: true, credits: 10000 } });
     }
-    if (url.pathname === '/api/kie/pricing') return route.fulfill({ status: 503, json: { error: 'No generation pricing required for layout fixtures.' } });
+    if (url.pathname === '/api/kie/pricing') return route.fulfill({ json: { pricing: {
+      model: 'wan', rates: { '480p': 0.1 }, billsReferenceVideo: false,
+      freeImages: 4, extraImageCredits: 0, sourceUrl: 'https://example.com/mock-pricing', checkedAt: new Date().toISOString(),
+    } } });
+    if (url.pathname === '/api/kie/motion' && request.method() === 'POST') {
+      const form = await new Response(request.postDataBuffer(), {
+        headers: { 'content-type': request.headers()['content-type'] },
+      }).formData();
+      submittedPrompt = form.get('prompt');
+      assert.ok(form.get('images') instanceof File);
+      assert.ok(form.get('video') instanceof File);
+      assert.equal(form.has('sources'), false);
+      return route.fulfill({ status: 201, json: { job: jobs()[0] } });
+    }
     assert.equal(request.method(), 'GET', 'Layout checks must never submit a generation');
     if (url.pathname === '/api/kie/motion') return route.fulfill({ json: { jobs: jobs() } });
     if (url.pathname.startsWith('/api/kie/motion/')) return route.fulfill({ json: { job: jobs()[0] } });
@@ -35,23 +54,33 @@ try {
   await page.goto(process.env.GENJUTSU_BASE_URL ?? 'http://127.0.0.1:3107/generations', { waitUntil: 'domcontentloaded' });
   const cards = page.locator('.motion-history .job-card');
   await cards.nth(1).waitFor();
-  const identity = page.getByRole('group', { name: 'Identity and face', exact: true });
-  assert.ok(await identity.getByRole('radio', { name: 'Input image', exact: true }).isChecked());
-  assert.ok(await identity.getByRole('radio', { name: 'Input video', exact: true }).isDisabled());
+  assert.equal(await page.getByRole('heading', { name: 'Final Output Sourcing', exact: true }).count(), 0);
+  assert.equal(await page.getByRole('group', { name: 'Identity and face', exact: true }).count(), 0);
   const prompt = page.getByRole('textbox', { name: 'Prompt', exact: true });
-  assert.ok((await prompt.inputValue()).startsWith('Edit Video1 @Video1: replace the person with the character from Image1 @Image1'));
-  assert.ok((await prompt.inputValue()).includes('FACIAL IDENTITY — HIGHEST PRIORITY:'));
-  const clothing = page.getByRole('group', { name: 'Clothing', exact: true });
-  assert.ok((await prompt.inputValue()).includes("Replace the video's entire outfit with Image1 @Image1's clothing and skin coverage"));
-  await clothing.getByRole('radio', { name: 'Input video', exact: true }).check();
-  assert.ok((await prompt.inputValue()).includes('Keep clothing and skin coverage from Video1 @Video1 only'));
-  assert.ok(!(await prompt.inputValue()).includes("Replace the video's entire outfit"));
-  await clothing.getByRole('radio', { name: 'Input image', exact: true }).check();
-  assert.ok((await prompt.inputValue()).includes("Do not retain or blend in Video1 @Video1's garments"));
-  await page.getByRole('group', { name: 'Opening frame source', exact: true })
-    .getByRole('radio', { name: 'Input image', exact: true }).check();
-  assert.ok((await prompt.inputValue()).includes('The first frame exactly matches Image1 @Image1.'));
-  assert.ok((await prompt.inputValue()).length < 1200);
+  const defaultPrompt = await prompt.inputValue();
+  assert.ok(defaultPrompt.startsWith('A photorealistic video of the character from Image1 @Image1.'));
+  assert.ok(defaultPrompt.includes('The first frame exactly matches Image1 @Image1.'));
+  assert.ok(!defaultPrompt.includes('FACIAL IDENTITY — HIGHEST PRIORITY:'));
+  const customPrompt = 'Use Image1 @Image1 for the character. Follow Video1 @Video1 for movement. Complete manual prompt; do not add source instructions.';
+  await prompt.fill(customPrompt);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(expected => document.querySelector('.motion-live-prompt textarea')?.value === expected, customPrompt);
+  await page.getByRole('button', { name: 'Load 2-second trial', exact: true }).click();
+  await page.getByText('Trial ready:', { exact: false }).waitFor();
+  assert.equal(await prompt.inputValue(), customPrompt, 'Changing input assets must preserve the complete prompt');
+  await Promise.all([
+    page.waitForResponse(response => response.url().endsWith('/api/kie/motion') && response.request().method() === 'POST'),
+    page.getByRole('button', { name: /^Generate 2s video/ }).click(),
+  ]);
+  assert.equal(submittedPrompt, customPrompt, 'The submitted prompt must exactly match the visible complete prompt');
+  await page.getByRole('button', { name: 'Use default', exact: true }).click();
+  assert.equal(await prompt.inputValue(), defaultPrompt);
+  await prompt.fill('');
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.querySelector('.motion-live-prompt textarea')?.value === '');
+  await page.getByRole('button', { name: 'Use default', exact: true }).click();
+  assert.equal(await prompt.inputValue(), defaultPrompt);
+  await cards.nth(1).waitFor();
   await page.waitForFunction(() => [...document.querySelectorAll('.real-result')].every(video => video.readyState >= 1));
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -87,7 +116,7 @@ try {
   await page.waitForFunction(() => [...document.querySelectorAll('.real-result')].every(video => video.readyState >= 1));
   const after = await cards.first().boundingBox();
   assert.ok(Math.abs(before.height - after.height) <= 1, `Card resized on completion: ${before.height}px → ${after.height}px`);
-  console.log('Card and preview heights match in desktop/mobile Grid and List views; completion causes no height jump. No provider requests were sent.');
+  console.log('Direct prompt persists across reloads and input changes, submits unchanged, and resets correctly. Source controls are disconnected. Card heights match in desktop/mobile Grid and List views. No provider requests were sent.');
 } finally {
   await browser.close();
 }

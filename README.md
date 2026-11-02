@@ -58,16 +58,13 @@ Rendering and ready cards share the same preview dimensions (9:16 in Grid and mo
 
 See [reconstruction notes](docs/RECONSTRUCTION.md) for evidence and the scope of verification.
 
-## Final Output Sourcing
+## Direct motion prompt
 
-For Wan 3 motion control, **Final Output Sourcing** separates appearance and scene choices from the driving performance. Face identity is fixed to **Input image**, including for old settings that selected video identity. Choose **Input image** or **Input video** for body appearance, clothing, accessories, hair appearance, background, camera, and lighting. Body/head movement, expressions, hair motion, and timing are fixed to **Input video**. Source choices persist in this browser. Saved clip-specific action descriptions are ignored.
+Motion Control uses one fully editable **Prompt** directly. **Final Output Sourcing** is disconnected and hidden; its saved radio choices no longer build, append to, or rewrite the prompt. Changing input files leaves your text intact.
 
-The live **Prompt** is always visible immediately beneath the source controls. Changing a source rebuilds it and replaces manual edits; **Use default** restores it from the current choices. The short default explicitly requests **editing Video1 and replacing its person with the Image1 character**, following [Wan's documented editing intent and character-replacement examples](https://www.alibabacloud.com/help/en/model-studio/wan3-video-generation-prompt-guide). **FACIAL IDENTITY — HIGHEST PRIORITY** requests Image1's facial features in every frame and angle. With image clothing selected, it explicitly replaces the video's entire outfit and excludes its garments, colors and layers; selecting video clothing keeps that outfit while replacing the face. Video expressions supply facial motion only. Other appearance and scene selections, motion, timing and opening-frame guidance still apply. These are prompt instructions, not an enforced face or clothing lock. It does not invent attire descriptions or apply nudity/body/hair details to unrelated images. There is no separate action-description field.
+The standalone Wan default requests the character, face, body, clothing and skin coverage from **Image1 @Image1**, movements and scene from **Video1 @Video1**, and an opening frame matching Image1. Edit the entire prompt to describe the output you want. **Use default** restores this standalone text. Manual prompts persist in browser storage per model and mode, including across reloads and video changes.
 
-**Opening frame source** adds a brief first-frame instruction to this prompt. **Input image** requests a first frame matching Image1; subsequent appearance and scene choices still apply. **Input video**, the default for existing settings, follows the selected video's opening pose and framing with Image1's face. The choice persists across reloads. Both options retain the driving video in reference mode. This is model-dependent prompt guidance, not a strict first-frame lock: APIMart does not permit a strict `first_frame` input together with a reference video.
-
-This follows the appearance-image/motion-video separation documented for [Kling 3.0 Motion Control](https://fal.ai/models/fal-ai/kling-video/v3/pro/motion-control/api), while retaining Wan 3 and its existing provider payloads. It does not add Kling-specific API controls or turn Wan into a dedicated motion-transfer model. Actual fidelity still requires a rendered comparison; prompts cannot guarantee exact correspondence. Kie Replace retains its existing prompt-free workflow.
-
+The text in the prompt field is submitted without source-generated instructions. APIMart still translates numbered image/video labels to its documented equivalents; Kie Replace still does not send prompts. Both providers keep their existing media payloads. Face fidelity, clothing and opening-frame matching remain model-dependent; disconnecting the source controls does not create a strict identity or first-frame lock.
 ## Download Instagram reels
 
 With Google Chrome installed, use Fastvideosave's available download servers:

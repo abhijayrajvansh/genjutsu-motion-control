@@ -22,8 +22,7 @@ import { useMotionPricing, useVideoLength } from "./motion-cost";
 import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
-import { FinalOutputSourcing } from "./final-output-sourcing";
-import { buildMotionSourcePrompt, fixedMotionSource, MOTION_PROMPT_LIMIT, MotionSource, MotionSourcingField, readMotionSourcing } from "@/lib/motion-sourcing";
+import { MOTION_PROMPT_LIMIT } from "@/lib/motion-sourcing";
 function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
@@ -94,31 +93,23 @@ export function MotionWorkflow({
     [stage, setStage] = useState(""),
     [reloadNeeded, setReloadNeeded] = useState(false);
   const submitting = useRef(false);
-  const [savedSourcing, setSavedSourcing] = useSaved("clone.motion.output-sourcing.v1", "{}");
-  const sourcing = readMotionSourcing(savedSourcing);
-  const supportsSourcing = model.id === "wan" && mode === "reference";
-  const generatedPrompt = supportsSourcing
-    ? buildMotionSourcePrompt(sourcing.sources)
-    : defaultMotionPrompt(model.id, mode);
-  const [promptDrafts, setPromptDrafts] = useState<Record<string, string>>({});
-  const promptKey = `${model.id}:${mode}:${video?.id ?? "pending"}:${supportsSourcing ? "character-replacement-v6" : "default"}`;
-  const prompt = promptDrafts[promptKey] ?? generatedPrompt;
+  const [savedPrompts, setSavedPrompts] = useSaved("clone.motion.direct-prompts.v1", "{}");
+  let promptDrafts: Record<string, unknown> = {};
+  try {
+    const parsed: unknown = JSON.parse(savedPrompts);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) promptDrafts = parsed as Record<string, unknown>;
+  } catch { /* Use the standalone default for malformed saved prompts. */ }
+  const promptKey = `${model.id}:${mode}`;
+  const draft = promptDrafts[promptKey];
+  const prompt = typeof draft === "string" ? draft : defaultMotionPrompt(model.id, mode);
   const promptLimit = apimartOnly(model.id) ? 5000 : MOTION_PROMPT_LIMIT;
   function setPrompt(value: string) {
-    setPromptDrafts(drafts => ({ ...drafts, [promptKey]: value }));
+    setSavedPrompts(JSON.stringify({ ...promptDrafts, [promptKey]: value }));
   }
   function resetPrompt() {
-    setPromptDrafts(drafts => {
-      const next = { ...drafts };
-      delete next[promptKey];
-      return next;
-    });
-  }
-  function changeSource(field: MotionSourcingField, source: MotionSource) {
-    if (fixedMotionSource(field) !== undefined) return;
-    setSavedSourcing(JSON.stringify({ ...sourcing, sources: { ...sourcing.sources, [field]: source } }));
-    // Rebuild every cached draft so switching videos cannot restore stale assignments.
-    setPromptDrafts({});
+    const next = { ...promptDrafts };
+    delete next[promptKey];
+    setSavedPrompts(JSON.stringify(next));
   }
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -361,13 +352,11 @@ export function MotionWorkflow({
       onUseDefault={resetPrompt}
       maxLength={promptLimit}
       hintClassName="motion-prompt-note"
-      hint={supportsSourcing
-        ? `Updates from the source choices above. Video1 @Video1 supplies every action and its timing. Use default restores the generated prompt after manual edits. ${prompt.length}/${promptLimit} characters.`
-        : mode === "first-frame"
+      hint={mode === "first-frame"
           ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
           : model.id === "wan22replace"
             ? "Kie Replace uses the reference image and the driving video only. This prompt is saved on the job and is not sent."
-            : "Use the prompt to describe identity, motion, clothing and scene. Motion reproduction depends on the model and your inputs."}
+            : `Write the complete prompt here. Image1 @Image1 = reference image; Video1 @Video1 = driving video. Saved in this browser; input changes do not rewrite it. Use default restores the standalone prompt. ${prompt.length}/${promptLimit} characters.`}
     />
   );
   return (
@@ -540,17 +529,7 @@ export function MotionWorkflow({
         value={selectedResolution}
         onChange={setResolution}
       />
-      {supportsSourcing && (
-        <FinalOutputSourcing sources={sourcing.sources} onChange={changeSource} />
-      )}
-      {supportsSourcing ? (
-        <section className="motion-live-prompt" aria-label="Output prompt">{promptControl}</section>
-      ) : (
-        <details className="prompt-override">
-          <summary>Override prompt</summary>
-          {promptControl}
-        </details>
-      )}
+      <section className="motion-live-prompt" aria-label="Output prompt">{promptControl}</section>
       {(model.id === "wan" || apimartOnly(model.id)) && (
         <label className="field">
           <span className="seed-row">

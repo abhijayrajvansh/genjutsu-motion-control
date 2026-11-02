@@ -6,7 +6,7 @@ import {
   MOTION_SOURCING_FIELDS,
   readMotionSourcing,
 } from '../lib/motion-sourcing.ts';
-import { apimartMotionPayload, motionPayload } from '../lib/motion-models.ts';
+import { apimartMotionPayload, defaultMotionPrompt, motionPayload } from '../lib/motion-models.ts';
 
 test('old and malformed saved settings default the opening source to video', () => {
   for (const stored of ['{}', 'null', 'bad json', '{"sources":{"openingFrame":"invalid"}}']) {
@@ -38,10 +38,12 @@ test('every source combination fits the provider prompt budget', () => {
   }
 });
 
-test('image opening guidance retains reference mode and driving video in both provider requests', () => {
-  const sources = { ...readMotionSourcing('{}').sources, openingFrame: 'image' };
+test('standalone complete prompt reaches both providers without source-generated additions', () => {
+  const prompt = defaultMotionPrompt('wan');
+  assert.ok(prompt.startsWith('A photorealistic video of the character from Image1 @Image1.'));
+  assert.ok(prompt.includes('The first frame exactly matches Image1 @Image1.'));
   const input = {
-    model: 'wan', mode: 'reference', prompt: buildMotionSourcePrompt(sources),
+    model: 'wan', mode: 'reference', prompt,
     seconds: 2, resolution: '480p', orientation: 'video', audio: false,
     imageUrls: ['https://example.com/appearance.png'], videoUrl: 'https://example.com/motion.mp4',
   };
@@ -55,8 +57,5 @@ test('image opening guidance retains reference mode and driving video in both pr
   assert.deepEqual(apimart.image_urls, ['https://example.com/appearance.png']);
   assert.equal(apimart.image_with_roles, undefined);
   assert.ok(apimart.prompt.includes('The first frame exactly matches 图1 @图1'));
-  assert.ok(apimart.prompt.startsWith('Edit 视频1 @视频1: replace the person with the character from 图1 @图1'));
-  assert.ok(apimart.prompt.includes("FACIAL IDENTITY — HIGHEST PRIORITY: Replace the original face with 图1 @图1's face in every frame, including the first."));
-  assert.ok(apimart.prompt.includes('Transfer facial motion only from 视频1 @视频1, without its identity or face blending.'));
-  assert.ok(apimart.prompt.includes("Replace the video's entire outfit with 图1 @图1's clothing and skin coverage"));
+  assert.equal(apimart.prompt, prompt.replaceAll('Image1', '图1').replaceAll('Video1', '视频1'));
 });
