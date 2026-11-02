@@ -65,6 +65,7 @@ Motion Control uses one fully editable **Prompt** directly. **Final Output Sourc
 The standalone Wan default requests the character, face, body, clothing and skin coverage from **Image1 @Image1**, movements and scene from **Video1 @Video1**, and an opening frame matching Image1. Edit the entire prompt to describe the output you want. **Use default** restores this standalone text. Manual prompts persist in browser storage per model and mode, including across reloads and video changes.
 
 The text in the prompt field is submitted without source-generated instructions. APIMart still translates numbered image/video labels to its documented equivalents; Kie Replace still does not send prompts. Both providers keep their existing media payloads. Face fidelity, clothing and opening-frame matching remain model-dependent; disconnecting the source controls does not create a strict identity or first-frame lock.
+
 ## Download Instagram reels
 
 With Google Chrome installed, use Fastvideosave's available download servers:
