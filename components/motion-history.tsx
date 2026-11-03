@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatCredits, formatMotionCredits } from "@/lib/motion-pricing";
 import { MotionJob } from "@/lib/motion-models";
 import { useKie } from "./kie-connection";
@@ -9,18 +9,24 @@ import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
 import { MotionInputsDialog } from "./motion-inputs-dialog";
 const pending = ["uploading", "submitting", "waiting", "queuing", "generating"];
-export function MotionHistory({ showEmpty = true, favorites, archived, view, onToggleFavorite, onArchive }: {
+export function MotionHistory({ showEmpty = true, favorites, archived, view, onToggleFavorite, onArchive, onJobFinished }: {
   showEmpty?: boolean;
   favorites: string[];
   archived: string[];
   view: "all" | "favorites" | "archives";
   onToggleFavorite: (id: string) => void;
   onArchive: (id: string) => void;
+  onJobFinished?: (job: MotionJob) => void;
 }) {
   const { connected, request, revision, provider } = useKie(),
     [snapshot, setSnapshot] = useState<{ request: typeof request; jobs: MotionJob[] } | null>(null),
     [error, setError] = useState(""),
-    [refresh, setRefresh] = useState(0);
+    [refresh, setRefresh] = useState(0),
+    seenStates = useRef(new Map<string, MotionJob["state"]>()),
+    finished = useRef(onJobFinished);
+  useEffect(() => {
+    finished.current = onJobFinished;
+  }, [onJobFinished]);
   useEffect(() => {
     if (!connected) return;
     let active = true,
@@ -49,6 +55,14 @@ export function MotionHistory({ showEmpty = true, favorites, archived, view, onT
         }
         if (active) {
           setSnapshot({ request, jobs: updated });
+          // Notify only for jobs seen unfinished earlier in this page session.
+          for (const job of updated) {
+            const before = seenStates.current.get(job.id);
+            const done = job.state === "success" || job.state === "fail";
+            if (done && before && before !== "success" && before !== "fail")
+              finished.current?.(job);
+            seenStates.current.set(job.id, job.state);
+          }
         }
       } catch (e) {
         if (active)

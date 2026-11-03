@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
 import { KieConnection, KieProvider, useKie } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
+import { playCompletionSound } from "@/lib/completion-sound";
 import { GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { ThemeToggle } from "./theme-toggle";
@@ -348,7 +349,11 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                   ))}
                 </div>
                 <div id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${activeView}`}>
-                <MotionHistory showEmpty={visibleJobs.length === 0} favorites={favoriteIds} archived={archiveIds} view={activeView} onToggleFavorite={toggleFavorite} onArchive={archiveGeneration} />
+                <MotionHistory showEmpty={visibleJobs.length === 0} favorites={favoriteIds} archived={archiveIds} view={activeView} onToggleFavorite={toggleFavorite} onArchive={archiveGeneration} onJobFinished={(job) => {
+                  playCompletionSound(job.state === "success");
+                  const name = (job.taskId || job.id).slice(0, 10);
+                  setNotice(job.state === "success" ? `Video ready: ${name} · ${job.label}` : `Generation failed: ${name} · ${job.label}${job.error ? ` — ${job.error}` : ""}`);
+                }} />
                 {visibleJobs.length > 0 && (
                   <div className="job-list">
                     {visibleJobs.map((j) => {
