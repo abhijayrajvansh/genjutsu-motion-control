@@ -59,7 +59,7 @@ On your computer, use the host and SSH port shown by Vast.ai's Connect button:
 Load h3-5090-0.5mp.workflow.json from ComfyUI's Workflows sidebar. Upload/select
 your character photo and driving video, edit the prompt and inspect the SAM3
 mask. Initial preset: 0.5MP, 124 frames, 24fps, Normal, 20 steps, audio off.
-Outputs: ROOT/ComfyUI/output. No Kie/APIMart/Cloudinary key is needed.
+Outputs: ROOT/ComfyUI/output. No Kie/APIMart key is needed.
 Keep your data backed up before destroying the rental; GPU rent continues
 until you stop/destroy it in Vast.ai. This script does not manage billing.
 H3 commercial-use terms: https://docs.comfy.org/tutorials/video/minimax/minimax-h3

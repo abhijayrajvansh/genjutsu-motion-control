@@ -33,7 +33,7 @@ History shows a live seconds counter beside each cost, measured from when the su
 
 ## Verification
 
-The trial was checked in the browser for provider switching, APIMart labels, loaded media/clip timing, and its converted USD estimate. An inline verification exercised the actual route handlers, real trial-file inspection and FFmpeg trimming, live published price parsing, Cloudinary signature generation, provider-specific submission/polling, ownership isolation, download bytes, duplicate submission prevention, underquoted estimates, unsupported models, and failed uploads. External upload and paid generation responses were simulated. Live R2 uploads and paid APIMart output have not been verified without credentials.
+The trial was checked in the browser for provider switching, APIMart labels, loaded media/clip timing, and its converted USD estimate. An inline verification exercised the actual route handlers, real trial-file inspection and FFmpeg trimming, live published price parsing, provider-specific submission/polling, ownership isolation, download bytes, duplicate submission prevention, underquoted estimates, unsupported models, and failed uploads. External upload and paid generation responses were simulated. Live R2 uploads and paid APIMart output have not been verified without credentials.
 
 ## References
 
