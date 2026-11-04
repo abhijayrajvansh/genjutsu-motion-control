@@ -161,8 +161,9 @@ export function MotionWorkflow({
     writeMotionInputs({ firstFrameId: asset?.id ?? null });
   }
   const has480p = (model.resolutions as readonly string[]).includes("480p");
-  const isResolutionLocked = (value: string) => has480p && value === "1080p";
-  const selectedResolution = (model.resolutions as readonly string[]).includes(resolution) && !isResolutionLocked(resolution)
+  const selectedResolution = has480p ? "480p" : (model.resolutions as readonly string[]).includes(
+    resolution,
+  )
     ? resolution
     : model.resolutions[0];
   const pricing = useMotionPricing(model.id, kie.provider);
@@ -519,7 +520,7 @@ export function MotionWorkflow({
       <Select
         label="Resolution"
         options={model.resolutions.map((value) => {
-          const locked = isResolutionLocked(value);
+          const locked = has480p && value !== "480p";
           const price = pricing.card?.rates[value] !== undefined
             ? `${formatMotionCredits(pricing.card.rates[value], pricing.card.currency, 4)}/s`
             : pricing.card || pricing.error ? "Price unavailable" : "Loading price…";
