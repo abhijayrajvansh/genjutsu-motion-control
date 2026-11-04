@@ -102,6 +102,11 @@ export async function POST(req: Request) {
       throw new ApiError("Choose a supported motion mode.");
     if (provider === "apimart" && mode !== "reference") throw new ApiError("APIMart motion control supports reference image + video only.");
     const firstFrame = form.get("firstFrame");
+    const faceImage = form.get("faceImage");
+    if (faceImage !== null && !(faceImage instanceof File))
+      throw new ApiError("Invalid face reference.");
+    if (faceImage && (model.id !== "wan" || mode !== "reference"))
+      throw new ApiError("A face reference is supported by Wan 3 in Reference image + video mode.");
     if (mode === "first-frame" && model.maxImages < 2)
       throw new ApiError(
         `${model.label} supports one image. Choose Wan, Official H3 or Seedance for First frame + reference.`,
@@ -127,11 +132,11 @@ export async function POST(req: Request) {
       video = form.get("video");
     if (
       !images.length ||
-      images.length > model.maxImages ||
+      images.length + Number(!!faceImage) > model.maxImages ||
       !(video instanceof File)
     )
       throw new ApiError(
-        `Supply 1–${model.maxImages} reference images and one driving video.`,
+        `Supply 1–${model.maxImages} reference images${faceImage ? " (including the face reference)" : ""} and one driving video.`,
       );
     // Validate parameters before uploads or any billable request.
     const previewPayload: MotionInput = {
@@ -141,6 +146,7 @@ export async function POST(req: Request) {
         mode === "first-frame"
           ? "https://example.com/first-frame.png"
           : undefined,
+      faceImageUrl: faceImage ? "https://example.com/face.png" : undefined,
       prompt,
       seconds,
       resolution,
@@ -173,6 +179,7 @@ export async function POST(req: Request) {
     if (hasSelection && seconds !== Math.round(prepared.selection!.end - prepared.selection!.start))
       throw new ApiError("Output duration must match the selected input segment.");
     for (const image of images) await inspectFile(image, model.id, false);
+    if (faceImage) await inspectFile(faceImage, model.id, false);
     if (model.id === "wan" && media.duration + seconds > 30.04)
       throw new ApiError(
         "Wan input duration plus output duration must not exceed 30 seconds.",
@@ -191,7 +198,7 @@ export async function POST(req: Request) {
       resolution,
       seconds,
       media.duration,
-      images.length + Number(mode === "first-frame"),
+      images.length + Number(mode === "first-frame") + Number(!!faceImage),
     );
     const quoted = Number(form.get("maxEstimatedCredits"));
     if (!Number.isFinite(quoted) || quoted <= 0)
@@ -219,6 +226,7 @@ export async function POST(req: Request) {
       estimatedCurrency: pricing.currency,
       model: model.id,
       mode,
+      ...(faceImage ? { faceReference: true } : {}),
       label: model.label,
       selection: prepared.selection,
       // First frame of the selected driving-video segment; fall back to the reference image.
@@ -236,7 +244,7 @@ export async function POST(req: Request) {
     };
     if (!(await createJob(stored)))
       return json({ job: publicJob(await readJob(id, owner)), reused: true });
-    await saveMotionInputs(id, images, prepared.file, mode === "first-frame" && firstFrame instanceof File ? firstFrame : undefined, video.name);
+    await saveMotionInputs(id, images, prepared.file, mode === "first-frame" && firstFrame instanceof File ? firstFrame : undefined, video.name, faceImage ?? undefined);
     if (preserveInputAudio) {
       stored = { ...stored, inputHasAudio: await saveInputAudio(id, prepared.file) };
       await updateJob(stored);
@@ -268,13 +276,14 @@ export async function POST(req: Request) {
       mode === "first-frame" && firstFrame instanceof File
         ? await upload(firstFrame)
         : undefined;
+    const faceImageUrl = faceImage ? await upload(faceImage) : undefined;
     const videoUrl = await upload(prepared.file);
     stored = { ...stored, state: "submitting", updated: Date.now() };
     await updateJob(stored);
     let task: { taskId: string };
     if (provider === "apimart") {
       const apimartPayload = apimartMotionPayload({
-        model: model.id, mode, prompt, seconds, resolution, orientation, audio, imageUrls, videoUrl, seed, nsfwChecker,
+        model: model.id, mode, faceImageUrl, prompt, seconds, resolution, orientation, audio, imageUrls, videoUrl, seed, nsfwChecker,
         videoWidth: media.width, videoHeight: media.height,
       });
       stored = {
@@ -293,6 +302,7 @@ export async function POST(req: Request) {
       model: model.id as MotionModelId,
       mode,
       firstFrameUrl,
+      faceImageUrl,
       prompt,
       seconds,
       resolution,

@@ -8,7 +8,7 @@ import { StoredMotionJob, validId } from "./motion-store";
 type StoredInput = MotionInputMedia & { remoteUrl?: string };
 const directory = (id: string) => path.join(process.cwd(), ".data", "motion-inputs", validId(id));
 function inputPath(id: string, file: string) {
-  if (!/^(image-[1-9]|video|first-frame)$/.test(file)) throw new ApiError("Input not found.", 404);
+  if (!/^(image-[1-9]|video|first-frame|face)$/.test(file)) throw new ApiError("Input not found.", 404);
   return path.join(directory(id), file);
 }
 async function writeManifest(id: string, inputs: StoredInput[]) {
@@ -25,11 +25,12 @@ async function manifest(id: string): Promise<StoredInput[] | undefined> {
     throw error;
   }
 }
-export async function saveMotionInputs(id: string, images: File[], video: File, firstFrame?: File, videoName = video.name) {
+export async function saveMotionInputs(id: string, images: File[], video: File, firstFrame?: File, videoName = video.name, face?: File) {
   await mkdir(directory(id), { recursive: true, mode: 0o700 });
   const entries = [
     ...images.map((file, index) => ({ id: `image-${index + 1}`, kind: "image" as const, file })),
     ...(firstFrame ? [{ id: "first-frame", kind: "first-frame" as const, file: firstFrame }] : []),
+    ...(face ? [{ id: "face", kind: "face" as const, file: face }] : []),
     { id: "video", kind: "video" as const, file: video },
   ];
   const inputs: StoredInput[] = [];
@@ -72,8 +73,9 @@ export async function loadMotionInputs(job: StoredMotionJob, key: string): Promi
         const extension = path.extname(url.pathname).toLowerCase();
         const type = isVideo ? "video/mp4" : extension === ".png" ? "image/png" : extension === ".webp" ? "image/webp" : "image/jpeg";
         const isFrame = job.mode === "first-frame" && index === 1 && !isVideo;
-        inputs.push({ id: isVideo ? "video" : isFrame ? "first-frame" : `image-${index + 1}`,
-          kind: isVideo ? "video" : isFrame ? "first-frame" : "image", type,
+        const isFace = job.faceReference === true && index === 1 && !isVideo;
+        inputs.push({ id: isVideo ? "video" : isFrame ? "first-frame" : isFace ? "face" : `image-${index + 1}`,
+          kind: isVideo ? "video" : isFrame ? "first-frame" : isFace ? "face" : "image", type,
           name: isVideo ? "Recovered driving clip.mp4" : `Recovered reference ${index + 1}${extension || ".jpg"}`, remoteUrl: url.href });
       } catch { /* Do not follow links outside the provider's upload hosts. */ }
     }

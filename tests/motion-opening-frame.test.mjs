@@ -59,3 +59,29 @@ test('standalone complete prompt reaches both providers without source-generated
   assert.ok(apimart.prompt.includes('The first frame exactly matches 图1 @图1'));
   assert.equal(apimart.prompt, prompt.replaceAll('Image1', '图1').replaceAll('Video1', '视频1'));
 });
+
+test('Wan face reference is sent as Image2 with a face-lock directive on both providers', () => {
+  const input = {
+    model: 'wan', mode: 'reference', prompt: 'Replace the woman in @video1 with the woman from @image1.',
+    seconds: 2, resolution: '480p', orientation: 'video', audio: false,
+    imageUrls: ['https://example.com/body.png', 'https://example.com/extra.png'],
+    faceImageUrl: 'https://example.com/face.png', videoUrl: 'https://example.com/motion.mp4',
+  };
+  const kie = motionPayload(input);
+  assert.deepEqual(kie.input.reference_image_urls, ['https://example.com/body.png', 'https://example.com/face.png', 'https://example.com/extra.png']);
+  assert.ok(kie.input.prompt.startsWith('Replace the woman in Video1 with the woman from Image1.'));
+  assert.ok(kie.input.prompt.includes('Image2 is a close-up of the face'));
+  assert.ok(kie.input.prompt.includes('Do not keep, copy or blend the face of the person in Video1.'));
+  const apimart = apimartMotionPayload(input);
+  assert.deepEqual(apimart.image_urls, kie.input.reference_image_urls);
+  assert.ok(apimart.prompt.includes('图2 is a close-up'));
+  assert.throws(() => motionPayload({ ...input, mode: 'first-frame', firstFrameUrl: 'https://example.com/open.png' }), /face reference/);
+  assert.throws(() => motionPayload({ ...input, imageUrls: ['a', 'b', 'c', 'd'].map((x) => `https://example.com/${x}.png`) }), /4 total images/);
+});
+
+test('Wan prompts map @image/@video mentions to documented labels without touching Image1 @Image1 pairs', () => {
+  const base = { model: 'wan', mode: 'reference', seconds: 2, resolution: '480p', orientation: 'video', audio: false,
+    imageUrls: ['https://example.com/a.png'], videoUrl: 'https://example.com/m.mp4' };
+  assert.equal(motionPayload({ ...base, prompt: 'Face from @image1, moves like @Video1.' }).input.prompt, 'Face from Image1, moves like Video1.');
+  assert.equal(motionPayload({ ...base, prompt: 'Image1 @Image1 dances like Video1 @Video1.' }).input.prompt, 'Image1 @Image1 dances like Video1 @Video1.');
+});

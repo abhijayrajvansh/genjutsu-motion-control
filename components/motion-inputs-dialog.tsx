@@ -43,7 +43,7 @@ export function MotionInputsDialog({ job, onClose }: { job: MotionJob; onClose: 
     return () => { active = false; controller.abort(); urls.forEach(url => URL.revokeObjectURL(url)); };
   }, [job.id, request, key, provider, attempt]);
   const inputs = [...(current?.inputs ?? [])].sort((a, b) => {
-    const rank = (input: Preview) => input.id === "image-1" ? 0 : input.kind === "video" ? 1 : 2;
+    const rank = (input: Preview) => input.id === "image-1" ? 0 : input.kind === "face" ? 1 : input.kind === "video" ? 2 : 3;
     return rank(a) - rank(b);
   });
   return (
@@ -55,7 +55,7 @@ export function MotionInputsDialog({ job, onClose }: { job: MotionJob; onClose: 
         <div className="motion-inputs-grid">
           {inputs.map(input => (
             <figure key={input.id}>
-              <h3>{input.kind === "video" ? "Driving video" : input.kind === "first-frame" ? "Opening frame" : input.id === "image-1" ? "Reference photo" : `Reference image ${input.id.split("-").pop()}`}</h3>
+              <h3>{input.kind === "video" ? "Driving video" : input.kind === "first-frame" ? "Opening frame" : input.kind === "face" ? "Face reference" : input.id === "image-1" ? "Reference photo" : `Reference image ${input.id.split("-").pop()}`}</h3>
               {input.url && (input.kind === "video"
                 ? <video src={input.url} controls playsInline preload="metadata" aria-label="Submitted driving video" />
                 : <img src={input.url} alt={input.name} />)}

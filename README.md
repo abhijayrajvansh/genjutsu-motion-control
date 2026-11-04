@@ -74,7 +74,9 @@ Motion Control uses one fully editable **Prompt** directly. **Final Output Sourc
 
 The standalone Wan default requests the character, face, body, clothing and skin coverage from **Image1 @Image1**, movements and scene from **Video1 @Video1**, and an opening frame matching Image1. Edit the entire prompt to describe the output you want. **Use default** restores this standalone text. Manual prompts persist in browser storage per model and mode, including across reloads and video changes.
 
-The text in the prompt field is submitted without source-generated instructions. APIMart still translates numbered image/video labels to its documented equivalents; Kie Replace still does not send prompts. Both providers keep their existing media payloads. Face fidelity, clothing and opening-frame matching remain model-dependent; disconnecting the source controls does not create a strict identity or first-frame lock.
+The text in the prompt field is submitted without source-generated instructions. Wan prompts written with `@image1`/`@video1` mentions are mapped to the provider's documented `Image1`/`Video1` labels; existing `Image1 @Image1` pairs are left unchanged.
+
+**Face reference (Wan 3, optional):** add a tight close-up of the same person's face under the reference image. It is sent as **Image2** (extra references shift to Image3+), and a face-lock instruction is appended to the prompt: Image2 is the only source of facial identity, Image1 still supplies hair, body and outfit, and Video1 supplies only head pose, expressions and lip movement. Use this when the driving video's face survives the swap. The face image counts toward Wan's four-image limit and is retained with the job's inputs. APIMart still translates numbered image/video labels to its documented equivalents; Kie Replace still does not send prompts. Both providers keep their existing media payloads. Face fidelity, clothing and opening-frame matching remain model-dependent; disconnecting the source controls does not create a strict identity or first-frame lock.
 
 ## Download Instagram reels
 

@@ -160,7 +160,7 @@ export function apimartTaskModel(id: string) {
 }
 export type MotionInputMedia = {
   id: string;
-  kind: "image" | "video" | "first-frame";
+  kind: "image" | "video" | "first-frame" | "face";
   name: string;
   type: string;
 };
@@ -172,6 +172,7 @@ export type MotionJob = {
   previewImage?: string;
   selection?: { start: number; end: number; sourceSeconds: number };
   mode?: MotionMode;
+  faceReference?: boolean;
   needsRecovery?: boolean;
   id: string;
   model: MotionModelId;
@@ -218,6 +219,8 @@ export type MotionInput = {
   model: MotionModelId;
   mode?: MotionMode;
   firstFrameUrl?: string;
+  /** Wan 3 only: a close-up of the identity's face, sent as Image2. */
+  faceImageUrl?: string;
   prompt: string;
   seconds: number;
   resolution: string;
@@ -230,6 +233,16 @@ export type MotionInput = {
   videoWidth?: number;
   videoHeight?: number;
 };
+// Kie and APIMart document only "Image1"/"Video1" labels. Map stray "@image1"-style
+// mentions onto them, leaving the default "Image1 @Image1" pairs untouched.
+export function normalizeWanPrompt(prompt: string) {
+  return prompt.replace(
+    /(?<!\b(?:Image|Video)\d+\s)@(image|video)(\d+)\b/gi,
+    (_, kind: string, n: string) => `${kind[0].toUpperCase()}${kind.slice(1).toLowerCase()}${n}`,
+  );
+}
+export const WAN_FACE_DIRECTIVE =
+  "FACE REFERENCE: Image2 is a close-up of the face of the same person shown in Image1. Use Image2 as the only source of facial identity in every frame: face shape, eyes, eyebrows, nose, lips, teeth, jawline, skin tone and makeup. Image1 still supplies the hair, body and outfit. Video1 supplies only head pose, facial expressions, lip movement and timing. Do not keep, copy or blend the face of the person in Video1.";
 export function motionPayload(o: MotionInput) {
   const m = motionModel(o.model);
   if (
@@ -258,20 +271,29 @@ export function motionPayload(o: MotionInput) {
     throw new Error("Add the corrected first frame for this mode.");
   if (mode === "reference" && o.firstFrameUrl)
     throw new Error("A first frame belongs to First frame + reference mode.");
+  if (o.faceImageUrl && (o.model !== "wan" || mode !== "reference"))
+    throw new Error("A face reference is supported by Wan 3 in Reference image + video mode.");
   const imageUrls =
     mode === "first-frame"
       ? [o.imageUrls[0], o.firstFrameUrl!, ...o.imageUrls.slice(1)]
-      : o.imageUrls;
+      : o.faceImageUrl
+        ? [o.imageUrls[0], o.faceImageUrl, ...o.imageUrls.slice(1)]
+        : o.imageUrls;
   if (imageUrls.length > m.maxImages)
     throw new Error(
-      `This mode accepts ${m.maxImages} total images, including the first frame.`,
+      `This mode accepts ${m.maxImages} total images, including the ${o.faceImageUrl ? "face reference" : "first frame"}.`,
     );
   const directive =
     o.model === "wan"
       ? "Image1 supplies the character identity. Image2 is the already-corrected opening frame. Begin the shot matching Image2's composition, pose, clothing and background, then continue using the motion and timing from Video1. Keep the identity from Image1 consistent."
       : "Reference image 1 supplies the character identity. Reference image 2 is the already-corrected opening frame. Begin the shot matching reference image 2's composition, pose, clothing and background, then continue using the motion and timing from the reference video. Keep the identity from reference image 1 consistent.";
+  const userPrompt = o.model === "wan" ? normalizeWanPrompt(o.prompt) : o.prompt;
   const prompt =
-    mode === "first-frame" ? `${directive}\n\n${o.prompt}` : o.prompt;
+    mode === "first-frame"
+      ? `${directive}\n\n${userPrompt}`
+      : o.faceImageUrl
+        ? `${userPrompt}\n\n${WAN_FACE_DIRECTIVE}`
+        : userPrompt;
   const refs = {
     reference_image_urls: imageUrls,
     reference_video_urls: [o.videoUrl],
@@ -360,7 +382,7 @@ export function apimartMotionPayload(o: MotionInput) {
       model: "wan3.0-video",
       prompt: String(input.prompt).replace(/Image(\d+)/g, "图$1").replace(/Video(\d+)/g, "视频$1"),
       generation_type: "reference",
-      image_urls: o.imageUrls,
+      image_urls: input.reference_image_urls as string[],
       video_urls: [o.videoUrl],
       resolution: o.resolution.toUpperCase(),
       duration: o.seconds,
@@ -370,6 +392,7 @@ export function apimartMotionPayload(o: MotionInput) {
       nsfw_check: o.nsfwChecker === true,
     };
   }
+  if (o.faceImageUrl) throw new Error("A face reference is supported by Wan 3 only.");
   const { input } = motionPayload({ ...o, model: o.model });
   if (o.imageUrls.length + 1 > 5)
     throw new Error("Wan 2.7 accepts at most 4 reference images with one driving video.");

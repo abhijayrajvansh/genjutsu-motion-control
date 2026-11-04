@@ -33,6 +33,7 @@ type SavedMotionInputs = {
   imageId?: string | null;
   videoId?: string | null;
   firstFrameId?: string | null;
+  faceId?: string | null;
   extraIds?: (string | null)[];
   clip?: { assetId: string; selection: VideoSelection; mode?: "full" | "trim" } | null;
 };
@@ -86,6 +87,7 @@ export function MotionWorkflow({
     [nsfwChecker, setNsfwChecker] = useState(false),
     [preserveInputAudio, setPreserveInputAudio] = useState(true),
     [image, setImage] = useState<Asset | null>(null),
+    [face, setFace] = useState<Asset | null>(null),
     [video, setVideo] = useState<Asset | null>(initialVideo ?? null),
     [extras, setExtras] = useState<(Asset | null)[]>([]),
     [error, setError] = useState(""),
@@ -140,6 +142,7 @@ export function MotionWorkflow({
         if (!initialVideo) setVideo(videoAsset);
         if (!hasSaved) writeMotionInputs({ imageId: imageAsset?.id ?? null, videoId: videoAsset?.id ?? null });
         setFirstFrame(saved.firstFrameId ? byId.get(saved.firstFrameId) ?? null : null);
+        setFace(saved.faceId ? byId.get(saved.faceId) ?? null : null);
         setExtras((saved.extraIds ?? []).map((id) => (id ? byId.get(id) ?? null : null)));
         if (saved.clip) setClipDraft(saved.clip);
       })
@@ -156,10 +159,16 @@ export function MotionWorkflow({
     setVideo(asset);
     writeMotionInputs({ videoId: asset?.id ?? null, ...(asset ? {} : { clip: null }) });
   }
+  function chooseFace(asset: Asset | null) {
+    setFace(asset);
+    writeMotionInputs({ faceId: asset?.id ?? null });
+  }
   function chooseFirstFrame(asset: Asset | null) {
     setFirstFrame(asset);
     writeMotionInputs({ firstFrameId: asset?.id ?? null });
   }
+  const faceSupported = model.id === "wan" && mode === "reference";
+  const activeFace = faceSupported ? face : null;
   const has480p = (model.resolutions as readonly string[]).includes("480p");
   const selectedResolution = has480p ? "480p" : (model.resolutions as readonly string[]).includes(
     resolution,
@@ -183,6 +192,7 @@ export function MotionWorkflow({
   const imageCount =
     Number(!!image) +
     extras.filter(Boolean).length +
+    Number(!!activeFace) +
     Number(mode === "first-frame" && !!firstFrame);
   const videoLimit =
     model.id === "kling" && orientation === "image" ? 10 : model.maxReference;
@@ -282,6 +292,10 @@ export function MotionWorkflow({
       setError("Fill or remove every extra reference image.");
       return;
     }
+    if (imageCount > model.maxImages) {
+      setError(`${model.label} accepts ${model.maxImages} images in total, including the face reference. Remove an extra reference image.`);
+      return;
+    }
     if (!clip || !cost) {
       setError("Wait for the total-credit estimate before generating.");
       return;
@@ -316,6 +330,7 @@ export function MotionWorkflow({
     body.set("maxEstimatedCredits", String(cost.total));
     for (const a of [image, ...extras])
       if (a) body.append("images", a.blob, a.name);
+    if (activeFace) body.set("faceImage", activeFace.blob, activeFace.name);
     body.set("video", video.blob, video.name);
     try {
       await kie.request("/api/kie/motion", {
@@ -356,7 +371,7 @@ export function MotionWorkflow({
           ? "Image 1 = identity; image 2 = corrected opening; video = movement. Opening-frame instructions are added automatically."
           : model.id === "wan22replace"
             ? "Kie Replace uses the reference image and the driving video only. This prompt is saved on the job and is not sent."
-            : `Write the complete prompt here. Image1 @Image1 = reference image; Video1 @Video1 = driving video. Saved in this browser; input changes do not rewrite it. Use default restores the standalone prompt. ${prompt.length}/${promptLimit} characters.`}
+            : `Write the complete prompt here. Image1 @Image1 = reference image; Video1 @Video1 = driving video.${activeFace ? " Image2 = face reference; face-lock instructions are added automatically." : ""} Saved in this browser; input changes do not rewrite it. Use default restores the standalone prompt. ${prompt.length}/${promptLimit} characters.`}
     />
   );
   return (
@@ -426,6 +441,15 @@ export function MotionWorkflow({
             onPick={chooseImage}
             hideActions
           />
+          {faceSupported && (
+            <FilePicker
+              label="Face reference"
+              hint={`Optional · tight face close-up of the same person · at least ${model.minSide}px per side`}
+              accept={IMAGE_TYPES}
+              asset={face}
+              onPick={chooseFace}
+            />
+          )}
           {mode === "first-frame" && (
             <FilePicker
               label="First frame"
@@ -438,7 +462,7 @@ export function MotionWorkflow({
           {extras.map((a, i) => (
             <div key={i}>
               <FilePicker
-                label={`Reference image ${i + (mode === "first-frame" ? 3 : 2)}`}
+                label={`Reference image ${i + (mode === "first-frame" || activeFace ? 3 : 2)}`}
                 asset={a}
                 onPick={(v) =>
                   setExtras((xs) => {
@@ -494,7 +518,7 @@ export function MotionWorkflow({
       </div>
       <div className="motion-input-actions">
         <div>
-          {extras.length < model.maxImages - (mode === "first-frame" ? 2 : 1) && (
+          {extras.length < model.maxImages - (mode === "first-frame" || activeFace ? 2 : 1) && (
             <button
               type="button"
               className="text-button"
