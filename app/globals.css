@@ -1718,6 +1718,32 @@ body {
   flex-direction: column;
   gap: 10px;
 }
+.edit-image-inputs.is-paired {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+.edit-image-inputs.is-paired > * {
+  min-width: 0;
+}
+.edit-image-inputs.is-paired > .text-button {
+  grid-column: 1 / -1;
+}
+.edit-image-inputs.is-paired .file-label small {
+  display: block;
+  margin-top: 2px;
+}
+.edit-image-inputs.is-paired .drop-zone img,
+.edit-image-inputs.is-paired > .file-picker:first-child .drop-zone img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 168px;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: transparent;
+}
 .motion-input-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

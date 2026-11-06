@@ -257,7 +257,7 @@ export function ImageEditForm({
         onChange={setModel}
         hint={settings.hint}
       />
-      <div className="motion-image-input">
+      <div className={`motion-image-input edit-image-inputs${references.length > 0 ? " is-paired" : ""}`}>
         <FilePicker label="Image to edit" hint={`${imageName(1)} · up to ${IMAGE_EDIT_MAX_MB} MB`} accept={IMAGE_TYPES} asset={image} onPick={chooseImage} />
         {references.map((asset, index) => (
           <div key={index}>
