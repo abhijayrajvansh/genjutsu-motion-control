@@ -426,12 +426,6 @@ export function MotionWorkflow({
               value: "reference",
               label: "Reference image + video",
             },
-            {
-              value: "first-frame",
-              label: "First frame + reference · Under construction",
-              hint: "Under construction. This mode is temporarily unavailable.",
-              disabled: true,
-            },
           ]}
         />
       </div>
