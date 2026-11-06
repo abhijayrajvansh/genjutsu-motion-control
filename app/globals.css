@@ -1709,6 +1709,10 @@ body {
   align-items: start;
   gap: 12px;
 }
+.resolution-fixed strong {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
 .motion-model-row .select-trigger > span {
   overflow: hidden;
   text-overflow: ellipsis;

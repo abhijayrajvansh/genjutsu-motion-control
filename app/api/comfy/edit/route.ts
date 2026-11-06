@@ -62,7 +62,8 @@ export async function POST(req: Request) {
     const settings = IMAGE_EDIT_MODELS[model];
     const quality = form.get("quality");
     if (!isImageEditQuality(quality)) throw new ApiError("Choose a quality setting.");
-    const resolution = Number(form.get("resolution") ?? 1024) as ImageEditResolution;
+    const requested = Number(form.get("resolution") ?? 1024) as ImageEditResolution;
+    const resolution: ImageEditResolution = model === "qwen-image-2.1" ? 1024 : requested;
     if (!settings.resolutions.includes(resolution)) throw new ApiError(`${settings.label} does not support that resolution.`);
     const size = form.get("size") ?? "auto";
     if (!isImageEditSize(size)) throw new ApiError("Choose a valid output size.");

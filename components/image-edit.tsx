@@ -12,7 +12,6 @@ import {
   ImageEditJob,
   ImageEditModel,
   ImageEditQuality,
-  ImageEditResolution,
   ImageEditSize,
   isImageEditQuality,
   isImageEditSize,
@@ -182,10 +181,7 @@ export function ImageEditForm({
     consistency = model === "qwen-image-2.1" && savedConsistency === "true",
     [savedBfs, setBfs] = useSaved("clone.edit.bfs", "false"),
     bfs = model === "qwen-image-2.1" && savedBfs === "true",
-    [savedResolution, setResolution] = useSaved("clone.edit.resolution", "1024"),
-    resolution: ImageEditResolution = settings.resolutions.includes(Number(savedResolution) as ImageEditResolution)
-      ? (Number(savedResolution) as ImageEditResolution)
-      : 1024,
+    resolution = 1024 as const,
     [savedSize, setSize] = useSaved("clone.edit.size", "auto"),
     size: ImageEditSize = isImageEditSize(savedSize) ? savedSize : "auto",
     [seed, setSeed] = useState(""),
@@ -405,14 +401,12 @@ export function ImageEditForm({
           value={size}
           onChange={setSize}
         />
-        {settings.resolutions.length > 1 && (
-          <Select
-            label="Resolution"
-            options={settings.resolutions.map((value) => ({ value: String(value), label: value === 2048 ? "2K · slower" : "1K" }))}
-            value={String(resolution)}
-            onChange={setResolution}
-          />
-        )}
+        <div className="field resolution-fixed">
+          <span className="between">
+            Resolution
+            <strong>1K</strong>
+          </span>
+        </div>
       </div>
       {size !== "auto" && <small>A different shape than image 1 makes the model extend or reframe the scene.</small>}
       <Choices
