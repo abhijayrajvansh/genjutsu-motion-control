@@ -85,12 +85,6 @@ export function MotionWorkflow({
     "reference",
   );
   const mode = (savedMode === "reference" ? savedMode : "reference") as MotionMode;
-  function changeMode(value: string) {
-    setSavedMode(value);
-    setError("");
-    setStage("");
-    setExtras([]);
-  }
   const [firstFrame, setFirstFrame] = useState<Asset | null>(null);
   const [previewHost, setPreviewHost] = useState<HTMLDivElement | null>(null);
   const [clipDraft, setClipDraft] = useState<{ assetId: string; selection: VideoSelection; mode?: "full" | "trim" } | null>(null);
@@ -416,17 +410,6 @@ export function MotionWorkflow({
           options={modelChoices.map((m) => ({ value: m.id, label: m.label }))}
           value={model.id}
           onChange={changeModel}
-        />
-        <Select
-          label="Mode"
-          value={mode}
-          onChange={changeMode}
-          options={[
-            {
-              value: "reference",
-              label: "Reference image + video",
-            },
-          ]}
         />
       </div>
       {model.id === "kling" && (
