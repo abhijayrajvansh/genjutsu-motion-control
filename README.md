@@ -38,7 +38,7 @@ The **Edit Image** tab edits photos with Qwen models running in ComfyUI on a GPU
 
 1. Rent a 24 GB+ NVIDIA GPU with the ComfyUI image and enough disk: `rent-gpu --disk 60` for one model, `--disk 80` for both.
 2. Install the models (resumable, 16 parallel connections, checksum-verified), using the SSH command `rent-gpu` printed:
-   `ssh -p PORT root@HOST 'bash -s' -- --model 2511 < setup-qwen-edit-vast.sh` (~31 GB), or `--model 2.1` (~24.5 GB), or `--model all`.
+   `ssh -p PORT root@HOST 'bash -s -- --model 2511' < setup-qwen-edit-vast.sh` (~31 GB). Use `--model 2.1` (~24.5 GB) or `--model all` for the others.
    Qwen-Image 2.1 needs ComfyUI v0.44 or newer. On the GPU: `cd /workspace/ComfyUI && git fetch --tags && git checkout v0.44.1 && supervisorctl restart comfyui`.
 3. In **Edit Image**, paste the **ComfyUI link** that `rent-gpu` prints (`https://….trycloudflare.com/?token=…`) and click **Connect**. An SSH tunnel to `http://127.0.0.1:8188` also works. The link is saved in this browser; the token is only sent from the local server to ComfyUI.
 4. Add the image to edit, optionally up to two references, describe the change (2511: "image 1", "image 2"; 2.1: `<image1>`, `<image2>`), and choose output size, resolution (2.1) and quality.

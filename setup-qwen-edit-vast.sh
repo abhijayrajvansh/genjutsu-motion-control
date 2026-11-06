@@ -3,8 +3,8 @@
 # (vastai/comfy image from rent-gpu). Resumes if interrupted; verifies sha256.
 #
 # From your Mac, with the SSH command rent-gpu printed:
-#   ssh -p PORT root@HOST 'bash -s' < setup-qwen-edit-vast.sh
-# Options (after `bash -s --`):
+#   ssh -p PORT root@HOST 'bash -s -- --model 2.1' < setup-qwen-edit-vast.sh
+# Options:
 #   --model 2511   Qwen-Image-Edit-2511 fp8mixed (~31 GB, default)
 #   --model 2.1    Qwen-Image-2.1 int8 + Turbo (~24.5 GB; needs ComfyUI >= v0.44)
 #   --model all    both
