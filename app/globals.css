@@ -2464,6 +2464,34 @@ body {
 .theme-toggle:hover {
   background: var(--muted);
 }
+.hide-ui-toggle {
+  height: 38px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.hide-ui-toggle:hover {
+  background: var(--muted);
+}
+.hide-ui-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #000;
+}
+.hide-ui-overlay .hide-ui-toggle {
+  padding: 0;
+  border-color: #ffffff26;
+  background: #000;
+  color: #ffffff8c;
+}
 body:has(.motion-submit-bar) {
   padding-bottom: calc(73px + env(safe-area-inset-bottom, 0px));
 }

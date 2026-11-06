@@ -8,6 +8,7 @@ import { playCompletionSound } from "@/lib/completion-sound";
 import { GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { ThemeToggle } from "./theme-toggle";
+import { HideUiToggle } from "./hide-ui-toggle";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
   ImageForm,
@@ -219,6 +220,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
             <KieConnection />
           </div>
           <div className="header-end">
+            <HideUiToggle />
             <ThemeToggle />
             <button
               className="mobile-toggle"
