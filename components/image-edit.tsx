@@ -20,7 +20,7 @@ import {
 } from "@/lib/image-edit";
 import { Asset, records, saveRecord } from "@/lib/storage";
 import savedPrompts from "@/prompts/edit-image-prompts.json";
-import { Button, Choices, FilePicker, IMAGE_TYPES, Modal, Prompt, Select, useSaved } from "./controls";
+import { Button, FilePicker, IMAGE_TYPES, Modal, Prompt, Select, useSaved } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
@@ -175,8 +175,8 @@ export function ImageEditForm({
     [prompt, setPrompt] = useSaved("clone.edit.prompt", DEFAULT_PROMPT),
     model: ImageEditModel = "qwen-image-2.1",
     settings = IMAGE_EDIT_MODELS[model],
-    [savedQuality, setQuality] = useSaved("clone.edit.quality", "balanced"),
-    quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "balanced",
+    [savedQuality, setQuality] = useSaved("clone.edit.quality", "fast"),
+    quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "fast",
     [savedConsistency, setConsistency] = useSaved("clone.edit.consistency", "false"),
     consistency = model === "qwen-image-2.1" && savedConsistency === "true",
     [savedBfs, setBfs] = useSaved("clone.edit.bfs", "false"),
@@ -409,19 +409,16 @@ export function ImageEditForm({
         </div>
       </div>
       {size !== "auto" && <small>A different shape than image 1 makes the model extend or reframe the scene.</small>}
-      <Choices
+      <Select
         label="Quality"
         options={(Object.keys(settings.quality) as ImageEditQuality[]).map((value) => ({
           value,
           label: settings.quality[value].label,
-          hint:
-            value === "fast" && fastMissing
-              ? `${model === "qwen-image-2.1" ? "Turbo model" : "Lightning LoRA"} is not installed on this GPU.`
-              : settings.quality[value].hint,
           disabled: value === "fast" && fastMissing,
         }))}
         value={quality}
         onChange={setQuality}
+        hint={fastMissing && quality === "fast" ? "Turbo model is not installed on this GPU." : settings.quality[quality].hint}
       />
       {model === "qwen-image-2.1" && (
         <label className="check">
