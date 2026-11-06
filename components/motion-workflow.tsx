@@ -444,7 +444,6 @@ export function MotionWorkflow({
           {faceSupported && (
             <FilePicker
               label="Face reference"
-              hint={`Optional · tight face close-up of the same person · at least ${model.minSide}px per side`}
               accept={IMAGE_TYPES}
               asset={face}
               onPick={chooseFace}
