@@ -313,11 +313,6 @@ function MotionCard({
           <GenerationElapsed created={job.created} completedAt={job.state === "success" || job.state === "fail" ? job.completedAt ?? job.updated : undefined} />
         </small>
         <div className="job-mode-row">
-          <small>
-            {job.mode === "first-frame"
-              ? "First frame + reference"
-              : "Reference image + video"}
-          </small>
           <div className="job-card-tools">
             <button type="button" className="job-refresh-button" aria-label="Refresh status" title="Refresh status" onClick={onChange} disabled={busy}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
