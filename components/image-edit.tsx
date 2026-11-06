@@ -5,11 +5,15 @@ import {
   IMAGE_EDIT_MAX_IMAGES,
   IMAGE_EDIT_MAX_MB,
   IMAGE_EDIT_MAX_SEED,
-  IMAGE_EDIT_QUALITY,
+  canvasSize,
+  IMAGE_EDIT_MODELS,
   IMAGE_EDIT_SIZES,
   ImageEditJob,
+  ImageEditModel,
   ImageEditQuality,
+  ImageEditResolution,
   ImageEditSize,
+  isImageEditModel,
   isImageEditQuality,
   isImageEditSize,
 } from "@/lib/image-edit";
@@ -55,10 +59,17 @@ export function ImageEditForm({
   const [image, setImage] = useState<Asset | null>(initialImage ?? null),
     [references, setReferences] = useState<(Asset | null)[]>([]),
     [prompt, setPrompt] = useSaved("clone.edit.prompt", DEFAULT_PROMPT),
+    [savedModel, setModel] = useSaved("clone.edit.model", "qwen-edit-2511"),
+    model: ImageEditModel = isImageEditModel(savedModel) ? savedModel : "qwen-edit-2511",
+    settings = IMAGE_EDIT_MODELS[model],
     [savedQuality, setQuality] = useSaved("clone.edit.quality", "balanced"),
+    quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "balanced",
+    [savedResolution, setResolution] = useSaved("clone.edit.resolution", "1024"),
+    resolution: ImageEditResolution = settings.resolutions.includes(Number(savedResolution) as ImageEditResolution)
+      ? (Number(savedResolution) as ImageEditResolution)
+      : 1024,
     [savedSize, setSize] = useSaved("clone.edit.size", "auto"),
     size: ImageEditSize = isImageEditSize(savedSize) ? savedSize : "auto",
-    quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "balanced",
     [seed, setSeed] = useState(""),
     [plannedSeed, setPlannedSeed] = useState<number | null>(null),
     [status, setStatus] = useState<ComfyStatus | null>(null),
@@ -89,7 +100,7 @@ export function ImageEditForm({
     try {
       const response = await fetch("/api/comfy/status", { headers: comfyHeaders(link), cache: "no-store" });
       const data = (await response.json().catch(() => ({}))) as { status?: ComfyStatus; error?: string };
-      setStatus(data.status ?? { ok: false, missingNodes: [], missingModels: [], lightning: false, error: data.error || "ComfyUI could not be checked." });
+      setStatus(data.status ?? { ok: false, error: data.error || "ComfyUI could not be checked." });
     } finally {
       setChecking(false);
     }
@@ -107,12 +118,15 @@ export function ImageEditForm({
     void check(link);
   }
 
-  const lightningMissing = !!status?.ok && !status.lightning;
+  const readiness = status?.ok ? status.models?.[model] : undefined;
+  const fastMissing = !!readiness?.ready && !readiness.fast;
+  const preset = settings.quality[quality];
   const effectiveSeed = seed.trim() === "" ? plannedSeed : Number(seed);
   const seedValid = effectiveSeed !== null && Number.isInteger(effectiveSeed) && effectiveSeed >= 0 && effectiveSeed <= IMAGE_EDIT_MAX_SEED;
   const pictures = [image, ...references].filter((asset): asset is Asset => !!asset);
   const canSubmit =
-    !busy && !!status?.ok && !!image && !!prompt.trim() && seedValid && !(quality === "fast" && lightningMissing);
+    !busy && !!readiness?.ready && !!image && !!prompt.trim() && seedValid && !(quality === "fast" && fastMissing);
+  const imageName = (n: number) => (model === "qwen-image-2.1" ? `<image${n}>` : `image ${n}`);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -123,8 +137,10 @@ export function ImageEditForm({
     try {
       const form = new FormData();
       form.set("id", crypto.randomUUID());
+      form.set("model", model);
       form.set("prompt", prompt.trim());
       form.set("quality", quality);
+      form.set("resolution", String(resolution));
       form.set("size", size);
       form.set("seed", String(effectiveSeed));
       for (const asset of pictures) form.append("images", asset.blob, asset.name);
@@ -163,15 +179,25 @@ export function ImageEditForm({
             {checking ? "Checking…" : draftLink.trim() === comfyLink && status ? "Check" : "Connect"}
           </Button>
         </div>
-        <ComfyStatusLine status={status} checking={checking} />
+        <ComfyStatusLine status={status} checking={checking} model={model} />
       </div>
+      <Select
+        label="Model"
+        options={(Object.keys(IMAGE_EDIT_MODELS) as ImageEditModel[]).map((value) => ({
+          value,
+          label: IMAGE_EDIT_MODELS[value].label + (status?.ok && !status.models?.[value].ready ? " · not installed" : ""),
+        }))}
+        value={model}
+        onChange={setModel}
+        hint={settings.hint}
+      />
       <div className="motion-image-input">
-        <FilePicker label="Image to edit" hint={`image 1 · up to ${IMAGE_EDIT_MAX_MB} MB`} accept={IMAGE_TYPES} asset={image} onPick={setImage} />
+        <FilePicker label="Image to edit" hint={`${imageName(1)} · up to ${IMAGE_EDIT_MAX_MB} MB`} accept={IMAGE_TYPES} asset={image} onPick={setImage} />
         {references.map((asset, index) => (
           <div key={index}>
             <FilePicker
               label={`Reference image ${index + 2}`}
-              hint={`image ${index + 2} · optional`}
+              hint={`${imageName(index + 2)} · optional`}
               accept={IMAGE_TYPES}
               asset={asset}
               onPick={(value) => setReferences((list) => list.map((item, k) => (k === index ? value : item)))}
@@ -191,32 +217,41 @@ export function ImageEditForm({
         value={prompt}
         onChange={setPrompt}
         onUseDefault={() => setPrompt(DEFAULT_PROMPT)}
-        hint="Describe only what should change, and what must stay the same. Call your pictures image 1, image 2 and image 3 — e.g. “Put the jacket from image 2 on the woman in image 1.”"
+        hint={`Describe only what should change, and what must stay the same. Refer to pictures as ${imageName(1)}, ${imageName(2)}… — e.g. “Put the jacket from ${imageName(2)} on the woman in ${imageName(1)}.”`}
       />
-      <Select
-        label="Output size"
-        options={(Object.keys(IMAGE_EDIT_SIZES) as ImageEditSize[]).map((value) => {
-          const option = IMAGE_EDIT_SIZES[value];
-          return {
-            value,
-            label: value === "auto" ? `${option.label} · about 1 MP` : `${option.label} · ${option.width}×${option.height}`,
-          };
-        })}
-        value={size}
-        onChange={setSize}
-        hint={
-          size === "auto"
-            ? "Keeps the shape of image 1."
-            : "A different shape than image 1 makes the model extend or reframe the scene."
-        }
-      />
+      <div className="motion-model-row">
+        <Select
+          label="Output size"
+          options={(Object.keys(IMAGE_EDIT_SIZES) as ImageEditSize[]).map((value) => {
+            const pixels = canvasSize(value, model, resolution);
+            return {
+              value,
+              label: value === "auto" ? "Match input image" : `${IMAGE_EDIT_SIZES[value].label} · ${pixels.width}×${pixels.height}`,
+            };
+          })}
+          value={size}
+          onChange={setSize}
+        />
+        {settings.resolutions.length > 1 && (
+          <Select
+            label="Resolution"
+            options={settings.resolutions.map((value) => ({ value: String(value), label: value === 2048 ? "2K · slower" : "1K" }))}
+            value={String(resolution)}
+            onChange={setResolution}
+          />
+        )}
+      </div>
+      {size !== "auto" && <small>A different shape than image 1 makes the model extend or reframe the scene.</small>}
       <Choices
         label="Quality"
-        options={(Object.keys(IMAGE_EDIT_QUALITY) as ImageEditQuality[]).map((value) => ({
+        options={(Object.keys(settings.quality) as ImageEditQuality[]).map((value) => ({
           value,
-          label: IMAGE_EDIT_QUALITY[value].label,
-          hint: value === "fast" && lightningMissing ? "Lightning LoRA is not installed on this GPU." : IMAGE_EDIT_QUALITY[value].hint,
-          disabled: value === "fast" && lightningMissing,
+          label: settings.quality[value].label,
+          hint:
+            value === "fast" && fastMissing
+              ? `${model === "qwen-image-2.1" ? "Turbo model" : "Lightning LoRA"} is not installed on this GPU.`
+              : settings.quality[value].hint,
+          disabled: value === "fast" && fastMissing,
         }))}
         value={quality}
         onChange={setQuality}
@@ -247,9 +282,6 @@ export function ImageEditForm({
         />
         <small>Same image, prompt and seed give the same result. Change the seed for a different variation.</small>
       </label>
-      <small>
-        Model: Qwen-Image-Edit-2511 (fp8mixed) with the Qwen2.5-VL fp8 text encoder, running on your rented GPU. No credits are charged; you pay the GPU&apos;s hourly rate.
-      </small>
       <div className="motion-submit-bar">
         <div className="motion-submit-inner">
           <Button disabled={!canSubmit}>
@@ -257,9 +289,11 @@ export function ImageEditForm({
               ? "Uploading / submitting…"
               : !status?.ok
                 ? "Edit image — connect ComfyUI first"
-                : !image
-                  ? "Edit image — add an image"
-                  : `Edit image — ${IMAGE_EDIT_QUALITY[quality].label}`}
+                : !readiness?.ready
+                  ? `Edit image — ${settings.label} not installed`
+                  : !image
+                    ? "Edit image — add an image"
+                    : `Edit image — ${preset.label}`}
           </Button>
         </div>
       </div>
@@ -277,28 +311,30 @@ export function ImageEditForm({
   );
 }
 
-function ComfyStatusLine({ status, checking }: { status: ComfyStatus | null; checking: boolean }) {
+function ComfyStatusLine({ status, checking, model }: { status: ComfyStatus | null; checking: boolean; model: ImageEditModel }) {
   if (checking && !status) return <small role="status">Checking ComfyUI…</small>;
   if (!status) return <small>Not connected.</small>;
-  if (status.error) return <small className="error" role="alert">{status.error}</small>;
+  if (status.error || !status.ok) return <small className="error" role="alert">{status.error || "ComfyUI could not be checked."}</small>;
   const queued = status.queue ? status.queue.running + status.queue.pending : 0;
   const details = [
     status.gpu && `${status.gpu.replace(/^NVIDIA\s+(GeForce\s+)?/i, "")}${status.vramGB ? ` · ${status.vramGB} GB` : ""}`,
     queued > 0 && `${queued} queued`,
   ].filter(Boolean);
-  if (status.ok)
+  const readiness = status.models?.[model];
+  if (readiness?.ready)
     return (
       <small className="comfy-status-ok" role="status" title={status.comfyVersion ? `ComfyUI ${status.comfyVersion}` : undefined}>
         ✓ Ready{details.length ? ` · ${details.join(" · ")}` : ""}
-        {!status.lightning && " · no Fast mode"}
+        {!readiness.fast && " · no Fast mode"}
       </small>
     );
   return (
     <div className="error comfy-status-missing" role="alert">
-      {status.missingNodes.length > 0 && <span>Update ComfyUI — missing nodes: {status.missingNodes.join(", ")}</span>}
-      {status.missingModels.length > 0 && (
+      <span>Connected{details.length ? ` (${details.join(" · ")})` : ""}, but {IMAGE_EDIT_MODELS[model].label} is not set up.</span>
+      {!!readiness?.missingNodes.length && <span>Update ComfyUI — missing nodes: {readiness.missingNodes.join(", ")}</span>}
+      {!!readiness?.missingModels.length && (
         <span>
-          Models missing — run <code>setup-qwen-edit-vast.sh</code> on the GPU.
+          Models missing — run <code>setup-qwen-edit-vast.sh --model {model === "qwen-image-2.1" ? "2.1" : "2511"}</code> on the GPU.
         </span>
       )}
     </div>
@@ -488,8 +524,9 @@ function ImageEditCard({
         </div>
         <GenerationTime created={job.created} />
         <small className="job-model-line">
-          Qwen Edit 2511 · {IMAGE_EDIT_QUALITY[job.quality]?.label ?? `${job.steps} steps`}
+          {IMAGE_EDIT_MODELS[job.model ?? "qwen-edit-2511"].short} · {IMAGE_EDIT_MODELS[job.model ?? "qwen-edit-2511"].quality[job.quality]?.label ?? `${job.steps} steps`}
           {job.size && job.size !== "auto" && ` · ${job.size}`}
+          {job.resolution === 2048 && " · 2K"}
           {" · "}
           <GenerationElapsed created={job.created} completedAt={pending.includes(job.state) ? undefined : job.completedAt ?? job.updated} />
         </small>

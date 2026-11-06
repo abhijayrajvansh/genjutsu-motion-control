@@ -27,21 +27,23 @@ The Generate button shows a live **total Kie-credit estimate**, including billab
 
 See [Kie configuration, trial and API details](docs/KIE-MOTION.md). FFmpeg/ffprobe must be on PATH for video trimming and upload validation. A live paid render still requires a funded key and is not verified until that trial completes.
 
-## Edit Image (Qwen-Image-Edit-2511 on your own GPU)
+## Edit Image (Qwen on your own GPU)
 
-The **Edit Image** tab edits photos with Qwen-Image-Edit-2511 running in ComfyUI on a GPU you rent (for example with `rent-gpu`). It costs GPU time, not Kie credits.
+The **Edit Image** tab edits photos with Qwen models running in ComfyUI on a GPU you rent (for example with `rent-gpu`). It costs GPU time, not Kie credits. Pick the model in the tab:
 
-1. Rent a 24 GB+ NVIDIA GPU with the ComfyUI image and at least **60 GB** disk: `rent-gpu --disk 60`.
-2. Install the models on it (~31 GB, resumable, checksum-verified), using the SSH command `rent-gpu` printed:
-   `ssh -p PORT root@HOST 'bash -s' < setup-qwen-edit-vast.sh`
-   Add `-- --no-lightning` after `bash -s` to skip the Fast-mode LoRA.
+| Model | License | Output | Fast mode |
+|---|---|---|---|
+| **Qwen-Image-Edit 2511** (fp8mixed) | Apache 2.0, commercial use OK | ~1 MP | Lightning 4-step LoRA |
+| **Qwen-Image 2.1** (int8) | Qwen Research License, **no commercial use** | 1K or native 2K | Turbo model, 8 steps |
+
+1. Rent a 24 GB+ NVIDIA GPU with the ComfyUI image and enough disk: `rent-gpu --disk 60` for one model, `--disk 80` for both.
+2. Install the models (resumable, 16 parallel connections, checksum-verified), using the SSH command `rent-gpu` printed:
+   `ssh -p PORT root@HOST 'bash -s' -- --model 2511 < setup-qwen-edit-vast.sh` (~31 GB), or `--model 2.1` (~24.5 GB), or `--model all`.
+   Qwen-Image 2.1 needs ComfyUI v0.44 or newer. On the GPU: `cd /workspace/ComfyUI && git fetch --tags && git checkout v0.44.1 && supervisorctl restart comfyui`.
 3. In **Edit Image**, paste the **ComfyUI link** that `rent-gpu` prints (`https://….trycloudflare.com/?token=…`) and click **Connect**. An SSH tunnel to `http://127.0.0.1:8188` also works. The link is saved in this browser; the token is only sent from the local server to ComfyUI.
-4. Add the image to edit (image 1), optionally up to two references (image 2/3), describe the change and pick a quality:
-   - **Fast** — 4 steps with the Lightning LoRA, CFG 1.
-   - **Balanced** (default) — 20 steps, CFG 4.
-   - **Best** — 40 steps, CFG 4.
+4. Add the image to edit, optionally up to two references, describe the change (2511: "image 1", "image 2"; 2.1: `<image1>`, `<image2>`), and choose output size, resolution (2.1) and quality.
 
-It uses the fp8mixed diffusion model, the fp8 Qwen2.5-VL text encoder and the official ComfyUI template's node chain. Inputs and results are kept in the ignored `.data/image-edit/` directory, so they remain after the rental is destroyed. **Edit this result** feeds an output back in as the next input. See [qwen-image-edit-research.md](qwen-image-edit-research.md) for other precisions.
+Workflows follow Comfy-Org's official templates (`image_qwen_image_edit_2511`, `image_qwen_image_2_1(_turbo)_image_edit`; the 2.1 prompt enhancer is off). Inputs and results are kept in the ignored `.data/image-edit/` directory, so they remain after the rental is destroyed. **Edit this result** feeds an output back in as the next input.
 
 ## Included
 

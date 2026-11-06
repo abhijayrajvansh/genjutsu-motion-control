@@ -1,22 +1,30 @@
 #!/usr/bin/env bash
-# Install Qwen-Image-Edit-2511 models into the ComfyUI of a rented Vast.ai GPU
-# (vastai/comfy image from rent-gpu). Downloads ~31 GB; resumes if interrupted.
+# Install Qwen image-edit models into the ComfyUI of a rented Vast.ai GPU
+# (vastai/comfy image from rent-gpu). Resumes if interrupted; verifies sha256.
 #
 # From your Mac, with the SSH command rent-gpu printed:
 #   ssh -p PORT root@HOST 'bash -s' < setup-qwen-edit-vast.sh
-# Options (after `bash -s --`):  --no-lightning   skip the 0.85 GB Fast-mode LoRA
+# Options (after `bash -s --`):
+#   --model 2511   Qwen-Image-Edit-2511 fp8mixed (~31 GB, default)
+#   --model 2.1    Qwen-Image-2.1 int8 + Turbo (~24.5 GB; needs ComfyUI >= v0.44)
+#   --model all    both
+#   --no-lightning skip the 0.85 GB 2511 Fast-mode LoRA
 # Env: COMFY_DIR=/path/to/ComfyUI to override detection, HF_TOKEN for gated mirrors.
 set -Eeuo pipefail
 trap 'printf "\nFailed at line %s. Rerun the same command to resume.\n" "$LINENO" >&2' ERR
 
 LIGHTNING=1
-for arg in "$@"; do
-  case "$arg" in
+MODEL=2511
+while [ $# -gt 0 ]; do
+  case "$1" in
     --no-lightning) LIGHTNING=0 ;;
-    -h|--help) echo "Usage: bash setup-qwen-edit-vast.sh [--no-lightning]   (env: COMFY_DIR, HF_TOKEN)"; exit 0 ;;
-    *) printf 'Unknown option: %s\n' "$arg" >&2; exit 2 ;;
+    --model) MODEL="${2:-}"; shift ;;
+    -h|--help) echo "Usage: bash setup-qwen-edit-vast.sh [--model 2511|2.1|all] [--no-lightning]   (env: COMFY_DIR, HF_TOKEN)"; exit 0 ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
   esac
+  shift
 done
+case "$MODEL" in 2511|2.1|all) ;; *) echo "--model must be 2511, 2.1 or all" >&2; exit 2 ;; esac
 
 find_comfy() {
   if [ -n "${COMFY_DIR:-}" ]; then printf '%s\n' "$COMFY_DIR"; return; fi
@@ -35,14 +43,23 @@ printf 'ComfyUI: %s\n' "$COMFY"
 
 HF=https://huggingface.co
 # folder | url | bytes | sha256
-FILES=(
+FILES=()
+if [ "$MODEL" != 2.1 ]; then FILES+=(
   "diffusion_models|$HF/Comfy-Org/Qwen-Image-Edit/resolve/main/split_files/diffusion_models/qwen_image_edit_2511_fp8mixed.safetensors|20533762817|c9fdc158e46d3b61ef75f21ae866ca2fe808bf4a53643120d1c1e87c19280a4e"
   "text_encoders|$HF/Comfy-Org/Qwen-Image/resolve/main/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors|9384670680|cb5636d852a0ea6a9075ab1bef496c0db7aef13c02350571e388aea959c5c0b4"
   "vae|$HF/Comfy-Org/Qwen-Image/resolve/main/split_files/vae/qwen_image_vae.safetensors|253806246|a70580f0213e67967ee9c95f05bb400e8fb08307e017a924bf3441223e023d1f"
 )
-[ "$LIGHTNING" = 1 ] && FILES+=(
-  "loras|$HF/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors|849608296|22226e8d05d354bb356627d428809f5afd7819399b077238a2b70a82883a904f"
-)
+  [ "$LIGHTNING" = 1 ] && FILES+=(
+    "loras|$HF/lightx2v/Qwen-Image-Edit-2511-Lightning/resolve/main/Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors|849608296|22226e8d05d354bb356627d428809f5afd7819399b077238a2b70a82883a904f"
+  )
+fi
+Q21="$HF/Comfy-Org/Qwen-Image-2.1/resolve/main"
+if [ "$MODEL" != 2511 ]; then FILES+=(
+  "diffusion_models|$Q21/diffusion_models/qwen_image_2.1_int8_convrot.safetensors|7256783064|cb74113cb03faecd79611b01fd7fd642f0aa60d6f0b95086abee214d75eaa57d"
+  "diffusion_models|$Q21/diffusion_models/qwen_image_2.1_turbo_int8_convrot.safetensors|7256787829|8144a0182964aa8403ad6dbc011db837304167d235161b9aabaa8532e967314c"
+  "text_encoders|$Q21/text_encoders/qwen3vl_8b_int8_convrot.safetensors|9350798360|8bfd0f6e12abf2d2d697ecc888e5e90b0d6741d6708f05799f53afa560452e8f"
+  "vae|$Q21/vae/qwen_image_2.1_vae_bf16.safetensors|675509688|bb21f7473051e1ac368515dd3f2e15cd44d7a11748ee8823e1ddca3e4876b7c9"
+); fi
 
 need=0
 for entry in "${FILES[@]}"; do

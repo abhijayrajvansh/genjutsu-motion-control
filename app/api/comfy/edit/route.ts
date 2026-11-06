@@ -2,11 +2,12 @@ import {
   IMAGE_EDIT_MAX_IMAGES,
   IMAGE_EDIT_MAX_MB,
   IMAGE_EDIT_MAX_SEED,
-  IMAGE_EDIT_QUALITY,
+  IMAGE_EDIT_MODELS,
   ImageEditJob,
+  ImageEditResolution,
+  isImageEditModel,
   isImageEditQuality,
   isImageEditSize,
-  QWEN_EDIT_FILES,
 } from "@/lib/image-edit";
 import { comboOptions, comfyErrorMessage, comfyFetch, comfyServer, objectInfo, redactComfy } from "@/lib/server/comfy";
 import {
@@ -20,7 +21,7 @@ import {
 } from "@/lib/server/image-edit-store";
 import { ApiError, errorResponse, json, sameOrigin } from "@/lib/server/kie";
 import { validId } from "@/lib/server/motion-store";
-import { fillDefaults, QWEN_EDIT_NODES, qwenEditPrompt } from "@/lib/server/qwen-edit-workflow";
+import { editPrompt, fillDefaults, MODEL_NODES, requiredFiles } from "@/lib/server/qwen-edit-workflow";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
@@ -56,8 +57,13 @@ export async function POST(req: Request) {
     const prompt = String(form.get("prompt") || "").trim();
     if (!prompt) throw new ApiError("Describe the edit you want.");
     if (prompt.length > 4000) throw new ApiError("The prompt is too long (4,000 characters maximum).");
+    const model = form.get("model") ?? "qwen-edit-2511";
+    if (!isImageEditModel(model)) throw new ApiError("Choose a model.");
+    const settings = IMAGE_EDIT_MODELS[model];
     const quality = form.get("quality");
     if (!isImageEditQuality(quality)) throw new ApiError("Choose a quality setting.");
+    const resolution = Number(form.get("resolution") ?? 1024) as ImageEditResolution;
+    if (!settings.resolutions.includes(resolution)) throw new ApiError(`${settings.label} does not support that resolution.`);
     const size = form.get("size") ?? "auto";
     if (!isImageEditSize(size)) throw new ApiError("Choose a valid output size.");
     const seed = Number(form.get("seed"));
@@ -76,31 +82,27 @@ export async function POST(req: Request) {
     }
 
     // Confirm the server can run this workflow before saving anything.
-    const info = await objectInfo(server, QWEN_EDIT_NODES);
-    const missing = QWEN_EDIT_NODES.filter((node) => !info[node]);
+    const info = await objectInfo(server, MODEL_NODES[model]);
+    const missing = MODEL_NODES[model].filter((node) => !info[node]);
     if (missing.length) throw new ApiError(`This ComfyUI is missing nodes: ${missing.join(", ")}. Update ComfyUI.`, 409);
-    const models: [string, string, string][] = [
-      ["UNETLoader", "unet_name", QWEN_EDIT_FILES.unet],
-      ["CLIPLoader", "clip_name", QWEN_EDIT_FILES.clip],
-      ["VAELoader", "vae_name", QWEN_EDIT_FILES.vae],
-    ];
-    if (IMAGE_EDIT_QUALITY[quality].lightning) models.push(["LoraLoaderModelOnly", "lora_name", QWEN_EDIT_FILES.lightning]);
-    const absent = models.filter(([node, input, file]) => !comboOptions(info, node, input).includes(file)).map(([, , file]) => file);
+    const preset = settings.quality[quality];
+    const absent = requiredFiles(model, !!(preset.lightning || preset.turbo)).filter(([node, input, file]) => !comboOptions(info, node, input).includes(file)).map(([, , file]) => file);
     if (absent.length) throw new ApiError(`Models not installed on the GPU: ${absent.join(", ")}. Run setup-qwen-edit-vast.sh there.`, 409);
 
     const now = Date.now();
-    const preset = IMAGE_EDIT_QUALITY[quality];
     job = {
       id,
       created: now,
       updated: now,
       state: "submitting",
+      model,
       prompt,
       quality,
       steps: preset.steps,
       cfg: preset.cfg,
       seed,
       size,
+      resolution,
       inputCount: images.length,
       server: server.origin,
     };
@@ -121,7 +123,7 @@ export async function POST(req: Request) {
     }
 
     const graph = fillDefaults(
-      qwenEditPrompt({ images: names, prompt, quality, size, seed, prefix: `genjutsu/qwen-edit-${id.slice(0, 8)}` }),
+      editPrompt(model, { images: names, prompt, quality, size, resolution, seed, prefix: `genjutsu/qwen-edit-${id.slice(0, 8)}` }),
       info,
     );
     const response = await comfyFetch(
