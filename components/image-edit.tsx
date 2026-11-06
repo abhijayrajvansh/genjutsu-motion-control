@@ -18,7 +18,7 @@ import {
   isImageEditSize,
 } from "@/lib/image-edit";
 import { Asset } from "@/lib/storage";
-import { Button, Choices, FilePicker, IMAGE_TYPES, Prompt, Select, useSaved } from "./controls";
+import { Button, Choices, FilePicker, IMAGE_TYPES, Modal, Prompt, Select, useSaved } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
@@ -478,7 +478,8 @@ function ImageEditCard({
   onEditAgain: (asset: Asset) => void;
 }) {
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [viewing, setViewing] = useState<string | null>(null);
   const image = (which: string) => `/api/comfy/edit/${job.id}/image?which=${which}`;
   const labels: Record<ImageEditJob["state"], string> = {
     submitting: "Submitting",
@@ -550,9 +551,9 @@ function ImageEditCard({
       </div>
       {pending.includes(job.state) && <RenderPreview kind="image" image={image("input1")} state={job.state === "running" ? "generating" : job.state === "queued" ? "queuing" : "submitting"} />}
       {job.state === "success" && job.hasOutput && (
-        <a className="job-media image-edit-result" href={image("output")} target="_blank" rel="noreferrer" aria-label="Open the edited image full size">
+        <button type="button" className="job-media image-edit-result" onClick={() => setViewing("output")} aria-label="View the edited image larger">
           <img src={image("output")} alt="Edited result" />
-        </a>
+        </button>
       )}
       <div className="job-meta-row">
         <details className="job-prompt-details">
@@ -563,10 +564,10 @@ function ImageEditCard({
           </small>
           <div className="image-edit-inputs">
             {Array.from({ length: job.inputCount }, (_, index) => (
-              <a key={index} href={image(`input${index + 1}`)} target="_blank" rel="noreferrer" title={`image ${index + 1}`}>
+              <button type="button" key={index} onClick={() => setViewing(`input${index + 1}`)} title={`View image ${index + 1} larger`}>
                 <img src={image(`input${index + 1}`)} alt={`Input image ${index + 1}`} loading="lazy" />
                 <span>image {index + 1}</span>
-              </a>
+              </button>
             ))}
           </div>
         </details>
@@ -595,6 +596,28 @@ function ImageEditCard({
           </button>
         )}
       </div>
+      {viewing && (
+        <Modal
+          title={viewing === "output" ? "Edited image" : `Input ${viewing.replace("input", "image ")}`}
+          closeLabel="Close"
+          className="image-viewer-modal"
+          onClose={() => setViewing(null)}
+        >
+          <div className="image-viewer">
+            <img src={image(viewing)} alt={viewing === "output" ? "Edited result" : `Input ${viewing}`} />
+          </div>
+          <div className="image-viewer-actions">
+            {job.state === "success" && job.hasOutput && job.inputCount > 0 && (
+              <Button type="button" secondary onClick={() => setViewing(viewing === "output" ? "input1" : "output")}>
+                {viewing === "output" ? "Show original" : "Show edited"}
+              </Button>
+            )}
+            <a className="button" href={`${image(viewing)}&download=1`} download>
+              Download
+            </a>
+          </div>
+        </Modal>
+      )}
     </article>
   );
 }

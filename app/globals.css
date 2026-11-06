@@ -2641,7 +2641,14 @@ body:has(.motion-submit-bar) .main-content {
   gap: 8px;
   margin-top: 10px;
 }
-.image-edit-inputs a {
+.image-edit-inputs button {
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: zoom-in;
+  text-align: left;
+}
+.image-edit-inputs button {
   display: grid;
   gap: 4px;
   width: 72px;
@@ -2658,4 +2665,30 @@ body:has(.motion-submit-bar) .main-content {
 }
 .render-preview.render-preview-image {
   aspect-ratio: 1 / 1;
+}
+.history-column .job-media.image-edit-result {
+  cursor: zoom-in;
+}
+.modal.image-viewer-modal {
+  width: min(1400px, calc(100vw - 32px));
+  max-height: 94vh;
+}
+.image-viewer {
+  display: grid;
+  place-items: center;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.image-viewer img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(94vh - 150px);
+  object-fit: contain;
+}
+.image-viewer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
 }
