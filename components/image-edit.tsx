@@ -471,7 +471,6 @@ export function ImageEditForm({
           placeholder={plannedSeed === null ? "" : String(plannedSeed)}
           onChange={(event) => setSeed(event.target.value)}
         />
-        <small>Same image, prompt and seed give the same result. Change the seed for a different variation.</small>
       </label>
       <div className="motion-submit-bar">
         <div className="motion-submit-inner">
