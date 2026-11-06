@@ -824,9 +824,10 @@ em {
 }
 .file-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px 8px;
   margin-bottom: 8px;
 }
 .file-heading .file-label {
@@ -845,6 +846,19 @@ em {
 }
 .file-label small {
   font-weight: 400;
+}
+.file-heading > .file-capture {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  line-height: 20px;
+  margin-left: auto;
+  color: var(--accent-text);
+}
+.file-heading > .file-capture:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 .drop-zone {
   width: 100%;

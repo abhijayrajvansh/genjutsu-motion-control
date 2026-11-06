@@ -361,9 +361,11 @@ export function FilePicker({
   previewLabel,
   previewDisabled = false,
   hideActions = false,
+  headerAction,
 }: {
   label: string;
   hint?: string;
+  headerAction?: React.ReactNode;
   accept?: string;
   asset: Asset | null;
   onPick: (a: Asset | null) => void;
@@ -436,6 +438,7 @@ export function FilePicker({
         <div className="file-label">
           {label} {hint && <small>{hint}</small>}
         </div>
+        {headerAction}
         {asset && (
           <button type="button" className="text-button" aria-label={`Remove ${label}`} onClick={() => onPick(null)}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

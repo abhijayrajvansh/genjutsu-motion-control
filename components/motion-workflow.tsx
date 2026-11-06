@@ -28,6 +28,21 @@ function randomSeed() {
   crypto.getRandomValues(bytes);
   return bytes[0] % 2147483648;
 }
+async function videoFrameAsset(el: HTMLVideoElement): Promise<Asset> {
+  const canvas = document.createElement("canvas");
+  canvas.width = el.videoWidth;
+  canvas.height = el.videoHeight;
+  canvas.getContext("2d")?.drawImage(el, 0, 0, canvas.width, canvas.height);
+  const blob = await new Promise<Blob | null>((done) => canvas.toBlob(done, "image/jpeg", 0.95));
+  if (!blob) throw new Error("capture failed");
+  return {
+    id: crypto.randomUUID(),
+    name: `frame-${el.currentTime.toFixed(2).replace(".", "_")}s.jpg`,
+    type: "image/jpeg",
+    blob,
+    created: Date.now(),
+  };
+}
 const MOTION_INPUTS_KEY = "clone.motion.inputs";
 type SavedMotionInputs = {
   imageId?: string | null;
@@ -154,6 +169,25 @@ export function MotionWorkflow({
   function chooseImage(asset: Asset | null) {
     setImage(asset);
     writeMotionInputs({ imageId: asset?.id ?? null });
+  }
+  const [capturing, setCapturing] = useState(false);
+  async function captureVideoFrame() {
+    const el = previewHost?.querySelector("video");
+    if (!el || el.readyState < 2 || !el.videoWidth) {
+      setError("The driving video isn't ready yet.");
+      return;
+    }
+    setCapturing(true);
+    setError("");
+    try {
+      const asset = await videoFrameAsset(el);
+      await saveRecord("assets", asset);
+      chooseImage(asset);
+    } catch {
+      setError("Could not capture the current video frame.");
+    } finally {
+      setCapturing(false);
+    }
   }
   function chooseVideo(asset: Asset | null) {
     setVideo(asset);
@@ -440,6 +474,11 @@ export function MotionWorkflow({
             asset={image}
             onPick={chooseImage}
             hideActions
+            headerAction={video && previewHost ? (
+              <button type="button" className="text-button file-capture" disabled={busy || capturing} onClick={() => void captureVideoFrame()}>
+                {capturing ? "Capturing…" : "Use video frame"}
+              </button>
+            ) : undefined}
           />
           {faceSupported && (
             <FilePicker
