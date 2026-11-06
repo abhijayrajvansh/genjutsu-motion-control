@@ -334,6 +334,40 @@ export function ImageEditForm({
         </div>
         <ComfyStatusLine status={status} checking={checking} model={model} place="below" />
       </div>
+      {model === "qwen-image-2.1" && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={consistency}
+            onChange={(event) => setConsistency(event.target.checked ? "true" : "false")}
+          />
+          <span>
+            Use consistency LoRA
+            <small>
+              {loraMissing
+                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
+                : "Keeps the face, pose and frame still. Uncheck to skip it."}
+            </small>
+          </span>
+        </label>
+      )}
+      {model === "qwen-image-2.1" && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={bfs}
+            onChange={(event) => setBfs(event.target.checked ? "true" : "false")}
+          />
+          <span>
+            Use BFS head swap
+            <small>
+              {bfsMissing
+                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
+                : "Image 1 is the photo. Image 2 is the face. Uncheck to skip it."}
+            </small>
+          </span>
+        </label>
+      )}
       <div className={`motion-image-input edit-image-inputs${references.length > 0 ? " is-paired" : ""}`}>
         <FilePicker
           label="Image to edit"
@@ -413,40 +447,6 @@ export function ImageEditForm({
         />
       </div>
       {size !== "auto" && <small>A different shape than image 1 makes the model extend or reframe the scene.</small>}
-      {model === "qwen-image-2.1" && (
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={consistency}
-            onChange={(event) => setConsistency(event.target.checked ? "true" : "false")}
-          />
-          <span>
-            Use consistency LoRA
-            <small>
-              {loraMissing
-                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
-                : "Keeps the face, pose and frame still. Uncheck to skip it."}
-            </small>
-          </span>
-        </label>
-      )}
-      {model === "qwen-image-2.1" && (
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={bfs}
-            onChange={(event) => setBfs(event.target.checked ? "true" : "false")}
-          />
-          <span>
-            Use BFS head swap
-            <small>
-              {bfsMissing
-                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
-                : "Image 1 is the photo. Image 2 is the face. Uncheck to skip it."}
-            </small>
-          </span>
-        </label>
-      )}
       <label className="field">
         <span className="seed-row">
           Seed
