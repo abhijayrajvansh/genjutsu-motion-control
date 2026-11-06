@@ -343,11 +343,7 @@ export function ImageEditForm({
           />
           <span>
             Use consistency LoRA
-            <small>
-              {loraMissing
-                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
-                : "Keeps the face, pose and frame still. Uncheck to skip it."}
-            </small>
+            {loraMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
           </span>
         </label>
       )}
@@ -360,11 +356,7 @@ export function ImageEditForm({
           />
           <span>
             Use BFS head swap
-            <small>
-              {bfsMissing
-                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
-                : "Image 1 is the photo. Image 2 is the face. Uncheck to skip it."}
-            </small>
+            {bfsMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
           </span>
         </label>
       )}
