@@ -169,13 +169,13 @@ export function KieConnection() {
   return (
     <section className="kie-connection kie-compact">
       <div className="kie-key-row">
-        <select aria-label="API provider" value={kie.provider} disabled={busy} onChange={(e) => { kie.setProvider(e.target.value as MotionProvider); setError(""); }}>
-          <option value="kie">Kie</option><option value="apimart">APIMart</option>
-        </select>
         {!kie.configured || !!kie.key ? (
           <input aria-label={`${name} API key`} type="password" placeholder="Paste API key" autoComplete="off" spellCheck={false}
             value={kie.key} onChange={(event) => { kie.setKey(event.target.value); setError(""); }} />
         ) : <small>Server key configured</small>}
+        <select aria-label="API provider" value={kie.provider} disabled={busy} onChange={(e) => { kie.setProvider(e.target.value as MotionProvider); setError(""); }}>
+          <option value="kie">Kie</option><option value="apimart">APIMart</option>
+        </select>
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
           data-connected={kie.connected}
           aria-label={kie.connected ? `${name} credits: ${balanceLabel}. Refresh balance` : `Connect ${name}`}

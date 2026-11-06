@@ -1584,7 +1584,18 @@ body {
   background: transparent;
 }
 .header-inner:has(.header-kie-connection) .header-end {
-  margin-left: 0;
+  margin-left: -12px;
+  gap: 8px;
+}
+.header-kie-connection .kie-key-row select,
+.header-kie-connection .kie-key-row input,
+.header-kie-connection .kie-key-row .button {
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 13px;
 }
 @media (max-width: 767px) {
   .header-inner {
@@ -1601,9 +1612,12 @@ body {
 }
 .kie-key-row {
   display: grid;
-  grid-template-columns: 90px minmax(0, 4fr) minmax(64px, 1fr);
+  grid-template-columns: minmax(0, 4fr) 90px minmax(64px, 1fr);
   gap: 8px;
   align-items: center;
+}
+.kie-key-row > small {
+  text-align: right;
 }
 .kie-key-row select,
 .kie-key-row input {
@@ -1633,7 +1647,7 @@ body {
   background: #22c55e;
 }
 .kie-key-row:has(.button[data-connected="true"]) {
-  grid-template-columns: 90px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 90px auto;
 }
 .kie-key-row .button[data-connected="true"] {
   padding-inline: 10px;
@@ -2478,7 +2492,7 @@ body {
   background: var(--card);
   color: inherit;
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   white-space: nowrap;
   cursor: pointer;
 }
