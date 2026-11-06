@@ -646,12 +646,18 @@ function ImageEditCard({
         </p>
       )}
       <div className="job-actions">
-        {job.state === "success" && job.hasOutput && (
+        {(pending.includes(job.state) || (job.state === "success" && job.hasOutput)) && (
           <>
-            <a className="button" href={`${image("output")}&download=1`} download>
-              Download image
-            </a>
-            <Button secondary disabled={busy} onClick={() => void editAgain()}>
+            {job.state === "success" && job.hasOutput ? (
+              <a className="button" href={`${image("output")}&download=1`} download>
+                Download image
+              </a>
+            ) : (
+              <button type="button" className="button" disabled>
+                Download image
+              </button>
+            )}
+            <Button secondary disabled={busy || pending.includes(job.state)} onClick={() => void editAgain()}>
               Edit this result
             </Button>
           </>
