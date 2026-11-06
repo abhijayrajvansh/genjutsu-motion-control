@@ -18,6 +18,8 @@ export const QWEN21_FILES = {
   vae: "qwen_image_2.1_vae_bf16.safetensors",
   // AusBoss step 1500. Holds the photo still; strength 1 in the workflow.
   consistency: "qwen-image-2.1-consistency.safetensors",
+  // Alissonerdx BFS head v1.1. Image 1 is the photo, image 2 is the face; strength 1.
+  bfs: "bfs_head_v1.1_qwen_2.1.safetensors",
 } as const;
 
 // Qwen-Image-2.1 Turbo's 8-step schedule from the official ComfyUI template.
@@ -120,8 +122,9 @@ export type ImageEditJob = {
   // Missing on edits made before the size option existed (they matched the input).
   size?: ImageEditSize;
   resolution?: ImageEditResolution;
-  // Qwen Image 2.1 only. Missing means the AusBoss consistency LoRA was not used.
+  // Qwen Image 2.1 only. Missing means that LoRA was not used.
   consistency?: boolean;
+  bfs?: boolean;
   inputCount: number;
   // ComfyUI server origin (never its token) and its prompt ID.
   server: string;
@@ -135,8 +138,9 @@ export type ModelReadiness = {
   missingNodes: string[];
   missingModels: string[];
   fast: boolean;
-  // Qwen Image 2.1: the AusBoss consistency LoRA is in models/loras.
+  // Qwen Image 2.1: these LoRAs are in models/loras.
   consistency: boolean;
+  bfs: boolean;
 };
 
 export type ComfyStatus = {

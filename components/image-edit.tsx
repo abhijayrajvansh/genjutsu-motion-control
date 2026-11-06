@@ -181,6 +181,8 @@ export function ImageEditForm({
     quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "balanced",
     [savedConsistency, setConsistency] = useSaved("clone.edit.consistency", "false"),
     consistency = model === "qwen-image-2.1" && savedConsistency === "true",
+    [savedBfs, setBfs] = useSaved("clone.edit.bfs", "false"),
+    bfs = model === "qwen-image-2.1" && savedBfs === "true",
     [savedResolution, setResolution] = useSaved("clone.edit.resolution", "1024"),
     resolution: ImageEditResolution = settings.resolutions.includes(Number(savedResolution) as ImageEditResolution)
       ? (Number(savedResolution) as ImageEditResolution)
@@ -273,8 +275,9 @@ export function ImageEditForm({
   const pictures = [image, ...references].filter((asset): asset is Asset => !!asset);
   const loraMissing = model === "qwen-image-2.1" && !!readiness?.ready && !readiness.consistency;
   const consistencyMissing = consistency && loraMissing;
+  const bfsMissing = bfs && model === "qwen-image-2.1" && !!readiness?.ready && !readiness.bfs;
   const canSubmit =
-    !busy && !!readiness?.ready && !!image && !!prompt.trim() && seedValid && !(quality === "fast" && fastMissing) && !consistencyMissing;
+    !busy && !!readiness?.ready && !!image && !!prompt.trim() && seedValid && !(quality === "fast" && fastMissing) && !consistencyMissing && !bfsMissing;
   const imageName = (n: number) => (model === "qwen-image-2.1" ? `<image${n}>` : `image ${n}`);
   const selectedPreset = PROMPT_PRESETS.findIndex((preset) => fillPrompt(preset.prompt, imageName) === prompt);
 
@@ -291,6 +294,7 @@ export function ImageEditForm({
       form.set("prompt", prompt.trim());
       form.set("quality", quality);
       form.set("consistency", consistency ? "true" : "false");
+      form.set("bfs", bfs ? "true" : "false");
       form.set("resolution", String(resolution));
       form.set("size", size);
       form.set("seed", String(effectiveSeed));
@@ -452,6 +456,23 @@ export function ImageEditForm({
           </span>
         </label>
       )}
+      {model === "qwen-image-2.1" && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={bfs}
+            onChange={(event) => setBfs(event.target.checked ? "true" : "false")}
+          />
+          <span>
+            Use BFS head swap
+            <small>
+              {bfsMissing
+                ? "Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check."
+                : "Image 1 is the photo. Image 2 is the face. Uncheck to skip it."}
+            </small>
+          </span>
+        </label>
+      )}
       <label className="field">
         <span className="seed-row">
           Seed
@@ -491,6 +512,8 @@ export function ImageEditForm({
                     ? "Edit image — add an image"
                     : consistencyMissing
                     ? "Edit image — consistency LoRA not installed"
+                    : bfsMissing
+                    ? "Edit image — BFS LoRA not installed"
                     : `Edit image — ${preset.label}`}
           </Button>
         </div>
@@ -848,7 +871,7 @@ function EditDetails({
   const resolution = job.resolution ?? 1024;
   const weights =
     model === "qwen-image-2.1"
-      ? [preset?.turbo ? QWEN21_FILES.turbo : QWEN21_FILES.unet, QWEN21_FILES.clip, ...(job.consistency ? [QWEN21_FILES.consistency] : [])]
+      ? [preset?.turbo ? QWEN21_FILES.turbo : QWEN21_FILES.unet, QWEN21_FILES.clip, ...(job.consistency ? [QWEN21_FILES.consistency] : []), ...(job.bfs ? [QWEN21_FILES.bfs] : [])]
       : [QWEN_EDIT_FILES.unet, QWEN_EDIT_FILES.clip, ...(preset?.lightning ? [QWEN_EDIT_FILES.lightning] : [])];
   const size = job.size ?? "auto";
   const planned = size === "auto" ? null : canvasSize(size, model, resolution);
@@ -865,7 +888,7 @@ function EditDetails({
   const rows: [string, React.ReactNode][] = [
     ["Model", settings.label],
     ["Quality", preset?.label ?? `${job.steps} steps`],
-    ...(model === "qwen-image-2.1" ? ([["Consistency LoRA", job.consistency ? "On" : "Off"]] as [string, React.ReactNode][]) : []),
+    ...(model === "qwen-image-2.1" ? ([["Consistency LoRA", job.consistency ? "On" : "Off"], ["BFS head swap", job.bfs ? "On" : "Off"]] as [string, React.ReactNode][]) : []),
     ["Steps · CFG", `${job.steps} steps · CFG ${job.cfg}`],
     ["Seed", <span key="seed" className="edit-details-inline"><code>{job.seed}</code><CopyButton value={String(job.seed)} label="seed" /></span>],
     [

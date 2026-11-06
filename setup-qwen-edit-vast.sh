@@ -6,7 +6,7 @@
 #   ssh -p PORT root@HOST 'bash -s -- --model 2.1' < setup-qwen-edit-vast.sh
 # Options:
 #   --model 2511   Qwen-Image-Edit-2511 fp8mixed (~31 GB, default)
-#   --model 2.1    Qwen-Image-2.1 int8 + Turbo + consistency LoRA (~24.7 GB; needs ComfyUI >= v0.44)
+#   --model 2.1    Qwen-Image-2.1 int8 + Turbo + consistency and BFS LoRAs (~25 GB; needs ComfyUI >= v0.44)
 #   --model all    both
 #   --no-lightning skip the 0.85 GB 2511 Fast-mode LoRA
 # Env: COMFY_DIR=/path/to/ComfyUI to override detection, HF_TOKEN for gated mirrors.
@@ -60,6 +60,7 @@ if [ "$MODEL" != 2511 ]; then FILES+=(
   "text_encoders|$Q21/text_encoders/qwen3vl_8b_int8_convrot.safetensors|9350798360|8bfd0f6e12abf2d2d697ecc888e5e90b0d6741d6708f05799f53afa560452e8f"
   "vae|$Q21/vae/qwen_image_2.1_vae_bf16.safetensors|675509688|bb21f7473051e1ac368515dd3f2e15cd44d7a11748ee8823e1ddca3e4876b7c9"
   "loras|$HF/ausboss/Qwen-Image-2.1-Consistency-LoRA/resolve/main/qwen-image-2.1-consistency.safetensors|159436496|4f44ada1be2189cc23b3d010f9603543403f48454e2f76842a3d30109b20bd63"
+  "loras|$HF/Alissonerdx/BFS-Best-Face-Swap/resolve/main/bfs_head_v1.1_qwen_2.1.safetensors|260096144|d1d748d5601077f3b6d05766f6823510e901970d916afa404a97e85dc92fa88e"
 ); fi
 
 need=0
