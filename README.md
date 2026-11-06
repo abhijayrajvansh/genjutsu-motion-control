@@ -36,7 +36,7 @@ The **Edit Image** tab edits photos with Qwen-Image 2.1 running in ComfyUI on a 
    `ssh -p PORT root@HOST 'bash -s -- --model 2.1' < setup-qwen-edit-vast.sh` (~25 GB). That install includes the AusBoss consistency LoRA and the BFS head-swap LoRA.
    Qwen-Image 2.1 needs ComfyUI v0.44 or newer. On the GPU: `cd /workspace/ComfyUI && git fetch --tags && git checkout v0.44.1 && supervisorctl restart comfyui`.
 3. In **Edit Image**, paste the **ComfyUI link** that `rent-gpu` prints (`https://….trycloudflare.com/?token=…`) and click **Connect**. An SSH tunnel to `http://127.0.0.1:8188` also works. The link is saved in this browser; the token is only sent from the local server to ComfyUI.
-4. Add the image to edit, optionally up to two references, describe the change with `<image1>` and `<image2>`, and choose output size and quality. Resolution stays at 1K. **Use consistency LoRA** keeps the face, pose and frame still, and **Use BFS head swap** replaces the head in image 1 with the face in image 2. Leave either unchecked to skip that LoRA.
+4. Add the image to edit, optionally up to two references, describe the change with `<image1>` and `<image2>`, and choose output size and quality. Resolution stays at 1K. **Use consistency LoRA** keeps the face, pose and frame still, and **Use BFS LoRA** replaces the head in image 1 with the face in image 2. Leave either unchecked to skip that LoRA.
 
 Workflows follow Comfy-Org's official templates (`image_qwen_image_edit_2511`, `image_qwen_image_2_1(_turbo)_image_edit`; the 2.1 prompt enhancer is off). Inputs and results are kept in the ignored `.data/image-edit/` directory, so they remain after the rental is destroyed.
 

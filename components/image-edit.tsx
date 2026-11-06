@@ -352,7 +352,7 @@ export function ImageEditForm({
               onChange={(event) => setBfs(event.target.checked ? "true" : "false")}
             />
             <span>
-              Use BFS head swap
+              Use BFS LoRA
               {bfsMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
             </span>
           </label>
@@ -859,7 +859,7 @@ function EditDetails({
   const rows: [string, React.ReactNode][] = [
     ["Model", settings.label],
     ["Quality", preset?.label ?? `${job.steps} steps`],
-    ...(model === "qwen-image-2.1" ? ([["Consistency LoRA", job.consistency ? "On" : "Off"], ["BFS head swap", job.bfs ? "On" : "Off"]] as [string, React.ReactNode][]) : []),
+    ...(model === "qwen-image-2.1" ? ([["Consistency LoRA", job.consistency ? "On" : "Off"], ["BFS LoRA", job.bfs ? "On" : "Off"]] as [string, React.ReactNode][]) : []),
     ["Steps · CFG", `${job.steps} steps · CFG ${job.cfg}`],
     ["Seed", <span key="seed" className="edit-details-inline"><code>{job.seed}</code><CopyButton value={String(job.seed)} label="seed" /></span>],
     [
