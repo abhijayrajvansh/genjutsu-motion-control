@@ -20,12 +20,20 @@ import {
   QWEN_EDIT_FILES,
 } from "@/lib/image-edit";
 import { Asset, records, saveRecord } from "@/lib/storage";
+import savedPrompts from "@/prompts/edit-image-prompts.json";
 import { Button, Choices, FilePicker, IMAGE_TYPES, Modal, Prompt, Select, useSaved } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
 
 export const COMFY_LINK_KEY = "clone.comfy.url";
+// Saved prompts from prompts/edit-image-prompts.json; {image1}… become the model's own image names.
+const PROMPT_PRESETS = (savedPrompts as { label?: unknown; prompt?: unknown }[]).filter(
+  (item): item is { label: string; prompt: string } => typeof item.label === "string" && typeof item.prompt === "string",
+);
+function fillPrompt(prompt: string, imageName: (n: number) => string) {
+  return prompt.replace(/\{image(\d+)\}/g, (_, n: string) => imageName(Number(n)));
+}
 const pending: ImageEditJob["state"][] = ["submitting", "queued", "running"];
 const DEFAULT_PROMPT =
   "Keep the person's face, identity, skin texture and the camera angle exactly the same. Change only: ";
@@ -184,6 +192,7 @@ export function ImageEditForm({
   const canSubmit =
     !busy && !!readiness?.ready && !!image && !!prompt.trim() && seedValid && !(quality === "fast" && fastMissing);
   const imageName = (n: number) => (model === "qwen-image-2.1" ? `<image${n}>` : `image ${n}`);
+  const selectedPreset = PROMPT_PRESETS.findIndex((preset) => fillPrompt(preset.prompt, imageName) === prompt);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -270,6 +279,21 @@ export function ImageEditForm({
           </button>
         )}
       </div>
+      {PROMPT_PRESETS.length > 0 && (
+        <Select
+          label="Saved prompts"
+          options={[
+            { value: "", label: "Choose a saved prompt…" },
+            ...PROMPT_PRESETS.map((preset, index) => ({ value: String(index), label: preset.label })),
+          ]}
+          value={selectedPreset < 0 ? "" : String(selectedPreset)}
+          onChange={(value) => {
+            const preset = PROMPT_PRESETS[Number(value)];
+            if (value !== "" && preset) setPrompt(fillPrompt(preset.prompt, imageName));
+          }}
+          hint="Replaces the prompt below. Edit the list in prompts/edit-image-prompts.json."
+        />
+      )}
       <Prompt
         value={prompt}
         onChange={setPrompt}

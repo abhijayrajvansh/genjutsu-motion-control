@@ -1,0 +1,50 @@
+[
+  {
+    "label": "Keep identity, change one thing",
+    "prompt": "Keep the person's face, identity, skin texture and the camera angle in {image1} exactly the same. Change only: "
+  },
+  {
+    "label": "Outfit from reference",
+    "prompt": "Dress the person in {image1} in the outfit from {image2}. Keep their face, identity, hair, body shape, pose, lighting and background exactly the same. Match the fabric, color, pattern and fit of the outfit in {image2}, with natural folds and realistic shadows."
+  },
+  {
+    "label": "New background",
+    "prompt": "Keep the person in {image1} exactly the same: face, identity, hair, outfit, pose and framing. Replace only the background with: . Match the lighting direction, color temperature and depth of field so the person looks naturally photographed there."
+  },
+  {
+    "label": "Background from reference",
+    "prompt": "Place the person from {image1} into the scene from {image2}. Keep their face, identity, outfit and pose unchanged. Match the scene's lighting, shadows, perspective and color grading so it looks like a single real photo."
+  },
+  {
+    "label": "Relight: golden hour",
+    "prompt": "Relight {image1} as warm golden-hour sunlight from the side, with soft long shadows and a gentle warm rim light on the hair. Keep the person's face, identity, pose, outfit, framing and background unchanged."
+  },
+  {
+    "label": "Relight: soft studio",
+    "prompt": "Relight {image1} with soft, even studio lighting: a large diffused key light at 45 degrees, subtle fill and a clean catchlight in the eyes. Keep the face, identity, pose, outfit and framing exactly the same."
+  },
+  {
+    "label": "Change hairstyle",
+    "prompt": "Change only the hairstyle of the person in {image1} to: . Keep their face, identity, skin texture, outfit, pose, lighting and background exactly the same. Hair should look natural, with realistic strands and shine."
+  },
+  {
+    "label": "Change expression",
+    "prompt": "Change only the facial expression of the person in {image1} to a natural, relaxed smile. Keep the same identity, face shape, skin texture, eyes, hair, pose, outfit, lighting and background."
+  },
+  {
+    "label": "Remove an object",
+    "prompt": "Remove the  from {image1} and fill the area naturally so it matches the surrounding background, texture and lighting. Change nothing else in the image."
+  },
+  {
+    "label": "Product in hand",
+    "prompt": "Make the person in {image1} hold the product from {image2} naturally in their hand. Keep the product's exact shape, label, text and colors from {image2}. Keep the person's face, identity, outfit, pose and background unchanged, with realistic grip, shadows and reflections."
+  },
+  {
+    "label": "Photoreal cleanup",
+    "prompt": "Enhance {image1} into a sharp, natural, high-end photograph: realistic skin texture with visible pores, accurate colors, clean detail and no plastic smoothing. Keep the person's identity, expression, pose, outfit, framing and background exactly the same."
+  },
+  {
+    "label": "Camera: closer shot",
+    "prompt": "Reframe {image1} as a closer medium shot from the waist up, as if taken with an 85mm lens with a softly blurred background. Keep the person's face, identity, outfit, lighting and setting the same."
+  }
+]
