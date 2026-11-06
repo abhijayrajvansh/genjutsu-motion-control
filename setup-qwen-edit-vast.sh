@@ -59,6 +59,11 @@ fi
 
 auth=()
 [ -n "${HF_TOKEN:-}" ] && auth=(-H "Authorization: Bearer $HF_TOKEN")
+if ! command -v aria2c >/dev/null && command -v apt-get >/dev/null; then
+  echo "Installing aria2 for parallel downloads…"
+  (apt-get install -y -qq aria2 || (apt-get update -qq && apt-get install -y -qq aria2)) >/dev/null 2>&1 \
+    || echo "aria2 unavailable; using curl (single connection)."
+fi
 
 for entry in "${FILES[@]}"; do
   IFS='|' read -r folder url bytes sha <<<"$entry"
@@ -71,7 +76,14 @@ for entry in "${FILES[@]}"; do
     continue
   fi
   printf '\n↓ %s → models/%s (%s GB)\n' "$name" "$folder" "$(awk "BEGIN {printf \"%.2f\", $bytes / 1e9}")"
-  curl -L --fail --retry 5 --retry-delay 5 -C - "${auth[@]}" -o "$target.part" "$url"
+  if command -v aria2c >/dev/null; then
+    # 16 parallel connections: one connection to Hugging Face often caps near 30 MB/s.
+    aria2c -x16 -s16 -k16M -c --file-allocation=none --max-tries=10 --retry-wait=5 \
+      --console-log-level=warn --summary-interval=15 --download-result=hide \
+      ${HF_TOKEN:+--header="Authorization: Bearer $HF_TOKEN"} -d "$dir" -o "$name.part" "$url"
+  else
+    curl -L --fail --retry 5 --retry-delay 5 -C - "${auth[@]}" -o "$target.part" "$url"
+  fi
   [ "$(stat -c %s "$target.part")" = "$bytes" ] || { echo "Size mismatch for $name; rerun to resume." >&2; exit 1; }
   printf '  verifying checksum… '
   if [ "$(sha256sum "$target.part" | cut -d' ' -f1)" != "$sha" ]; then
