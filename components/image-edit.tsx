@@ -6,12 +6,15 @@ import {
   IMAGE_EDIT_MAX_MB,
   IMAGE_EDIT_MAX_SEED,
   IMAGE_EDIT_QUALITY,
+  IMAGE_EDIT_SIZES,
   ImageEditJob,
   ImageEditQuality,
+  ImageEditSize,
   isImageEditQuality,
+  isImageEditSize,
 } from "@/lib/image-edit";
 import { Asset } from "@/lib/storage";
-import { Button, Choices, FilePicker, IMAGE_TYPES, Prompt, TextField, useSaved } from "./controls";
+import { Button, Choices, FilePicker, IMAGE_TYPES, Prompt, Select, TextField, useSaved } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
@@ -53,6 +56,8 @@ export function ImageEditForm({
     [references, setReferences] = useState<(Asset | null)[]>([]),
     [prompt, setPrompt] = useSaved("clone.edit.prompt", DEFAULT_PROMPT),
     [savedQuality, setQuality] = useSaved("clone.edit.quality", "balanced"),
+    [savedSize, setSize] = useSaved("clone.edit.size", "auto"),
+    size: ImageEditSize = isImageEditSize(savedSize) ? savedSize : "auto",
     quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "balanced",
     [seed, setSeed] = useState(""),
     [plannedSeed, setPlannedSeed] = useState<number | null>(null),
@@ -119,6 +124,7 @@ export function ImageEditForm({
       form.set("id", crypto.randomUUID());
       form.set("prompt", prompt.trim());
       form.set("quality", quality);
+      form.set("size", size);
       form.set("seed", String(effectiveSeed));
       for (const asset of pictures) form.append("images", asset.blob, asset.name);
       await call<{ job: ImageEditJob }>("/api/comfy/edit", comfyLink, { method: "POST", body: form });
@@ -184,6 +190,23 @@ export function ImageEditForm({
         onChange={setPrompt}
         onUseDefault={() => setPrompt(DEFAULT_PROMPT)}
         hint="Describe only what should change, and what must stay the same. Call your pictures image 1, image 2 and image 3 — e.g. “Put the jacket from image 2 on the woman in image 1.”"
+      />
+      <Select
+        label="Output size"
+        options={(Object.keys(IMAGE_EDIT_SIZES) as ImageEditSize[]).map((value) => {
+          const option = IMAGE_EDIT_SIZES[value];
+          return {
+            value,
+            label: value === "auto" ? `${option.label} · about 1 MP` : `${option.label} · ${option.width}×${option.height}`,
+          };
+        })}
+        value={size}
+        onChange={setSize}
+        hint={
+          size === "auto"
+            ? "Keeps the shape of image 1."
+            : "A different shape than image 1 makes the model extend or reframe the scene."
+        }
       />
       <Choices
         label="Quality"
@@ -465,6 +488,7 @@ function ImageEditCard({
         <GenerationTime created={job.created} />
         <small className="job-model-line">
           Qwen Edit 2511 · {IMAGE_EDIT_QUALITY[job.quality]?.label ?? `${job.steps} steps`}
+          {job.size && job.size !== "auto" && ` · ${job.size}`}
           {" · "}
           <GenerationElapsed created={job.created} completedAt={pending.includes(job.state) ? undefined : job.completedAt ?? job.updated} />
         </small>

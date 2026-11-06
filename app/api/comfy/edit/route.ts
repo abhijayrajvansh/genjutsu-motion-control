@@ -5,6 +5,7 @@ import {
   IMAGE_EDIT_QUALITY,
   ImageEditJob,
   isImageEditQuality,
+  isImageEditSize,
   QWEN_EDIT_FILES,
 } from "@/lib/image-edit";
 import { comboOptions, comfyErrorMessage, comfyFetch, comfyServer, objectInfo, redactComfy } from "@/lib/server/comfy";
@@ -57,6 +58,8 @@ export async function POST(req: Request) {
     if (prompt.length > 4000) throw new ApiError("The prompt is too long (4,000 characters maximum).");
     const quality = form.get("quality");
     if (!isImageEditQuality(quality)) throw new ApiError("Choose a quality setting.");
+    const size = form.get("size") ?? "auto";
+    if (!isImageEditSize(size)) throw new ApiError("Choose a valid output size.");
     const seed = Number(form.get("seed"));
     if (!Number.isInteger(seed) || seed < 0 || seed > IMAGE_EDIT_MAX_SEED)
       throw new ApiError(`Seed must be a whole number from 0 to ${IMAGE_EDIT_MAX_SEED}.`);
@@ -97,6 +100,7 @@ export async function POST(req: Request) {
       steps: preset.steps,
       cfg: preset.cfg,
       seed,
+      size,
       inputCount: images.length,
       server: server.origin,
     };
@@ -117,7 +121,7 @@ export async function POST(req: Request) {
     }
 
     const graph = fillDefaults(
-      qwenEditPrompt({ images: names, prompt, quality, seed, prefix: `genjutsu/qwen-edit-${id.slice(0, 8)}` }),
+      qwenEditPrompt({ images: names, prompt, quality, size, seed, prefix: `genjutsu/qwen-edit-${id.slice(0, 8)}` }),
       info,
     );
     const response = await comfyFetch(

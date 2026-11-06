@@ -1,5 +1,5 @@
 import "server-only";
-import { IMAGE_EDIT_QUALITY, ImageEditQuality, QWEN_EDIT_FILES } from "@/lib/image-edit";
+import { IMAGE_EDIT_QUALITY, IMAGE_EDIT_SIZES, ImageEditQuality, ImageEditSize, QWEN_EDIT_FILES } from "@/lib/image-edit";
 import { ObjectInfo } from "./comfy";
 
 type Link = [string, number];
@@ -18,6 +18,7 @@ export const QWEN_EDIT_NODES = [
   "TextEncodeQwenImageEditPlus",
   "FluxKontextMultiReferenceLatentMethod",
   "VAEEncode",
+  "EmptySD3LatentImage",
   "KSampler",
   "VAEDecode",
   "SaveImage",
@@ -29,12 +30,14 @@ export function qwenEditPrompt({
   images,
   prompt,
   quality,
+  size = "auto",
   seed,
   prefix,
 }: {
   images: string[];
   prompt: string;
   quality: ImageEditQuality;
+  size?: ImageEditSize;
   seed: number;
   prefix: string;
 }): ApiPrompt {
@@ -78,7 +81,12 @@ export function qwenEditPrompt({
     class_type: "FluxKontextMultiReferenceLatentMethod",
     inputs: { conditioning: ["negative", 0], reference_latents_method: "index_timestep_zero" },
   };
-  graph.latent = { class_type: "VAEEncode", inputs: { pixels: ["scaled", 0], vae: ["vae", 0] } };
+  // Denoise is 1, so the starting latent only sets the output canvas size.
+  const canvas = IMAGE_EDIT_SIZES[size];
+  graph.latent =
+    size === "auto"
+      ? { class_type: "VAEEncode", inputs: { pixels: ["scaled", 0], vae: ["vae", 0] } }
+      : { class_type: "EmptySD3LatentImage", inputs: { width: canvas.width, height: canvas.height, batch_size: 1 } };
   graph.sampler = {
     class_type: "KSampler",
     inputs: {

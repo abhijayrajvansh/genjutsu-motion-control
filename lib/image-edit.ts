@@ -37,6 +37,24 @@ export const IMAGE_EDIT_QUALITY: Record<
   },
 };
 
+// Output canvas. "auto" keeps image 1's shape (scaled to ~1 MP); ratios use
+// ~1 MP sizes in multiples of 16, which Qwen-Image-Edit handles natively.
+export const IMAGE_EDIT_SIZES = {
+  auto: { label: "Match input image", width: 0, height: 0 },
+  "1:1": { label: "1:1", width: 1024, height: 1024 },
+  "2:3": { label: "2:3", width: 832, height: 1248 },
+  "3:2": { label: "3:2", width: 1248, height: 832 },
+  "3:4": { label: "3:4", width: 864, height: 1152 },
+  "4:3": { label: "4:3", width: 1152, height: 864 },
+  "9:16": { label: "9:16", width: 768, height: 1360 },
+  "16:9": { label: "16:9", width: 1360, height: 768 },
+  "21:9": { label: "21:9", width: 1568, height: 672 },
+} as const;
+export type ImageEditSize = keyof typeof IMAGE_EDIT_SIZES;
+export function isImageEditSize(value: unknown): value is ImageEditSize {
+  return typeof value === "string" && Object.hasOwn(IMAGE_EDIT_SIZES, value);
+}
+
 export const IMAGE_EDIT_MAX_IMAGES = 3;
 export const IMAGE_EDIT_MAX_MB = 30;
 export const IMAGE_EDIT_MAX_SEED = 2147483647;
@@ -54,6 +72,8 @@ export type ImageEditJob = {
   steps: number;
   cfg: number;
   seed: number;
+  // Missing on edits made before the size option existed (they matched the input).
+  size?: ImageEditSize;
   inputCount: number;
   // ComfyUI server origin (never its token) and its prompt ID.
   server: string;
