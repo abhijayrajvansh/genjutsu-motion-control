@@ -38,6 +38,7 @@ const QWEN21_NODES = [
   "UNETLoader",
   "CLIPLoader",
   "VAELoader",
+  "LoraLoaderModelOnly",
   "QwenImage21Cache",
   "LoadImage",
   "TextEncodeQwenImage21",
@@ -59,13 +60,17 @@ export const MODEL_NODES: Record<ImageEditModel, string[]> = {
 export const ALL_NODES = [...new Set([...QWEN_EDIT_2511_NODES, ...QWEN21_NODES])];
 
 // [node, input, file] that must be installed for a model; fast adds its Fast-mode file.
-export function requiredFiles(model: ImageEditModel, fast: boolean): [string, string, string][] {
-  if (model === "qwen-image-2.1")
-    return [
+// consistency adds the optional AusBoss LoRA, which is not required to run the model.
+export function requiredFiles(model: ImageEditModel, fast: boolean, consistency = false): [string, string, string][] {
+  if (model === "qwen-image-2.1") {
+    const files: [string, string, string][] = [
       ["UNETLoader", "unet_name", fast ? QWEN21_FILES.turbo : QWEN21_FILES.unet],
       ["CLIPLoader", "clip_name", QWEN21_FILES.clip],
       ["VAELoader", "vae_name", QWEN21_FILES.vae],
     ];
+    if (consistency) files.push(["LoraLoaderModelOnly", "lora_name", QWEN21_FILES.consistency]);
+    return files;
+  }
   const files: [string, string, string][] = [
     ["UNETLoader", "unet_name", QWEN_EDIT_FILES.unet],
     ["CLIPLoader", "clip_name", QWEN_EDIT_FILES.clip],
@@ -83,6 +88,7 @@ type PromptOptions = {
   resolution?: ImageEditResolution;
   seed: number;
   prefix: string;
+  consistency?: boolean;
 };
 
 export function editPrompt(model: ImageEditModel, options: PromptOptions): ApiPrompt {
@@ -160,14 +166,23 @@ function qwenEditPrompt({ images, prompt, quality, size = "auto", seed, prefix }
 
 // API-format graph equivalent to Comfy-Org's image_qwen_image_2_1(_turbo)_image_edit
 // templates, with the optional prompt enhancer left off (the templates' default).
-function qwen21Prompt({ images, prompt, quality, size = "auto", resolution = 1024, seed, prefix }: PromptOptions): ApiPrompt {
+function qwen21Prompt({ images, prompt, quality, size = "auto", resolution = 1024, seed, prefix, consistency = false }: PromptOptions): ApiPrompt {
   const preset = IMAGE_EDIT_MODELS["qwen-image-2.1"].quality[quality];
   const graph: ApiPrompt = {
     unet: { class_type: "UNETLoader", inputs: { unet_name: preset.turbo ? QWEN21_FILES.turbo : QWEN21_FILES.unet, weight_dtype: "default" } },
     clip: { class_type: "CLIPLoader", inputs: { clip_name: QWEN21_FILES.clip, type: "qwen_image", device: "default" } },
     vae: { class_type: "VAELoader", inputs: { vae_name: QWEN21_FILES.vae } },
-    cache: { class_type: "QwenImage21Cache", inputs: { model: ["unet", 0], device: "auto", dtype: "default" } },
   };
+  // The LoRA patches the weights before the cache, and is omitted entirely when the box is off.
+  let model: Link = ["unet", 0];
+  if (consistency) {
+    graph.lora = {
+      class_type: "LoraLoaderModelOnly",
+      inputs: { model, lora_name: QWEN21_FILES.consistency, strength_model: 1 },
+    };
+    model = ["lora", 0];
+  }
+  graph.cache = { class_type: "QwenImage21Cache", inputs: { model, device: "auto", dtype: "default" } };
   const references: Record<string, Link> = {};
   images.forEach((name, index) => {
     graph[`image${index + 1}`] = { class_type: "LoadImage", inputs: { image: name } };

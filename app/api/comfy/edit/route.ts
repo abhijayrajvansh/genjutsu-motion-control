@@ -69,6 +69,7 @@ export async function POST(req: Request) {
     const seed = Number(form.get("seed"));
     if (!Number.isInteger(seed) || seed < 0 || seed > IMAGE_EDIT_MAX_SEED)
       throw new ApiError(`Seed must be a whole number from 0 to ${IMAGE_EDIT_MAX_SEED}.`);
+    const consistency = model === "qwen-image-2.1" && form.get("consistency") === "true";
     const files = form.getAll("images").filter((value): value is File => value instanceof File);
     if (!files.length) throw new ApiError("Add the image you want to edit.");
     if (files.length > IMAGE_EDIT_MAX_IMAGES) throw new ApiError(`Use at most ${IMAGE_EDIT_MAX_IMAGES} images.`);
@@ -86,7 +87,7 @@ export async function POST(req: Request) {
     const missing = MODEL_NODES[model].filter((node) => !info[node]);
     if (missing.length) throw new ApiError(`This ComfyUI is missing nodes: ${missing.join(", ")}. Update ComfyUI.`, 409);
     const preset = settings.quality[quality];
-    const absent = requiredFiles(model, !!(preset.lightning || preset.turbo)).filter(([node, input, file]) => !comboOptions(info, node, input).includes(file)).map(([, , file]) => file);
+    const absent = requiredFiles(model, !!(preset.lightning || preset.turbo), consistency).filter(([node, input, file]) => !comboOptions(info, node, input).includes(file)).map(([, , file]) => file);
     if (absent.length) throw new ApiError(`Models not installed on the GPU: ${absent.join(", ")}. Run setup-qwen-edit-vast.sh there.`, 409);
 
     const now = Date.now();
@@ -103,6 +104,7 @@ export async function POST(req: Request) {
       seed,
       size,
       resolution,
+      ...(consistency ? { consistency: true } : {}),
       inputCount: images.length,
       server: server.origin,
     };
@@ -123,7 +125,7 @@ export async function POST(req: Request) {
     }
 
     const graph = fillDefaults(
-      editPrompt(model, { images: names, prompt, quality, size, resolution, seed, prefix: `genjutsu/qwen-edit-${id.slice(0, 8)}` }),
+      editPrompt(model, { images: names, prompt, quality, size, resolution, seed, consistency, prefix: `genjutsu/qwen-edit-${id.slice(0, 8)}` }),
       info,
     );
     const response = await comfyFetch(

@@ -1,4 +1,4 @@
-import { ComfyStatus, ImageEditModel, IMAGE_EDIT_MODELS, ModelReadiness } from "@/lib/image-edit";
+import { ComfyStatus, ImageEditModel, IMAGE_EDIT_MODELS, ModelReadiness, QWEN21_FILES } from "@/lib/image-edit";
 import { comboOptions, comfyJson, comfyServer, ObjectInfo, objectInfo } from "@/lib/server/comfy";
 import { ApiError, json } from "@/lib/server/kie";
 import { ALL_NODES, MODEL_NODES, requiredFiles } from "@/lib/server/qwen-edit-workflow";
@@ -24,11 +24,13 @@ function readiness(model: ImageEditModel, info: ObjectInfo): ModelReadiness {
     .filter((file) => !installed(file))
     .map(([node, , file]) => `${folder[node]}/${file}`);
   const fastFile = requiredFiles(model, true).find((file) => !requiredFiles(model, false).some((base) => base[2] === file[2]));
+  const consistencyFile = requiredFiles(model, false, true).find((file) => file[2] === QWEN21_FILES.consistency);
   return {
     ready: !missingNodes.length && !missingModels.length,
     missingNodes,
     missingModels,
     fast: !fastFile || installed(fastFile),
+    consistency: model === "qwen-image-2.1" && !!consistencyFile && installed(consistencyFile),
   };
 }
 
