@@ -28,6 +28,20 @@ function randomSeed() {
   crypto.getRandomValues(bytes);
   return bytes[0] % 2147483648;
 }
+const NO_INFLUENCER = "none";
+type InfluencerOption = { id: string; name: string };
+async function influencerFaceAsset(influencer: InfluencerOption): Promise<Asset> {
+  const res = await fetch(`/api/influencers/${encodeURIComponent(influencer.id)}/face`, { cache: "no-store" });
+  if (!res.ok) throw new Error("missing face");
+  const blob = await res.blob();
+  return {
+    id: `influencer-${influencer.id}-face`,
+    name: `${influencer.name} face`,
+    type: blob.type || "image/png",
+    blob,
+    created: Date.now(),
+  };
+}
 async function videoFrameAsset(el: HTMLVideoElement): Promise<Asset> {
   const canvas = document.createElement("canvas");
   canvas.width = el.videoWidth;
@@ -191,12 +205,38 @@ export function MotionWorkflow({
     setFace(asset);
     writeMotionInputs({ faceId: asset?.id ?? null });
   }
+  const [influencers, setInfluencers] = useState<InfluencerOption[]>([]);
+  const [influencerId, setInfluencerId] = useSaved("clone.motion.influencer", "sonali");
+  const [influencerFace, setInfluencerFace] = useState<Asset | null>(null);
+  const influencer = influencers.find((item) => item.id === influencerId) ?? null;
+  useEffect(() => {
+    let live = true;
+    fetch("/api/influencers", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { influencers: [] }))
+      .then((body: { influencers?: InfluencerOption[] }) => { if (live) setInfluencers(body.influencers ?? []); })
+      .catch(() => undefined);
+    return () => { live = false; };
+  }, []);
+  useEffect(() => {
+    if (!influencer) return;
+    let live = true;
+    influencerFaceAsset(influencer)
+      .then((asset) => { if (live) setInfluencerFace(asset); })
+      .catch(() => { if (live) setError(`Could not load ${influencer.name}'s face reference.`); });
+    return () => { live = false; };
+  }, [influencer]);
+  // While an influencer is selected, their saved face is always the face reference.
+  const effectiveFace = influencer ? (influencerFace?.id === `influencer-${influencer.id}-face` ? influencerFace : null) : face;
+  function pickFace(asset: Asset | null) {
+    if (influencerId !== NO_INFLUENCER) setInfluencerId(NO_INFLUENCER);
+    chooseFace(asset);
+  }
   function chooseFirstFrame(asset: Asset | null) {
     setFirstFrame(asset);
     writeMotionInputs({ firstFrameId: asset?.id ?? null });
   }
   const faceSupported = model.id === "wan" && mode === "reference";
-  const activeFace = faceSupported ? face : null;
+  const activeFace = faceSupported ? effectiveFace : null;
   const has480p = (model.resolutions as readonly string[]).includes("480p");
   const selectedResolution = has480p ? "480p" : (model.resolutions as readonly string[]).includes(
     resolution,
@@ -411,6 +451,15 @@ export function MotionWorkflow({
           value={model.id}
           onChange={changeModel}
         />
+        <Select
+          label="Influencer"
+          options={[
+            { value: NO_INFLUENCER, label: "None" },
+            ...influencers.map((item) => ({ value: item.id, label: item.name })),
+          ]}
+          value={influencer ? influencer.id : NO_INFLUENCER}
+          onChange={(value) => { setError(""); setInfluencerId(value); }}
+        />
       </div>
       {model.id === "kling" && (
         <Choices
@@ -466,8 +515,8 @@ export function MotionWorkflow({
             <FilePicker
               label="Face reference"
               accept={IMAGE_TYPES}
-              asset={face}
-              onPick={chooseFace}
+              asset={effectiveFace}
+              onPick={pickFace}
             />
           )}
           {mode === "first-frame" && (
