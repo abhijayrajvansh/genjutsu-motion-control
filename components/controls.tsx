@@ -368,12 +368,12 @@ export function FilePicker({
   previewDisabled = false,
   hideActions = false,
   headerAction,
-  below,
+  above,
 }: {
   label: string;
   hint?: string;
   headerAction?: React.ReactNode;
-  below?: React.ReactNode;
+  above?: React.ReactNode;
   accept?: string;
   asset: Asset | null;
   onPick: (a: Asset | null) => void;
@@ -455,6 +455,7 @@ export function FilePicker({
           </button>
         )}
       </div>
+      {above}
       {asset && loadedContent ? loadedContent : <button
         type="button"
         className={`drop-zone ${drag ? "dragging" : ""} ${asset ? "has-file" : ""} ${simple ? "simple" : ""}`}
@@ -580,7 +581,6 @@ export function FilePicker({
           )}
         </Modal>
       )}
-      {below}
     </div>
   );
 }

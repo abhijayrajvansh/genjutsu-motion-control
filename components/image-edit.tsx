@@ -349,7 +349,7 @@ export function ImageEditForm({
           accept={IMAGE_TYPES}
           asset={image}
           onPick={chooseImage}
-          below={<ImageLink label="Image to edit" onPick={chooseImage} />}
+          above={<ImageLink label="Image to edit" onPick={chooseImage} />}
         />
         {references.map((asset, index) => (
           <div key={index}>
@@ -359,7 +359,7 @@ export function ImageEditForm({
               accept={IMAGE_TYPES}
               asset={asset}
               onPick={(value) => changeReferences((list) => list.map((item, k) => (k === index ? value : item)))}
-              below={<ImageLink label={`Reference image ${index + 2}`} onPick={(value) => changeReferences((list) => list.map((item, k) => (k === index ? value : item)))} />}
+              above={<ImageLink label={`Reference image ${index + 2}`} onPick={(value) => changeReferences((list) => list.map((item, k) => (k === index ? value : item)))} />}
             />
             <button type="button" className="text-button" onClick={() => changeReferences((list) => list.filter((_, k) => k !== index))}>
               Remove reference
