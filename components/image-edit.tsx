@@ -16,6 +16,8 @@ import {
   isImageEditModel,
   isImageEditQuality,
   isImageEditSize,
+  QWEN21_FILES,
+  QWEN_EDIT_FILES,
 } from "@/lib/image-edit";
 import { Asset, records, saveRecord } from "@/lib/storage";
 import { Button, Choices, FilePicker, IMAGE_TYPES, Modal, Prompt, Select, useSaved } from "./controls";
@@ -534,7 +536,8 @@ function ImageEditCard({
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [viewing, setViewing] = useState<string | null>(null);
+    [viewing, setViewing] = useState<string | null>(null),
+    [showDetails, setShowDetails] = useState(false);
   const image = (which: string) => `/api/comfy/edit/${job.id}/image?which=${which}`;
   const labels: Record<ImageEditJob["state"], string> = {
     submitting: "Submitting",
@@ -580,10 +583,6 @@ function ImageEditCard({
         </div>
         <GenerationTime created={job.created} />
         <small className="job-model-line">
-          {IMAGE_EDIT_MODELS[job.model ?? "qwen-edit-2511"].short} · {IMAGE_EDIT_MODELS[job.model ?? "qwen-edit-2511"].quality[job.quality]?.label ?? `${job.steps} steps`}
-          {job.size && job.size !== "auto" && ` · ${job.size}`}
-          {job.resolution === 2048 && " · 2K"}
-          {" · "}
           <GenerationElapsed created={job.created} completedAt={pending.includes(job.state) ? undefined : job.completedAt ?? job.updated} />
         </small>
         <div className="job-mode-row">
@@ -611,21 +610,9 @@ function ImageEditCard({
         </button>
       )}
       <div className="job-meta-row">
-        <details className="job-prompt-details">
-          <summary>Show prompt &amp; inputs</summary>
-          <p className="job-prompt">{job.prompt}</p>
-          <small className="job-prompt-seed">
-            Seed: {job.seed} · {job.steps} steps · CFG {job.cfg}
-          </small>
-          <div className="image-edit-inputs">
-            {Array.from({ length: job.inputCount }, (_, index) => (
-              <button type="button" key={index} onClick={() => setViewing(`input${index + 1}`)} title={`View image ${index + 1} larger`}>
-                <img src={image(`input${index + 1}`)} alt={`Input image ${index + 1}`} loading="lazy" />
-                <span>image {index + 1}</span>
-              </button>
-            ))}
-          </div>
-        </details>
+        <button type="button" className="text-button edit-details-button" onClick={() => setShowDetails(true)}>
+          Show details
+        </button>
         <small className="real-label">Cost: GPU time</small>
       </div>
       {job.error && <p className="error">{job.error}</p>}
@@ -651,6 +638,18 @@ function ImageEditCard({
           </button>
         )}
       </div>
+      {showDetails && (
+        <EditDetails
+          job={job}
+          status={labels[job.state]}
+          image={image}
+          onView={(which) => {
+            setShowDetails(false);
+            setViewing(which);
+          }}
+          onClose={() => setShowDetails(false)}
+        />
+      )}
       {viewing && (
         <Modal
           title={viewing === "output" ? "Edited image" : `Input ${viewing.replace("input", "image ")}`}
@@ -674,5 +673,175 @@ function ImageEditCard({
         </Modal>
       )}
     </article>
+  );
+}
+
+function formatTime(ms: number) {
+  const date = new Date(ms);
+  const day = date.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric" });
+  const time = date.toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true });
+  return `${day}, ${time} IST`;
+}
+
+function formatDuration(ms: number) {
+  const seconds = Math.max(0, Math.round(ms / 1000));
+  return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
+}
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="text-button edit-details-copy"
+      aria-label={`Copy ${label}`}
+      onClick={() => {
+        void navigator.clipboard?.writeText(value).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        });
+      }}
+    >
+      {copied ? "Copied" : "Copy"}
+    </button>
+  );
+}
+
+// A report of everything that went into one edit: inputs, result, model, settings and timing.
+function EditDetails({
+  job,
+  status,
+  image,
+  onView,
+  onClose,
+}: {
+  job: ImageEditJob;
+  status: string;
+  image: (which: string) => string;
+  onView: (which: string) => void;
+  onClose: () => void;
+}) {
+  const [output, setOutput] = useState<{ width: number; height: number } | null>(null);
+  const model = job.model ?? "qwen-edit-2511";
+  const settings = IMAGE_EDIT_MODELS[model];
+  const preset = settings.quality[job.quality];
+  const resolution = job.resolution ?? 1024;
+  const weights =
+    model === "qwen-image-2.1"
+      ? [preset?.turbo ? QWEN21_FILES.turbo : QWEN21_FILES.unet, QWEN21_FILES.clip]
+      : [QWEN_EDIT_FILES.unet, QWEN_EDIT_FILES.clip, ...(preset?.lightning ? [QWEN_EDIT_FILES.lightning] : [])];
+  const size = job.size ?? "auto";
+  const planned = size === "auto" ? null : canvasSize(size, model, resolution);
+  const finished = job.state === "success" || job.state === "fail" ? job.completedAt ?? job.updated : undefined;
+  const hasResult = job.state === "success" && job.hasOutput;
+  const stateClass = job.state === "success" ? "completed" : job.state === "fail" ? "failed" : "processing";
+  let server = job.server;
+  try {
+    server = new URL(job.server).host;
+  } catch {
+    // Keep the stored value.
+  }
+
+  const rows: [string, React.ReactNode][] = [
+    ["Model", settings.label],
+    ["Quality", preset?.label ?? `${job.steps} steps`],
+    ["Steps · CFG", `${job.steps} steps · CFG ${job.cfg}`],
+    ["Seed", <span key="seed" className="edit-details-inline"><code>{job.seed}</code><CopyButton value={String(job.seed)} label="seed" /></span>],
+    [
+      "Output size",
+      output
+        ? `${output.width}×${output.height}${size === "auto" ? " · matched input" : ` · ${size}`}`
+        : planned
+          ? `${size} · ${planned.width}×${planned.height}`
+          : "Matches image 1",
+    ],
+    ...(settings.resolutions.length > 1 ? ([["Resolution", resolution === 2048 ? "2K" : "1K"]] as [string, React.ReactNode][]) : []),
+    ["Weights", <span key="weights" className="edit-details-files">{weights.map((file) => <code key={file}>{file}</code>)}</span>],
+  ];
+  const timing: [string, React.ReactNode][] = [
+    ["Started", formatTime(job.created)],
+    ...(finished !== undefined
+      ? ([
+          [job.state === "fail" ? "Failed" : "Finished", formatTime(finished)],
+          ["Duration", formatDuration(finished - job.created)],
+        ] as [string, React.ReactNode][])
+      : ([["Elapsed", <GenerationElapsed key="elapsed" created={job.created} />]] as [string, React.ReactNode][])),
+    ["GPU server", server],
+    ...(job.promptId
+      ? ([["ComfyUI job", <span key="job" className="edit-details-inline"><code>{job.promptId}</code><CopyButton value={job.promptId} label="job ID" /></span>]] as [string, React.ReactNode][])
+      : []),
+  ];
+
+  return (
+    <Modal title="Generation details" closeLabel="Close" className="edit-details-modal" onClose={onClose}>
+      <div className="edit-details">
+        <div className="edit-details-summary">
+          <span className={`job-status ${stateClass}`}>{status}</span>
+          <strong>{settings.short}</strong>
+          <span>{preset?.label ?? `${job.steps} steps`}</span>
+          {size !== "auto" && <span>{size}</span>}
+          {resolution === 2048 && <span>2K</span>}
+        </div>
+
+        <div className="edit-details-media">
+          {Array.from({ length: job.inputCount }, (_, index) => (
+            <button type="button" key={index} onClick={() => onView(`input${index + 1}`)} title={`View image ${index + 1} larger`}>
+              <img src={image(`input${index + 1}`)} alt={`Input image ${index + 1}`} />
+              <span>{index === 0 ? "Image 1 · edited" : `Image ${index + 1} · reference`}</span>
+            </button>
+          ))}
+          {hasResult && (
+            <button type="button" className="edit-details-result" onClick={() => onView("output")} title="View the result larger">
+              <img
+                src={image("output")}
+                alt="Edited result"
+                onLoad={(event) => setOutput({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight })}
+              />
+              <span>Result</span>
+            </button>
+          )}
+        </div>
+
+        <section className="edit-details-section">
+          <div className="between">
+            <h3>Prompt</h3>
+            <CopyButton value={job.prompt} label="prompt" />
+          </div>
+          <p className="edit-details-prompt">{job.prompt}</p>
+        </section>
+
+        {job.error && (
+          <section className="edit-details-section">
+            <h3>Error</h3>
+            <p className="error">{job.error}</p>
+          </section>
+        )}
+
+        <div className="edit-details-columns">
+          <section className="edit-details-section">
+            <h3>Settings</h3>
+            <dl className="edit-details-list">
+              {rows.map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+          <section className="edit-details-section">
+            <h3>Run</h3>
+            <dl className="edit-details-list">
+              {timing.map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        </div>
+      </div>
+    </Modal>
   );
 }
