@@ -1,7 +1,5 @@
 # Qwen-Image-Edit-2511 for ComfyUI
 
-Research date: 2026-11-06. I listed the files and sizes from the Hugging Face API. The workflow settings come from the official ComfyUI template JSON.
-
 ## Required for every variant
 
 | Folder | File | Size | Source |
@@ -74,7 +72,7 @@ In ComfyUI, go to **Templates** and search for "Qwen Image Edit 2511". The same 
 - **24 GB+ VRAM (NVIDIA):** fp8mixed with the Lightning 4-step LoRA, or the merged lightx2v fp8 Lightning checkpoint.
 - **12–16 GB VRAM:** GGUF Q4_K_M or Q5_K_M, or Nunchaku int4/fp4.
 - **RTX 50-series:** NVFP4 or Nunchaku fp4.
-- **Apple Silicon Mac:** GGUF through ComfyUI-GGUF. fp8, NVFP4 and Nunchaku need NVIDIA. The `mflux-community/qwen-image-edit-2511-mflux-*` repos are for mflux, not ComfyUI.
+- **Apple Silicon Mac:** GGUF through ComfyUI-GGUF. fp8, NVFP4 and Nunchaku need NVIDIA. The `mflux-community/qwen-image-edit-2511-mflux-`* repos are for mflux, not ComfyUI.
 
 ---
 
