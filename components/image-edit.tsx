@@ -687,11 +687,13 @@ function ImageEditCard({
           <strong>{(job.promptId || job.id).slice(0, 10)}</strong>
         </div>
         <GenerationTime created={job.created} />
-        <small className="job-model-line">
-          <GenerationElapsed created={job.created} completedAt={pending.includes(job.state) ? undefined : job.completedAt ?? job.updated} />
-        </small>
-        <small className="job-model-line real-label">Cost: GPU time</small>
-        <div className="job-mode-row">
+        <div className="edit-card-meta">
+          <div className="edit-card-lines">
+            <small className="job-model-line">
+              <GenerationElapsed created={job.created} completedAt={pending.includes(job.state) ? undefined : job.completedAt ?? job.updated} />
+            </small>
+            <small className="real-label">Cost: GPU time</small>
+          </div>
           <div className="job-card-tools">
             <button type="button" className="job-refresh-button" aria-label="Refresh status" title="Refresh status" onClick={onChange}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

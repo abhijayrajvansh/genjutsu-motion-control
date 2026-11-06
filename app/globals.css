@@ -1209,6 +1209,27 @@ em {
 .job-model-line .generation-elapsed {
   color: var(--success-text);
 }
+.edit-card-meta {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.edit-card-lines {
+  margin-right: auto;
+  min-width: 0;
+}
+.edit-card-lines .job-model-line,
+.edit-card-lines .real-label {
+  display: block;
+  margin: 0;
+}
+.edit-card-meta .job-card-tools {
+  margin: 0;
+  flex-shrink: 0;
+  gap: 6px;
+}
 .job-status {
   font-size: 11px;
   padding: 3px 7px;
