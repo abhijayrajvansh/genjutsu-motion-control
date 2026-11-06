@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Asset, Job, records, removeRecord, saveRecord } from "@/lib/storage";
 import { KieConnection, KieProvider, useKie } from "./kie-connection";
 import { MotionHistory } from "./motion-history";
@@ -29,7 +29,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
   const { provider } = useKie();
   const [savedTab, setTab] = useSaved("clone.generations.section", "Motion Control"),
     tab = tabs.includes(savedTab) ? savedTab : tabs[0],
-    [menu, setMenu] = useState(""),
     [demo, setDemo] = useState(false),
     [credits, setCredits] = useState(0),
     [jobs, setJobs] = useState<Job[]>([]),
@@ -39,7 +38,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [preview, setPreview] = useState<Asset | null>(null),
     [motionAsset, setMotionAsset] = useState<Asset | null>(null),
     [ready, setReady] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
   const [historyLayout, setHistoryLayout] = useSaved("clone.generations.layout", "grid");
   const [generationsHidden, setGenerationsHidden] = useSaved("clone.generations.hidden", "false");
@@ -82,20 +80,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     setDemo(localStorage.getItem("clone.demo") === "true");
     setCredits(Number(localStorage.getItem("clone.credits") ?? "0"));
     setReady(true);
-  }, []);
-  useEffect(() => {
-    function close(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenu("");
-    }
-    function outside(e: MouseEvent) {
-      if (root.current && !root.current.contains(e.target as Node)) setMenu("");
-    }
-    window.addEventListener("keydown", close);
-    document.addEventListener("click", outside);
-    return () => {
-      window.removeEventListener("keydown", close);
-      document.removeEventListener("click", outside);
-    };
   }, []);
   useEffect(() => {
     if (!ready) return;
@@ -148,7 +132,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
         ? "Demo mode enabled. Generations preview your uploaded media; no files or API keys leave this browser."
         : "Demo mode disabled.",
     );
-    setMenu("");
   }
   async function submit(s: Submission) {
     if (!demo) {
@@ -204,20 +187,12 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
   const props = { demo, credits, busy, onSubmit: submit };
   return (
     <>
-      <header className="site-header" ref={root}>
+      <header className="site-header">
         <div className="header-inner">
           <Link href="/generations" className="brand">
             <img src="/logo-160.png" alt="" width="26" height="26" />
             <strong>Aiorbust</strong>
           </Link>
-          <nav className="desktop-nav">
-            <Link
-              href="/generations"
-              className={section === "generations" ? "active" : ""}
-            >
-              Easy Generations
-            </Link>
-          </nav>
           <div className="header-kie-connection">
             <KieConnection />
           </div>
@@ -235,28 +210,8 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
             )}
             <HideUiToggle />
             <ThemeToggle />
-            <button
-              className="mobile-toggle"
-              aria-label="Menu"
-              aria-expanded={menu === "mobile"}
-              onClick={() => setMenu(menu === "mobile" ? "" : "mobile")}
-            >
-              ☰
-            </button>
           </div>
         </div>
-        {menu === "mobile" && (
-          <nav className="mobile-nav">
-            {[["generations", "Easy Generations"]].map(
-              ([url, label]) => (
-                <Link href={`/${url}`} key={url}>
-                  {label}
-                  {url !== "generations" && <em>Premium</em>}
-                </Link>
-              ),
-            )}
-          </nav>
-        )}
       </header>
       <main className="main-content">
         {section === "generations" ? (
