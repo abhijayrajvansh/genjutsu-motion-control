@@ -17,7 +17,7 @@ import {
   isImageEditQuality,
   isImageEditSize,
 } from "@/lib/image-edit";
-import { Asset } from "@/lib/storage";
+import { Asset, records, saveRecord } from "@/lib/storage";
 import { Button, Choices, FilePicker, IMAGE_TYPES, Modal, Prompt, Select, useSaved } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
@@ -27,6 +27,25 @@ export const COMFY_LINK_KEY = "clone.comfy.url";
 const pending: ImageEditJob["state"][] = ["submitting", "queued", "running"];
 const DEFAULT_PROMPT =
   "Keep the person's face, identity, skin texture and the camera angle exactly the same. Change only: ";
+
+// Picked images live in the browser's IndexedDB asset library; their IDs are kept here.
+const EDIT_INPUTS_KEY = "clone.edit.inputs";
+type SavedEditInputs = { imageId?: string | null; referenceIds?: (string | null)[] };
+function readEditInputs(): SavedEditInputs {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(EDIT_INPUTS_KEY) || "{}");
+    return parsed && typeof parsed === "object" ? (parsed as SavedEditInputs) : {};
+  } catch {
+    return {};
+  }
+}
+function writeEditInputs(patch: SavedEditInputs) {
+  try {
+    localStorage.setItem(EDIT_INPUTS_KEY, JSON.stringify({ ...readEditInputs(), ...patch }));
+  } catch {
+    // Browser storage is unavailable; inputs simply won't survive a reload.
+  }
+}
 
 function randomSeed() {
   return Math.floor(Math.random() * IMAGE_EDIT_MAX_SEED);
@@ -80,6 +99,42 @@ export function ImageEditForm({
     [draftLink, setDraftLink] = useState(comfyLink),
     linkId = useId();
 
+  useEffect(() => {
+    let live = true;
+    async function restore() {
+      try {
+        if (initialImage) {
+          // "Edit this result" passes an in-memory image; store it so it survives a reload.
+          await saveRecord("assets", initialImage);
+          writeEditInputs({ imageId: initialImage.id, referenceIds: [] });
+          return;
+        }
+        const saved = readEditInputs();
+        if (!saved.imageId && !saved.referenceIds?.length) return;
+        const byId = new Map((await records<Asset>("assets")).map((asset) => [asset.id, asset]));
+        if (!live) return;
+        setImage(saved.imageId ? byId.get(saved.imageId) ?? null : null);
+        setReferences((saved.referenceIds ?? []).map((id) => (id ? byId.get(id) ?? null : null)));
+      } catch {
+        // Browser storage is unavailable; start with empty inputs.
+      }
+    }
+    void restore();
+    return () => {
+      live = false;
+    };
+  }, [initialImage]);
+  function chooseImage(asset: Asset | null) {
+    setImage(asset);
+    writeEditInputs({ imageId: asset?.id ?? null });
+  }
+  function changeReferences(update: (list: (Asset | null)[]) => (Asset | null)[]) {
+    setReferences((list) => {
+      const next = update(list);
+      writeEditInputs({ referenceIds: next.map((asset) => asset?.id ?? null) });
+      return next;
+    });
+  }
   useEffect(() => {
     // A random seed is chosen after hydration so server and client markup match.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -192,7 +247,7 @@ export function ImageEditForm({
         hint={settings.hint}
       />
       <div className="motion-image-input">
-        <FilePicker label="Image to edit" hint={`${imageName(1)} · up to ${IMAGE_EDIT_MAX_MB} MB`} accept={IMAGE_TYPES} asset={image} onPick={setImage} />
+        <FilePicker label="Image to edit" hint={`${imageName(1)} · up to ${IMAGE_EDIT_MAX_MB} MB`} accept={IMAGE_TYPES} asset={image} onPick={chooseImage} />
         {references.map((asset, index) => (
           <div key={index}>
             <FilePicker
@@ -200,15 +255,15 @@ export function ImageEditForm({
               hint={`${imageName(index + 2)} · optional`}
               accept={IMAGE_TYPES}
               asset={asset}
-              onPick={(value) => setReferences((list) => list.map((item, k) => (k === index ? value : item)))}
+              onPick={(value) => changeReferences((list) => list.map((item, k) => (k === index ? value : item)))}
             />
-            <button type="button" className="text-button" onClick={() => setReferences((list) => list.filter((_, k) => k !== index))}>
+            <button type="button" className="text-button" onClick={() => changeReferences((list) => list.filter((_, k) => k !== index))}>
               Remove reference
             </button>
           </div>
         ))}
         {references.length < IMAGE_EDIT_MAX_IMAGES - 1 && (
-          <button type="button" className="text-button" onClick={() => setReferences((list) => [...list, null])}>
+          <button type="button" className="text-button" onClick={() => changeReferences((list) => [...list, null])}>
             + Add a reference image (outfit, product, background…)
           </button>
         )}
