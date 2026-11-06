@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Manage the genjutsu `npm run dev` server inside a tmux session.
 # Install globally: ln -sf "$PWD/scripts/genjutsu-dev.sh" ~/.local/bin/genjutsu-dev
+#                   ln -sf "$PWD/scripts/genjutsu-dev.sh" ~/.local/bin/genjutsu-dev-stop
 set -euo pipefail
 
 SESSION="${GENJUTSU_TMUX_SESSION:-genjutsu-dev}"
@@ -77,7 +78,11 @@ status() {
 }
 
 require_tmux
-case "${1:-start}" in
+# Invoked via the `genjutsu-dev-stop` symlink → default to stop.
+DEFAULT_CMD=start
+[[ "$(basename "$0")" == *-stop ]] && DEFAULT_CMD=stop
+
+case "${1:-$DEFAULT_CMD}" in
   start)   start ;;
   attach|a|reconnect) attach ;;
   logs|log|l) logs "${2:-100}" ;;
