@@ -410,7 +410,6 @@ export function ImageEditForm({
           }))}
           value={quality}
           onChange={setQuality}
-          hint={fastMissing && quality === "fast" ? "Turbo model is not installed on this GPU." : settings.quality[quality].hint}
         />
       </div>
       {size !== "auto" && <small>A different shape than image 1 makes the model extend or reframe the scene.</small>}
