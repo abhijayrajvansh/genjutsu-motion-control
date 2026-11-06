@@ -386,7 +386,7 @@ export function ImageEditForm({
         value={prompt}
         onChange={setPrompt}
         onUseDefault={() => setPrompt(DEFAULT_PROMPT)}
-        hint={`Describe only what should change, and what must stay the same. Refer to pictures as ${imageName(1)}, ${imageName(2)}… — e.g. “Put the jacket from ${imageName(2)} on the woman in ${imageName(1)}.”`}
+        hint={`Refer to the pictures as ${imageName(1)} and ${imageName(2)}.`}
       />
       <div className="motion-model-row">
         <Select
