@@ -311,7 +311,10 @@ export function ImageEditForm({
   return (
     <form className="generation-form" onSubmit={submit}>
       <div className="field comfy-connection">
-        <label htmlFor={linkId}>ComfyUI link</label>
+        <div className="comfy-link-heading">
+          <label htmlFor={linkId}>ComfyUI link</label>
+          <ComfyStatusLine status={status} checking={checking} model={model} place="title" />
+        </div>
         <div className="comfy-connection-row">
           <input
             id={linkId}
@@ -330,7 +333,7 @@ export function ImageEditForm({
             {checking ? "Checking…" : draftLink.trim() === comfyLink && status ? "Check" : "Connect"}
           </Button>
         </div>
-        <ComfyStatusLine status={status} checking={checking} model={model} />
+        <ComfyStatusLine status={status} checking={checking} model={model} place="below" />
       </div>
       <Select
         label="Model"
@@ -506,7 +509,34 @@ export function ImageEditForm({
   );
 }
 
-function ComfyStatusLine({ status, checking, model }: { status: ComfyStatus | null; checking: boolean; model: ImageEditModel }) {
+function ComfyStatusLine({
+  status,
+  checking,
+  model,
+  place,
+}: {
+  status: ComfyStatus | null;
+  checking: boolean;
+  model: ImageEditModel;
+  place: "title" | "below";
+}) {
+  const readiness = status?.ok && !status.error ? status.models?.[model] : undefined;
+  const ready = !!readiness?.ready;
+  if (place === "title") {
+    if (!ready || !status) return null;
+    const queued = status.queue ? status.queue.running + status.queue.pending : 0;
+    const details = [
+      status.gpu && `${status.gpu.replace(/^NVIDIA\s+(GeForce\s+)?/i, "")}${status.vramGB ? ` · ${status.vramGB} GB` : ""}`,
+      queued > 0 && `${queued} queued`,
+    ].filter(Boolean);
+    return (
+      <small className="comfy-status-ok" role="status" title={status.comfyVersion ? `ComfyUI ${status.comfyVersion}` : undefined}>
+        ✓ Ready{details.length ? ` · ${details.join(" · ")}` : ""}
+        {!readiness?.fast && " · no Fast mode"}
+      </small>
+    );
+  }
+  if (ready) return null;
   if (checking && !status) return <small role="status">Checking ComfyUI…</small>;
   if (!status) return <small>Not connected.</small>;
   if (status.error || !status.ok) return <small className="error" role="alert">{status.error || "ComfyUI could not be checked."}</small>;
@@ -515,14 +545,6 @@ function ComfyStatusLine({ status, checking, model }: { status: ComfyStatus | nu
     status.gpu && `${status.gpu.replace(/^NVIDIA\s+(GeForce\s+)?/i, "")}${status.vramGB ? ` · ${status.vramGB} GB` : ""}`,
     queued > 0 && `${queued} queued`,
   ].filter(Boolean);
-  const readiness = status.models?.[model];
-  if (readiness?.ready)
-    return (
-      <small className="comfy-status-ok" role="status" title={status.comfyVersion ? `ComfyUI ${status.comfyVersion}` : undefined}>
-        ✓ Ready{details.length ? ` · ${details.join(" · ")}` : ""}
-        {!readiness.fast && " · no Fast mode"}
-      </small>
-    );
   return (
     <div className="error comfy-status-missing" role="alert">
       <span>Connected{details.length ? ` (${details.join(" · ")})` : ""}, but {IMAGE_EDIT_MODELS[model].label} is not set up.</span>

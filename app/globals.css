@@ -2662,8 +2662,18 @@ body:has(.motion-submit-bar) .main-content {
   display: grid;
   gap: 8px;
 }
-.comfy-connection > label {
+.comfy-link-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.comfy-link-heading label {
   font-weight: 500;
+  flex: none;
+}
+.comfy-link-heading .comfy-status-ok {
+  min-width: 0;
 }
 .comfy-connection-row {
   display: flex;
