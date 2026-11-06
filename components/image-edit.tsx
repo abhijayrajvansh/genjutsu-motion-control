@@ -398,6 +398,7 @@ export function ImageEditForm({
         />
       )}
       <Prompt
+        collapsible
         value={prompt}
         onChange={setPrompt}
         onUseDefault={() => setPrompt(DEFAULT_PROMPT)}

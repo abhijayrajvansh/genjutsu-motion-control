@@ -910,6 +910,10 @@ em {
   text-decoration: underline;
   color: var(--foreground);
 }
+.prompt-toggle {
+  font-size: 14px;
+  color: var(--foreground);
+}
 .remove {
   display: block;
   margin-left: auto;

@@ -212,6 +212,7 @@ export function Prompt({
   maxLength = 4000,
   hintClassName,
   onUseDefault,
+  collapsible = false,
   hint = "Sent as you wrote it. Refer to your pictures in order — the first is @image1, the second @image2.",
 }: {
   value: string;
@@ -220,27 +221,38 @@ export function Prompt({
   maxLength?: number;
   hintClassName?: string;
   onUseDefault?: () => void;
+  collapsible?: boolean;
 }) {
   const id = useId();
+  const [open, setOpen] = useState(!collapsible);
   return (
     <div className="field">
-      <span className="between">
-        <label htmlFor={id}>Prompt</label>
-        {onUseDefault && (
-          <button type="button" className="text-button" onClick={onUseDefault}>
-            Use default
-          </button>
-        )}
-      </span>
-      <textarea
-        id={id}
-        aria-describedby={`${id}-hint`}
-        rows={5}
-        maxLength={maxLength}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <small id={`${id}-hint`} className={hintClassName}>{hint}</small>
+      {collapsible && (
+        <button type="button" className="text-button prompt-toggle" aria-expanded={open} onClick={() => setOpen((shown) => !shown)}>
+          {open ? "Hide this section" : "Show prompt"}
+        </button>
+      )}
+      {open && (
+        <>
+          <span className="between">
+            <label htmlFor={id}>Prompt</label>
+            {onUseDefault && (
+              <button type="button" className="text-button" onClick={onUseDefault}>
+                Use default
+              </button>
+            )}
+          </span>
+          <textarea
+            id={id}
+            aria-describedby={`${id}-hint`}
+            rows={5}
+            maxLength={maxLength}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <small id={`${id}-hint`} className={hintClassName}>{hint}</small>
+        </>
+      )}
     </div>
   );
 }
