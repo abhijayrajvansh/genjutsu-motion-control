@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   ComfyStatus,
   IMAGE_EDIT_MAX_IMAGES,
@@ -14,7 +14,7 @@ import {
   isImageEditSize,
 } from "@/lib/image-edit";
 import { Asset } from "@/lib/storage";
-import { Button, Choices, FilePicker, IMAGE_TYPES, Prompt, Select, TextField, useSaved } from "./controls";
+import { Button, Choices, FilePicker, IMAGE_TYPES, Prompt, Select, useSaved } from "./controls";
 import { GenerationElapsed, GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { RenderPreview } from "./render-preview";
@@ -66,7 +66,8 @@ export function ImageEditForm({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [stage, setStage] = useState(""),
-    [draftLink, setDraftLink] = useState(comfyLink);
+    [draftLink, setDraftLink] = useState(comfyLink),
+    linkId = useId();
 
   useEffect(() => {
     // A random seed is chosen after hydration so server and client markup match.
@@ -142,23 +143,24 @@ export function ImageEditForm({
 
   return (
     <form className="generation-form" onSubmit={submit}>
-      <div className="comfy-connection">
-        <TextField
-          label="ComfyUI link"
-          type="url"
-          placeholder="https://….trycloudflare.com/?token=…"
-          autoComplete="off"
-          spellCheck={false}
-          value={draftLink}
-          onChange={(event) => setDraftLink(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") connect(event);
-          }}
-          hint="Paste the ComfyUI link that rent-gpu prints, or http://127.0.0.1:8188 through an SSH tunnel. Saved in this browser."
-        />
-        <div className="comfy-connection-actions">
+      <div className="field comfy-connection">
+        <label htmlFor={linkId}>ComfyUI link</label>
+        <div className="comfy-connection-row">
+          <input
+            id={linkId}
+            type="url"
+            placeholder="Paste the link from rent-gpu"
+            title="rent-gpu's ComfyUI link, or http://127.0.0.1:8188 through an SSH tunnel"
+            autoComplete="off"
+            spellCheck={false}
+            value={draftLink}
+            onChange={(event) => setDraftLink(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") connect(event);
+            }}
+          />
           <Button type="button" secondary disabled={checking || !draftLink.trim()} onClick={() => connect()}>
-            {checking ? "Checking…" : draftLink.trim() === comfyLink && status ? "Check again" : "Connect"}
+            {checking ? "Checking…" : draftLink.trim() === comfyLink && status ? "Check" : "Connect"}
           </Button>
         </div>
         <ComfyStatusLine status={status} checking={checking} />
@@ -279,25 +281,24 @@ function ComfyStatusLine({ status, checking }: { status: ComfyStatus | null; che
   if (checking && !status) return <small role="status">Checking ComfyUI…</small>;
   if (!status) return <small>Not connected.</small>;
   if (status.error) return <small className="error" role="alert">{status.error}</small>;
+  const queued = status.queue ? status.queue.running + status.queue.pending : 0;
   const details = [
-    status.gpu && `${status.gpu}${status.vramGB ? ` ${status.vramGB} GB` : ""}`,
-    status.comfyVersion && `ComfyUI ${status.comfyVersion}`,
-    status.queue && `${status.queue.running + status.queue.pending} in queue`,
+    status.gpu && `${status.gpu.replace(/^NVIDIA\s+(GeForce\s+)?/i, "")}${status.vramGB ? ` · ${status.vramGB} GB` : ""}`,
+    queued > 0 && `${queued} queued`,
   ].filter(Boolean);
   if (status.ok)
     return (
-      <small className="comfy-status-ok" role="status">
-        ✓ Ready · {details.join(" · ")}
-        {!status.lightning && " · Fast mode needs the Lightning LoRA"}
+      <small className="comfy-status-ok" role="status" title={status.comfyVersion ? `ComfyUI ${status.comfyVersion}` : undefined}>
+        ✓ Ready{details.length ? ` · ${details.join(" · ")}` : ""}
+        {!status.lightning && " · no Fast mode"}
       </small>
     );
   return (
     <div className="error comfy-status-missing" role="alert">
-      <span>Connected ({details.join(" · ")}), but Qwen Edit is not set up on this GPU.</span>
-      {status.missingNodes.length > 0 && <span>Missing nodes: {status.missingNodes.join(", ")} — update ComfyUI.</span>}
+      {status.missingNodes.length > 0 && <span>Update ComfyUI — missing nodes: {status.missingNodes.join(", ")}</span>}
       {status.missingModels.length > 0 && (
         <span>
-          Missing models: {status.missingModels.join(", ")}. Run <code>setup-qwen-edit-vast.sh</code> on the GPU (see README), then click Check again.
+          Models missing — run <code>setup-qwen-edit-vast.sh</code> on the GPU.
         </span>
       )}
     </div>

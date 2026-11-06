@@ -2605,9 +2605,21 @@ body:has(.motion-submit-bar) .main-content {
   display: grid;
   gap: 8px;
 }
-.comfy-connection-actions {
+.comfy-connection > label {
+  font-weight: 500;
+}
+.comfy-connection-row {
   display: flex;
   gap: 8px;
+}
+.comfy-connection-row input {
+  flex: 1;
+  min-width: 0;
+}
+.comfy-connection-row .button {
+  flex: none;
+  height: 40px;
+  min-height: 40px;
 }
 .comfy-status-ok {
   color: var(--success-text);
