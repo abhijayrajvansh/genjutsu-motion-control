@@ -141,13 +141,11 @@ async function call<T>(url: string, link: string, init: RequestInit = {}): Promi
 export function ImageEditForm({
   comfyLink,
   onComfyLink,
-  initialImage,
 }: {
   comfyLink: string;
   onComfyLink: (value: string) => void;
-  initialImage?: Asset | null;
 }) {
-  const [image, setImage] = useState<Asset | null>(initialImage ?? null),
+  const [image, setImage] = useState<Asset | null>(null),
     [references, setReferences] = useState<(Asset | null)[]>([]),
     [prompt, setPrompt] = useSaved("clone.edit.prompt", DEFAULT_PROMPT),
     [savedModel, setModel] = useSaved("clone.edit.model", "qwen-edit-2511"),
@@ -177,12 +175,6 @@ export function ImageEditForm({
     let live = true;
     async function restore() {
       try {
-        if (initialImage) {
-          // "Edit this result" passes an in-memory image; store it so it survives a reload.
-          await saveRecord("assets", initialImage);
-          writeEditInputs({ imageId: initialImage.id, referenceIds: [] });
-          return;
-        }
         const saved = readEditInputs();
         if (!saved.imageId && !saved.referenceIds?.length) return;
         const byId = new Map((await records<Asset>("assets")).map((asset) => [asset.id, asset]));
@@ -197,7 +189,7 @@ export function ImageEditForm({
     return () => {
       live = false;
     };
-  }, [initialImage]);
+  }, []);
   function chooseImage(asset: Asset | null) {
     setImage(asset);
     writeEditInputs({ imageId: asset?.id ?? null });
@@ -524,7 +516,6 @@ export function ImageEditHistory({
   onToggleFavorite,
   onArchive,
   onJobFinished,
-  onEditAgain,
 }: {
   comfyLink: string;
   favorites: string[];
@@ -533,7 +524,6 @@ export function ImageEditHistory({
   onToggleFavorite: (id: string) => void;
   onArchive: (id: string) => void;
   onJobFinished?: (job: ImageEditJob) => void;
-  onEditAgain: (asset: Asset) => void;
 }) {
   const [jobs, setJobs] = useState<ImageEditJob[] | null>(null),
     [error, setError] = useState(""),
@@ -625,7 +615,6 @@ export function ImageEditHistory({
             onToggleFavorite={() => onToggleFavorite(job.id)}
             onArchive={() => onArchive(job.id)}
             onChange={() => setRefresh((value) => value + 1)}
-            onEditAgain={onEditAgain}
           />
         ))}
       </div>
@@ -641,7 +630,6 @@ function ImageEditCard({
   onToggleFavorite,
   onArchive,
   onChange,
-  onEditAgain,
 }: {
   job: ImageEditJob;
   favorite: boolean;
@@ -650,11 +638,8 @@ function ImageEditCard({
   onToggleFavorite: () => void;
   onArchive: () => void;
   onChange: () => void;
-  onEditAgain: (asset: Asset) => void;
 }) {
-  const [busy, setBusy] = useState(false),
-    [error, setError] = useState(""),
-    [viewing, setViewing] = useState<string | null>(null),
+  const [viewing, setViewing] = useState<string | null>(null),
     [showDetails, setShowDetails] = useState(false);
   const image = (which: string) => `/api/comfy/edit/${job.id}/image?which=${which}`;
   const labels: Record<ImageEditJob["state"], string> = {
@@ -664,21 +649,6 @@ function ImageEditCard({
     success: "Ready",
     fail: "Failed",
   };
-  async function editAgain() {
-    setBusy(true);
-    setError("");
-    try {
-      const response = await fetch(image("output"), { cache: "no-store" });
-      if (!response.ok) throw new Error("The result image is not available.");
-      const blob = await response.blob();
-      const extension = blob.type.split("/")[1] || "png";
-      onEditAgain({ id: crypto.randomUUID(), name: `qwen-edit-${job.id.slice(0, 8)}.${extension}`, type: blob.type, blob, created: Date.now() });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load the result.");
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
     <article className="job-card">
       <div className="between">
@@ -694,7 +664,7 @@ function ImageEditCard({
         </small>
         <div className="job-mode-row">
           <div className="job-card-tools">
-            <button type="button" className="job-refresh-button" aria-label="Refresh status" title="Refresh status" onClick={onChange} disabled={busy}>
+            <button type="button" className="job-refresh-button" aria-label="Refresh status" title="Refresh status" onClick={onChange}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M20 11a8 8 0 1 0-2.34 5.66" />
                 <path d="M20 4v7h-7" />
@@ -723,11 +693,6 @@ function ImageEditCard({
         <small className="real-label">Cost: GPU time</small>
       </div>
       {job.error && <p className="error">{job.error}</p>}
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
       {(pending.includes(job.state) || (job.state === "success" && job.hasOutput)) && (
         <div className="job-actions">
           {job.state === "success" && job.hasOutput ? (
@@ -739,9 +704,6 @@ function ImageEditCard({
               Download image
             </button>
           )}
-          <Button secondary disabled={busy || pending.includes(job.state)} onClick={() => void editAgain()}>
-            Edit this result
-          </Button>
         </div>
       )}
       {showDetails && (

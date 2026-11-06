@@ -43,7 +43,7 @@ The **Edit Image** tab edits photos with Qwen models running in ComfyUI on a GPU
 3. In **Edit Image**, paste the **ComfyUI link** that `rent-gpu` prints (`https://….trycloudflare.com/?token=…`) and click **Connect**. An SSH tunnel to `http://127.0.0.1:8188` also works. The link is saved in this browser; the token is only sent from the local server to ComfyUI.
 4. Add the image to edit, optionally up to two references, describe the change (2511: "image 1", "image 2"; 2.1: `<image1>`, `<image2>`), and choose output size, resolution (2.1) and quality. On Qwen-Image 2.1, **Use consistency LoRA** keeps the face, pose and frame still. Leave it unchecked to skip the LoRA.
 
-Workflows follow Comfy-Org's official templates (`image_qwen_image_edit_2511`, `image_qwen_image_2_1(_turbo)_image_edit`; the 2.1 prompt enhancer is off). Inputs and results are kept in the ignored `.data/image-edit/` directory, so they remain after the rental is destroyed. **Edit this result** feeds an output back in as the next input.
+Workflows follow Comfy-Org's official templates (`image_qwen_image_edit_2511`, `image_qwen_image_2_1(_turbo)_image_edit`; the 2.1 prompt enhancer is off). Inputs and results are kept in the ignored `.data/image-edit/` directory, so they remain after the rental is destroyed.
 
 ## Included
 

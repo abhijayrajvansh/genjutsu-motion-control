@@ -38,7 +38,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [notice, setNotice] = useState(""),
     [preview, setPreview] = useState<Asset | null>(null),
     [motionAsset, setMotionAsset] = useState<Asset | null>(null),
-    [editAsset, setEditAsset] = useState<Asset | null>(null),
     [ready, setReady] = useState(false);
   const [comfyLink, setComfyLink] = useSaved(COMFY_LINK_KEY, "");
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
@@ -274,8 +273,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                       <ImageEditForm
                         comfyLink={comfyLink}
                         onComfyLink={setComfyLink}
-                        initialImage={editAsset}
-                        key={editAsset?.id ?? "edit"}
                       />
                     ) : t === "Video Gen" ? (
                       <VideoForm {...props} />
@@ -330,10 +327,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                       playCompletionSound(job.state === "success");
                       const name = (job.promptId || job.id).slice(0, 10);
                       setNotice(job.state === "success" ? `Image ready: ${name}` : `Edit failed: ${name}${job.error ? ` — ${job.error}` : ""}`);
-                    }}
-                    onEditAgain={(asset) => {
-                      setEditAsset(asset);
-                      setNotice("The edited result is now the image to edit. Describe the next change.");
                     }}
                   />
                 ) : (<>
