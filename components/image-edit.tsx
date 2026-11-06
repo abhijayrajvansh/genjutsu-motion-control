@@ -412,7 +412,6 @@ export function ImageEditForm({
             const preset = PROMPT_PRESETS[Number(value)];
             if (value !== "" && preset) setPrompt(fillPrompt(preset.prompt, imageName));
           }}
-          hint="Replaces the prompt below. Edit the list in prompts/edit-image-prompts.json."
         />
       )}
       <Prompt
