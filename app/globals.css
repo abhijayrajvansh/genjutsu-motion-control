@@ -2781,3 +2781,86 @@ body:has(.motion-submit-bar) .main-content {
 .edit-details-copy {
   font-size: 12px;
 }
+
+/* Desktop: the page stays put and each column scrolls on its own. */
+@media (min-width: 1024px) {
+  body:has(.workspace-grid) {
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+  }
+  body:has(.workspace-grid) .site-header {
+    flex: none;
+  }
+  body:has(.workspace-grid) .main-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  body:has(.workspace-grid) .dashboard {
+    flex: 1;
+    min-height: 0;
+  }
+  .workspace-grid {
+    flex: 1;
+    min-height: 0;
+    gap: 0;
+  }
+  .controls-column,
+  .history-column {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong, var(--border)) transparent;
+  }
+  .controls-column {
+    padding: 24px 20px 112px 0;
+    gap: 20px;
+  }
+  .history-column {
+    padding: 24px 0 32px 24px;
+    border-left: 1px solid var(--border);
+  }
+  .history-column::before {
+    display: none;
+  }
+  /* Keep each column's tabs in view while its content scrolls. */
+  .controls-column > .tabs,
+  .history-column > .history-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--background);
+  }
+  /* Sticky offsets count from the content edge, so cancel the column's top padding. */
+  .controls-column > .tabs {
+    flex: none;
+    top: -24px;
+    margin-top: -24px;
+    padding-top: 24px;
+  }
+  .history-column > .history-tabs {
+    top: -24px;
+    margin-top: -8px;
+    padding-top: 8px;
+  }
+  .controls-column::-webkit-scrollbar,
+  .history-column::-webkit-scrollbar {
+    width: 8px;
+  }
+  .controls-column::-webkit-scrollbar-thumb,
+  .history-column::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 8px;
+  }
+  .controls-column::-webkit-scrollbar-track,
+  .history-column::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
