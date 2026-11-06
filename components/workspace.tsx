@@ -42,6 +42,8 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
   const root = useRef<HTMLDivElement>(null);
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
   const [historyLayout, setHistoryLayout] = useSaved("clone.generations.layout", "grid");
+  const [generationsHidden, setGenerationsHidden] = useSaved("clone.generations.hidden", "false");
+  const hideGenerations = generationsHidden === "true";
   const [savedFavorites, setSavedFavorites] = useSaved("clone.generations.favorites", "[]");
   let favoriteIds: string[] = [];
   try {
@@ -220,6 +222,17 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
             <KieConnection />
           </div>
           <div className="header-end">
+            {section === "generations" && (
+              <button
+                type="button"
+                className="hide-ui-toggle"
+                aria-pressed={hideGenerations}
+                aria-controls="history-column"
+                onClick={() => setGenerationsHidden(String(!hideGenerations))}
+              >
+                {hideGenerations ? "Show generations" : "Hide generations"}
+              </button>
+            )}
             <HideUiToggle />
             <ThemeToggle />
             <button
@@ -248,7 +261,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
       <main className="main-content">
         {section === "generations" ? (
           <div className="dashboard">
-            <div className="workspace-grid">
+            <div className={`workspace-grid${hideGenerations ? " generations-hidden" : ""}`}>
               <section className="controls-column">
                 <div
                   className="tabs"
@@ -319,7 +332,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                   </div>
                 ))}
               </section>
-              <section className={`history-column ${historyLayout === "list" ? "history-list" : "history-grid"}`}>
+              <section id="history-column" hidden={hideGenerations} className={`history-column ${historyLayout === "list" ? "history-list" : "history-grid"}`}>
                 <div className="history-heading">
                   <div className="history-title">
                     <h2>Your generations</h2>

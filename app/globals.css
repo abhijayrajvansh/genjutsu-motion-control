@@ -351,6 +351,12 @@ em {
   grid-template-columns: minmax(0, var(--workspace-controls)) minmax(0, 1fr);
   gap: 40px;
 }
+.workspace-grid.generations-hidden {
+  grid-template-columns: minmax(0, var(--workspace-controls));
+}
+.history-column[hidden] {
+  display: none;
+}
 .controls-column {
   min-width: 0;
   display: flex;
