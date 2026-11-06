@@ -49,6 +49,68 @@ function readEditInputs(): SavedEditInputs {
     return {};
   }
 }
+function ImageLink({ label, onPick }: { label: string; onPick: (asset: Asset) => void }) {
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function useLink() {
+    const link = url.trim();
+    if (!link || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/comfy/edit/link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: link }),
+      });
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || "That link could not be used.");
+      }
+      const blob = await response.blob();
+      const name = decodeURIComponent(response.headers.get("x-image-name") || "image.jpg");
+      const asset: Asset = { id: crypto.randomUUID(), name, type: blob.type || "image/jpeg", blob, created: Date.now() };
+      await saveRecord("assets", asset);
+      onPick(asset);
+      setUrl("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "That link could not be used.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="image-link">
+      <div className="image-link-row">
+        <input
+          type="url"
+          inputMode="url"
+          placeholder="Paste an image link"
+          aria-label={`${label} link`}
+          value={url}
+          spellCheck={false}
+          onChange={(event) => setUrl(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void useLink();
+            }
+          }}
+        />
+        <Button type="button" secondary disabled={busy || !url.trim()} onClick={() => void useLink()}>
+          {busy ? "Loading…" : "Use link"}
+        </Button>
+      </div>
+      {error && (
+        <small className="image-link-error" role="alert">
+          {error}
+        </small>
+      )}
+    </div>
+  );
+}
+
 function writeEditInputs(patch: SavedEditInputs) {
   try {
     localStorage.setItem(EDIT_INPUTS_KEY, JSON.stringify({ ...readEditInputs(), ...patch }));
@@ -263,7 +325,14 @@ export function ImageEditForm({
         hint={settings.hint}
       />
       <div className={`motion-image-input edit-image-inputs${references.length > 0 ? " is-paired" : ""}`}>
-        <FilePicker label="Image to edit" hint={`${imageName(1)} · up to ${IMAGE_EDIT_MAX_MB} MB`} accept={IMAGE_TYPES} asset={image} onPick={chooseImage} />
+        <FilePicker
+          label="Image to edit"
+          hint={`${imageName(1)} · up to ${IMAGE_EDIT_MAX_MB} MB`}
+          accept={IMAGE_TYPES}
+          asset={image}
+          onPick={chooseImage}
+          below={<ImageLink label="Image to edit" onPick={chooseImage} />}
+        />
         {references.map((asset, index) => (
           <div key={index}>
             <FilePicker
@@ -272,6 +341,7 @@ export function ImageEditForm({
               accept={IMAGE_TYPES}
               asset={asset}
               onPick={(value) => changeReferences((list) => list.map((item, k) => (k === index ? value : item)))}
+              below={<ImageLink label={`Reference image ${index + 2}`} onPick={(value) => changeReferences((list) => list.map((item, k) => (k === index ? value : item)))} />}
             />
             <button type="button" className="text-button" onClick={() => changeReferences((list) => list.filter((_, k) => k !== index))}>
               Remove reference

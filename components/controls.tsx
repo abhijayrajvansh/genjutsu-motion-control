@@ -368,10 +368,12 @@ export function FilePicker({
   previewDisabled = false,
   hideActions = false,
   headerAction,
+  below,
 }: {
   label: string;
   hint?: string;
   headerAction?: React.ReactNode;
+  below?: React.ReactNode;
   accept?: string;
   asset: Asset | null;
   onPick: (a: Asset | null) => void;
@@ -578,6 +580,7 @@ export function FilePicker({
           )}
         </Modal>
       )}
+      {below}
     </div>
   );
 }

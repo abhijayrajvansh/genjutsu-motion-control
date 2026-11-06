@@ -1709,6 +1709,40 @@ body {
 .edit-image-inputs.is-paired > .text-button {
   grid-column: 1 / -1;
 }
+.image-link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.image-link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.image-link-row input {
+  height: 36px;
+  min-width: 0;
+  flex: 1;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  padding: 6px 10px;
+  color: var(--foreground);
+  font-size: 13px;
+}
+.image-link-row input::placeholder {
+  color: var(--text-placeholder);
+}
+.image-link-row .button {
+  flex: none;
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.image-link-error {
+  color: var(--error-text);
+}
 .edit-image-inputs.is-paired .file-label small {
   display: block;
   margin-top: 2px;
