@@ -475,8 +475,13 @@ export function MotionWorkflow({
             onPick={chooseImage}
             hideActions
             headerAction={video && previewHost ? (
-              <button type="button" className="text-button file-capture" disabled={busy || capturing} onClick={() => void captureVideoFrame()}>
-                {capturing ? "Capturing…" : "Use video frame"}
+              <button type="button" className="text-button file-capture" disabled={busy || capturing}
+                aria-label="Use current driving video frame as reference image" title="Use video frame"
+                onClick={() => void captureVideoFrame()}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M14.5 4h-5L7.5 6.5H4a2 2 0 0 0-2 2V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8.5a2 2 0 0 0-2-2h-3.5Z" />
+                  <circle cx="12" cy="13" r="3.5" />
+                </svg>
               </button>
             ) : undefined}
           />
