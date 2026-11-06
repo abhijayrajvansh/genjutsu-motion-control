@@ -2705,8 +2705,16 @@ body:has(.motion-submit-bar) .main-content {
 .render-preview.render-preview-image {
   aspect-ratio: 1 / 1;
 }
-.history-column .job-media.image-edit-result {
-  cursor: zoom-in;
+.history-column .job-media.image-edit-result,
+.edit-details-media button {
+  cursor: grab;
+}
+.history-column .job-media.image-edit-result:active,
+.edit-details-media button:active {
+  cursor: grabbing;
+}
+.file-picker.drop-active .drop-zone {
+  background: var(--muted);
 }
 .modal.image-viewer-modal {
   width: min(1400px, calc(100vw - 32px));

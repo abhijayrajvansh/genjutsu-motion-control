@@ -100,6 +100,22 @@ export function canvasSize(size: ImageEditSize, model: ImageEditModel, resolutio
   return { width: round(base.width), height: round(base.height) };
 }
 
+// Drag a saved edit photo onto an input. The value is a same-origin image URL.
+export const EDIT_IMAGE_DRAG = "application/x-genjutsu-edit-image";
+
+export function editImageDragPath(value: string): string | null {
+  if (!value.startsWith("/api/comfy/edit/")) return null;
+  try {
+    const url = new URL(value, "http://local");
+    if (!/^\/api\/comfy\/edit\/[^/]+\/image$/.test(url.pathname)) return null;
+    const which = url.searchParams.get("which") || "";
+    if (!/^(output|input[1-3])$/.test(which)) return null;
+    return `${url.pathname}?which=${which}`;
+  } catch {
+    return null;
+  }
+}
+
 export const IMAGE_EDIT_MAX_IMAGES = 3;
 export const IMAGE_EDIT_MAX_MB = 30;
 export const IMAGE_EDIT_MAX_SEED = 2147483647;

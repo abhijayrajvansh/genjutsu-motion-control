@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
+import { EDIT_IMAGE_DRAG, editImageDragPath } from "@/lib/image-edit";
 import { Asset, records, saveRecord } from "@/lib/storage";
 export const IMAGE_TYPES = "image/png,image/jpeg,image/webp";
 export const VIDEO_TYPES = "video/mp4,video/quicktime,video/webm";
@@ -427,6 +428,28 @@ export function FilePicker({
       setError("Could not save this file. Your browser storage may be full.");
     }
   }
+  async function acceptDrop(event: React.DragEvent) {
+    const path = editImageDragPath(event.dataTransfer.getData(EDIT_IMAGE_DRAG));
+    if (path) {
+      try {
+        const response = await fetch(path);
+        if (!response.ok) throw new Error("missing");
+        const blob = await response.blob();
+        const which = new URL(path, "http://local").searchParams.get("which");
+        const extension = blob.type === "image/jpeg" ? "jpg" : blob.type === "image/webp" ? "webp" : "png";
+        const name = which === "output" ? `generation.${extension}` : `${which}.${extension}`;
+        await pick(new File([blob], name, { type: blob.type || "image/png" }));
+      } catch {
+        setError("Could not use that generation.");
+        onError?.("Could not use that generation.");
+      }
+      return;
+    }
+    await pick(event.dataTransfer.files[0]).catch(() => onError?.("Could not load that file."));
+  }
+  function overPicker(event: React.DragEvent) {
+    return !(event.target as HTMLElement).closest("dialog");
+  }
   async function browse() {
     setOpen(true);
     setError("");
@@ -441,7 +464,27 @@ export function FilePicker({
     }
   }
   return (
-    <div className="file-picker">
+    <div
+      className={`file-picker${drag ? " drop-active" : ""}`}
+      onDragOver={(event) => {
+        if (!overPicker(event)) return;
+        const types = Array.from(event.dataTransfer.types);
+        if (!types.includes(EDIT_IMAGE_DRAG) && !types.includes("Files")) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "copy";
+        setDrag(true);
+      }}
+      onDragLeave={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget as Node)) return;
+        setDrag(false);
+      }}
+      onDrop={(event) => {
+        if (!overPicker(event)) return;
+        event.preventDefault();
+        setDrag(false);
+        void acceptDrop(event);
+      }}
+    >
       <div className="file-heading">
         <div className="file-label">
           {label} {hint && <small>{hint}</small>}
@@ -461,18 +504,6 @@ export function FilePicker({
         className={`drop-zone ${drag ? "dragging" : ""} ${asset ? "has-file" : ""} ${simple ? "simple" : ""}`}
         aria-label={asset ? `Preview ${label}: ${asset.name}` : undefined}
         onClick={() => (asset ? setPreviewing(true) : void browse())}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDrag(true);
-        }}
-        onDragLeave={() => setDrag(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDrag(false);
-          void pick(e.dataTransfer.files[0]).catch(() =>
-            onError?.("Could not load that file."),
-          );
-        }}
       >
         {asset ? (
           <>

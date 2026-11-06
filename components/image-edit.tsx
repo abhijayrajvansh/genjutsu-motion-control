@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   ComfyStatus,
+  EDIT_IMAGE_DRAG,
   IMAGE_EDIT_MAX_IMAGES,
   IMAGE_EDIT_MAX_MB,
   IMAGE_EDIT_MAX_SEED,
@@ -758,8 +759,18 @@ function ImageEditCard({
       </div>
       {pending.includes(job.state) && <RenderPreview kind="image" image={image("input1")} state={job.state === "running" ? "generating" : job.state === "queued" ? "queuing" : "submitting"} />}
       {job.state === "success" && job.hasOutput && (
-        <button type="button" className="job-media image-edit-result" onClick={() => setViewing("output")} aria-label="View the edited image larger">
-          <img src={image("output")} alt="Edited result" />
+        <button
+          type="button"
+          className="job-media image-edit-result"
+          draggable
+          onDragStart={(event) => {
+            event.dataTransfer.setData(EDIT_IMAGE_DRAG, image("output"));
+            event.dataTransfer.effectAllowed = "copy";
+          }}
+          onClick={() => setViewing("output")}
+          aria-label="View the edited image larger"
+        >
+          <img src={image("output")} alt="Edited result" draggable={false} />
         </button>
       )}
       <div className="job-meta-row">
@@ -929,16 +940,37 @@ function EditDetails({
 
         <div className="edit-details-media">
           {Array.from({ length: job.inputCount }, (_, index) => (
-            <button type="button" key={index} onClick={() => onView(`input${index + 1}`)} title={`View image ${index + 1} larger`}>
-              <img src={image(`input${index + 1}`)} alt={`Input image ${index + 1}`} />
+            <button
+              type="button"
+              key={index}
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.setData(EDIT_IMAGE_DRAG, image(`input${index + 1}`));
+                event.dataTransfer.effectAllowed = "copy";
+              }}
+              onClick={() => onView(`input${index + 1}`)}
+              title={`View image ${index + 1} larger. Drag it onto an input.`}
+            >
+              <img src={image(`input${index + 1}`)} alt={`Input image ${index + 1}`} draggable={false} />
               <span>{index === 0 ? "Image 1 · edited" : `Image ${index + 1} · reference`}</span>
             </button>
           ))}
           {hasResult && (
-            <button type="button" className="edit-details-result" onClick={() => onView("output")} title="View the result larger">
+            <button
+              type="button"
+              className="edit-details-result"
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.setData(EDIT_IMAGE_DRAG, image("output"));
+                event.dataTransfer.effectAllowed = "copy";
+              }}
+              onClick={() => onView("output")}
+              title="View the result larger. Drag it onto an input."
+            >
               <img
                 src={image("output")}
                 alt="Edited result"
+                draggable={false}
                 onLoad={(event) => setOutput({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight })}
               />
               <span>Result</span>
