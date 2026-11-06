@@ -9,6 +9,7 @@ import { GenerationTime } from "./generation-time";
 import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { ThemeToggle } from "./theme-toggle";
 import { HideUiToggle } from "./hide-ui-toggle";
+import { COMFY_LINK_KEY, ImageEditForm, ImageEditHistory } from "./image-edit";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
   ImageForm,
@@ -17,7 +18,7 @@ import {
   ToolsForm,
   VideoForm,
 } from "./forms";
-const tabs = ["Motion Control"];
+const tabs = ["Motion Control", "Edit Image"];
 export function Workspace({ section = "generations" }: { section?: string }) {
   return (
     <KieProvider>
@@ -37,7 +38,9 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [notice, setNotice] = useState(""),
     [preview, setPreview] = useState<Asset | null>(null),
     [motionAsset, setMotionAsset] = useState<Asset | null>(null),
+    [editAsset, setEditAsset] = useState<Asset | null>(null),
     [ready, setReady] = useState(false);
+  const [comfyLink, setComfyLink] = useSaved(COMFY_LINK_KEY, "");
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
   const [historyLayout, setHistoryLayout] = useSaved("clone.generations.layout", "grid");
   const [generationsHidden, setGenerationsHidden] = useSaved("clone.generations.hidden", "false");
@@ -243,8 +246,8 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                             e.key === "Home"
                               ? 0
                               : e.key === "End"
-                                ? 3
-                                : (i + (e.key === "ArrowRight" ? 1 : 3)) % 4;
+                                ? tabs.length - 1
+                                : (i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
                           setTab(tabs[n]);
                           document.getElementById(`tab-${n}`)?.focus();
                         }
@@ -267,6 +270,13 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                         {...props}
                         initialVideo={motionAsset}
                         key={motionAsset?.id ?? "motion"}
+                      />
+                    ) : t === "Edit Image" ? (
+                      <ImageEditForm
+                        comfyLink={comfyLink}
+                        onComfyLink={setComfyLink}
+                        initialImage={editAsset}
+                        key={editAsset?.id ?? "edit"}
                       />
                     ) : t === "Video Gen" ? (
                       <VideoForm {...props} />
@@ -291,7 +301,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                 <div className="history-heading">
                   <div className="history-title">
                     <h2>Your generations</h2>
-                    <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>
+                    {tab !== "Edit Image" && <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>}
                   </div>
                   <div className="history-view-toggle" role="group" aria-label="Generation view">
                     <button type="button" aria-pressed={historyLayout !== "list"} onClick={() => setHistoryLayout("grid")}>
@@ -319,6 +329,25 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                   ))}
                 </div>
                 <div id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${activeView}`}>
+                {tab === "Edit Image" ? (
+                  <ImageEditHistory
+                    comfyLink={comfyLink}
+                    favorites={favoriteIds}
+                    archived={archiveIds}
+                    view={activeView}
+                    onToggleFavorite={toggleFavorite}
+                    onArchive={archiveGeneration}
+                    onJobFinished={(job) => {
+                      playCompletionSound(job.state === "success");
+                      const name = (job.promptId || job.id).slice(0, 10);
+                      setNotice(job.state === "success" ? `Image ready: ${name}` : `Edit failed: ${name}${job.error ? ` — ${job.error}` : ""}`);
+                    }}
+                    onEditAgain={(asset) => {
+                      setEditAsset(asset);
+                      setNotice("The edited result is now the image to edit. Describe the next change.");
+                    }}
+                  />
+                ) : (<>
                 <MotionHistory showEmpty={visibleJobs.length === 0} favorites={favoriteIds} archived={archiveIds} view={activeView} onToggleFavorite={toggleFavorite} onArchive={archiveGeneration} onJobFinished={(job) => {
                   playCompletionSound(job.state === "success");
                   const name = (job.taskId || job.id).slice(0, 10);
@@ -405,6 +434,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                     })}
                   </div>
                 )}
+                </>)}
                 </div>
               </section>
             </div>

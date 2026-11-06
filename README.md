@@ -27,6 +27,22 @@ The Generate button shows a live **total Kie-credit estimate**, including billab
 
 See [Kie configuration, trial and API details](docs/KIE-MOTION.md). FFmpeg/ffprobe must be on PATH for video trimming and upload validation. A live paid render still requires a funded key and is not verified until that trial completes.
 
+## Edit Image (Qwen-Image-Edit-2511 on your own GPU)
+
+The **Edit Image** tab edits photos with Qwen-Image-Edit-2511 running in ComfyUI on a GPU you rent (for example with `rent-gpu`). It costs GPU time, not Kie credits.
+
+1. Rent a 24 GB+ NVIDIA GPU with the ComfyUI image and at least **60 GB** disk: `rent-gpu --disk 60`.
+2. Install the models on it (~31 GB, resumable, checksum-verified), using the SSH command `rent-gpu` printed:
+   `ssh -p PORT root@HOST 'bash -s' < setup-qwen-edit-vast.sh`
+   Add `-- --no-lightning` after `bash -s` to skip the Fast-mode LoRA.
+3. In **Edit Image**, paste the **ComfyUI link** that `rent-gpu` prints (`https://….trycloudflare.com/?token=…`) and click **Connect**. An SSH tunnel to `http://127.0.0.1:8188` also works. The link is saved in this browser; the token is only sent from the local server to ComfyUI.
+4. Add the image to edit (image 1), optionally up to two references (image 2/3), describe the change and pick a quality:
+   - **Fast** — 4 steps with the Lightning LoRA, CFG 1.
+   - **Balanced** (default) — 20 steps, CFG 4.
+   - **Best** — 40 steps, CFG 4.
+
+It uses the fp8mixed diffusion model, the fp8 Qwen2.5-VL text encoder and the official ComfyUI template's node chain. Inputs and results are kept in the ignored `.data/image-edit/` directory, so they remain after the rental is destroyed. **Edit this result** feeds an output back in as the next input. See [qwen-image-edit-research.md](qwen-image-edit-research.md) for other precisions.
+
 ## Included
 
 - The dark generation workspace, original logo and locally served Inter font.

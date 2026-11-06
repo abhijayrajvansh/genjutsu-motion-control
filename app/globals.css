@@ -2599,3 +2599,51 @@ body:has(.motion-submit-bar) .main-content {
   }
 }
 
+
+/* Edit Image (Qwen-Image-Edit on ComfyUI) */
+.comfy-connection {
+  display: grid;
+  gap: 8px;
+}
+.comfy-connection-actions {
+  display: flex;
+  gap: 8px;
+}
+.comfy-status-ok {
+  color: var(--success-text);
+}
+.comfy-status-missing {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.comfy-status-missing code {
+  font-size: 12px;
+}
+.history-column .job-media.image-edit-result {
+  aspect-ratio: 1 / 1;
+}
+.image-edit-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.image-edit-inputs a {
+  display: grid;
+  gap: 4px;
+  width: 72px;
+  font-size: 11px;
+  color: var(--text-subtle);
+  text-decoration: none;
+}
+.image-edit-inputs img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #000;
+}
+.render-preview.render-preview-image {
+  aspect-ratio: 1 / 1;
+}

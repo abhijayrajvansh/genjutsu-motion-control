@@ -6,11 +6,11 @@ const sparkles = [
   [91, 82, 2.3, 4.5], [35, 58, 0.9, 5.5], [60, 62, 3.1, 4.1],
 ];
 
-export function RenderPreview({ image, state }: { image?: string; state: string }) {
+export function RenderPreview({ image, state, kind = "video" }: { image?: string; state: string; kind?: "video" | "image" }) {
   const queued = state === "waiting" || state === "queuing";
   const preparing = state === "uploading" || state === "submitting";
   return (
-    <div className="render-preview" role="status" aria-live="polite">
+    <div className={`render-preview${kind === "image" ? " render-preview-image" : ""}`} role="status" aria-live="polite">
       {image && <img className="render-first-frame" src={image} alt="" />}
       <div className="render-frost" aria-hidden="true" />
       <div className="render-light-sweep" aria-hidden="true" />
@@ -22,8 +22,8 @@ export function RenderPreview({ image, state }: { image?: string; state: string 
         ))}
       </div>
       <div className="render-preview-message">
-        <strong>{preparing ? "Preparing your video" : queued ? "Your video is queued" : "Creating your video"}</strong>
-        <span>{preparing ? "Getting your clip ready" : queued ? "Waiting for a render slot" : "Bringing your frames to life"}</span>
+        <strong>{preparing ? `Preparing your ${kind}` : queued ? `Your ${kind} is queued` : `Creating your ${kind}`}</strong>
+        <span>{preparing ? (kind === "image" ? "Sending your pictures to the GPU" : "Getting your clip ready") : queued ? "Waiting for a render slot" : kind === "image" ? "Applying your edit" : "Bringing your frames to life"}</span>
       </div>
       <div className="render-preview-bottom" aria-hidden="true">
         <div className="render-activity"><span /></div>
