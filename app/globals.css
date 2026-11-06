@@ -838,8 +838,13 @@ em {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  height: 20px;
   line-height: 20px;
   color: var(--error-text);
+}
+.file-heading > .text-button svg {
+  width: 15px;
+  height: 15px;
 }
 .file-heading > .text-button:hover {
   color: var(--error-text);
