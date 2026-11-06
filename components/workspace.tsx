@@ -42,7 +42,6 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [ready, setReady] = useState(false);
   const [comfyLink, setComfyLink] = useSaved(COMFY_LINK_KEY, "");
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
-  const [historyLayout, setHistoryLayout] = useSaved("clone.generations.layout", "grid");
   const [generationsHidden, setGenerationsHidden] = useSaved("clone.generations.hidden", "false");
   const hideGenerations = generationsHidden === "true";
   const [savedFavorites, setSavedFavorites] = useSaved("clone.generations.favorites", "[]");
@@ -297,36 +296,26 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                   </div>
                 ))}
               </section>
-              <section id="history-column" hidden={hideGenerations} className={`history-column ${historyLayout === "list" ? "history-list" : "history-grid"}`}>
+              <section id="history-column" hidden={hideGenerations} className="history-column">
                 <div className="history-heading">
                   <div className="history-title">
                     <h2>Your generations</h2>
                     {tab !== "Edit Image" && <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>}
                   </div>
-                  <div className="history-view-toggle" role="group" aria-label="Generation view">
-                    <button type="button" aria-pressed={historyLayout !== "list"} onClick={() => setHistoryLayout("grid")}>
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><rect x="2" y="2" width="6" height="6" rx="1" /><rect x="12" y="2" width="6" height="6" rx="1" /><rect x="2" y="12" width="6" height="6" rx="1" /><rect x="12" y="12" width="6" height="6" rx="1" /></svg>
-                      Grid
-                    </button>
-                    <button type="button" aria-pressed={historyLayout === "list"} onClick={() => setHistoryLayout("list")}>
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M7 4h11M7 10h11M7 16h11M2 4h1M2 10h1M2 16h1" /></svg>
-                      List
-                    </button>
+                  <div className="tabs history-tabs" role="tablist" aria-label="Generation history"
+                    onKeyDown={(event) => {
+                      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                      event.preventDefault();
+                      const index = historyViews.indexOf(activeView);
+                      const next = event.key === "Home" ? "all" : event.key === "End" ? "archives" : historyViews[(index + (event.key === "ArrowRight" ? 1 : historyViews.length - 1)) % historyViews.length];
+                      setHistoryView(next);
+                      document.getElementById(`history-tab-${next}`)?.focus();
+                    }}
+                  >
+                    {[["all", "All generations"], ["favorites", "Favorites"], ["archives", "Archives"]].map(([value, label]) => (
+                      <button type="button" key={value} role="tab" id={`history-tab-${value}`} aria-selected={activeView === value} aria-controls="history-panel" tabIndex={activeView === value ? 0 : -1} onClick={() => setHistoryView(value)}>{label}</button>
+                    ))}
                   </div>
-                </div>
-                <div className="tabs history-tabs" role="tablist" aria-label="Generation history"
-                  onKeyDown={(event) => {
-                    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-                    event.preventDefault();
-                    const index = historyViews.indexOf(activeView);
-                    const next = event.key === "Home" ? "all" : event.key === "End" ? "archives" : historyViews[(index + (event.key === "ArrowRight" ? 1 : historyViews.length - 1)) % historyViews.length];
-                    setHistoryView(next);
-                    document.getElementById(`history-tab-${next}`)?.focus();
-                  }}
-                >
-                  {[["all", "All generations"], ["favorites", "Favorites"], ["archives", "Archives"]].map(([value, label]) => (
-                    <button type="button" key={value} role="tab" id={`history-tab-${value}`} aria-selected={activeView === value} aria-controls="history-panel" tabIndex={activeView === value ? 0 : -1} onClick={() => setHistoryView(value)}>{label}</button>
-                  ))}
                 </div>
                 <div id="history-panel" role="tabpanel" aria-labelledby={`history-tab-${activeView}`}>
                 {tab === "Edit Image" ? (

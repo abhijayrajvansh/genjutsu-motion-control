@@ -464,17 +464,19 @@ em {
   font-size: 11px;
   color: var(--muted-foreground);
 }
-.history-tabs {
-  margin-bottom: 20px;
-}
 .history-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 .history-heading h2 {
+  margin-bottom: 0;
+}
+.history-heading .history-tabs {
+  flex: 0 1 auto;
+  min-width: 0;
   margin-bottom: 0;
 }
 .history-title {
@@ -488,29 +490,6 @@ em {
   font-size: 13px;
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-.history-view-toggle {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--muted);
-}
-.history-view-toggle button {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 8px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-.history-view-toggle button[aria-pressed="true"] {
-  color: var(--foreground);
-  background: var(--raised);
 }
 .history-column.history-list .job-list {
   grid-template-columns: minmax(0, 1fr);
@@ -2858,7 +2837,7 @@ body:has(.motion-submit-bar) .main-content {
   }
   /* Keep each column's tabs in view while its content scrolls. */
   .controls-column > .tabs,
-  .history-column > .history-tabs {
+  .history-column > .history-heading {
     position: sticky;
     top: 0;
     z-index: 5;
@@ -2871,7 +2850,7 @@ body:has(.motion-submit-bar) .main-content {
     margin-top: -24px;
     padding-top: 24px;
   }
-  .history-column > .history-tabs {
+  .history-column > .history-heading {
     top: -24px;
     margin-top: -8px;
     padding-top: 8px;
