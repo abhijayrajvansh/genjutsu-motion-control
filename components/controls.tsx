@@ -45,12 +45,18 @@ export function Select({
   value,
   onChange,
   hint,
+  hideLabel = false,
+  disabled = false,
+  className = "",
 }: {
   label: string;
   options: Option[];
   value: string;
   onChange: (v: string) => void;
   hint?: React.ReactNode;
+  hideLabel?: boolean;
+  disabled?: boolean;
+  className?: string;
 }) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -109,12 +115,12 @@ export function Select({
     }
   }
   return (
-    <div className="field" ref={root} onBlur={(event) => {
+    <div className={`field ${className}`} ref={root} onBlur={(event) => {
       if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false);
     }}>
-      <span id={`${id}-label`}>{label}</span>
+      <span id={`${id}-label`} className={hideLabel ? "visually-hidden" : undefined}>{label}</span>
       <div className="select-control">
-        <button type="button" className="select-trigger" role="combobox" ref={trigger}
+        <button type="button" className="select-trigger" role="combobox" ref={trigger} disabled={disabled}
           aria-labelledby={`${id}-label`} aria-haspopup="listbox" aria-expanded={open}
           aria-controls={`${id}-list`} aria-activedescendant={open ? `${id}-option-${active}` : undefined}
           aria-describedby={hint ? `${id}-hint` : undefined}
@@ -122,7 +128,7 @@ export function Select({
           <span>{items[selected]?.label ?? value}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </button>
-        {open && (
+        {open && !disabled && (
           <div className="select-menu" id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`} ref={list}>
             {items.map((option, index) => (
               <div key={option.value} id={`${id}-option-${index}`} role="option" aria-selected={option.value === value}

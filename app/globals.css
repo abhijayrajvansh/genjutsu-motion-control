@@ -1587,7 +1587,7 @@ body {
   margin-left: -12px;
   gap: 8px;
 }
-.header-kie-connection .kie-key-row select,
+.header-kie-connection .kie-key-row .select-trigger,
 .header-kie-connection .kie-key-row input,
 .header-kie-connection .kie-key-row .button {
   height: 38px;
@@ -1619,7 +1619,40 @@ body {
 .kie-key-row > small {
   text-align: right;
 }
-.kie-key-row select,
+.kie-key-row .provider-select {
+  gap: 0;
+  font-size: 13px;
+}
+.kie-key-row .provider-select .select-trigger {
+  gap: 6px;
+}
+.kie-key-row .provider-select .select-trigger:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.kie-key-row .provider-select .select-menu {
+  left: auto;
+  min-width: 100%;
+  width: max-content;
+  border-color: var(--border);
+  border-radius: 10px;
+}
+.kie-key-row .provider-select [role="option"] {
+  min-width: 120px;
+  padding: 8px 10px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.kie-key-row .select-trigger,
 .kie-key-row input {
   min-width: 0;
   width: 100%;

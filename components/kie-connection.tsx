@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import type { MotionProvider } from "@/lib/motion-models";
-import { Button, Modal } from "./controls";
+import { Button, Modal, Select } from "./controls";
 export class KieRequestError extends Error {
   code?: string;
   generationStarted?: boolean;
@@ -173,9 +173,9 @@ export function KieConnection() {
           <input aria-label={`${name} API key`} type="password" placeholder="Paste API key" autoComplete="off" spellCheck={false}
             value={kie.key} onChange={(event) => { kie.setKey(event.target.value); setError(""); }} />
         ) : <small>Server key configured</small>}
-        <select aria-label="API provider" value={kie.provider} disabled={busy} onChange={(e) => { kie.setProvider(e.target.value as MotionProvider); setError(""); }}>
-          <option value="kie">Kie</option><option value="apimart">APIMart</option>
-        </select>
+        <Select label="API provider" hideLabel className="provider-select" disabled={busy}
+          options={[{ value: "kie", label: "Kie" }, { value: "apimart", label: "APIMart" }]}
+          value={kie.provider} onChange={(value) => { kie.setProvider(value as MotionProvider); setError(""); }} />
         <Button secondary type="button" disabled={busy || (!kie.key && !kie.configured)} onClick={connect}
           data-connected={kie.connected}
           aria-label={kie.connected ? `${name} credits: ${balanceLabel}. Refresh balance` : `Connect ${name}`}
