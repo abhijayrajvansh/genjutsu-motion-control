@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     const prompt = String(form.get("prompt") || "").trim();
     if (!prompt) throw new ApiError("Describe the edit you want.");
     if (prompt.length > 4000) throw new ApiError("The prompt is too long (4,000 characters maximum).");
-    const model = form.get("model") ?? "qwen-edit-2511";
+    const model = form.get("model") ?? "qwen-image-2.1";
     if (!isImageEditModel(model)) throw new ApiError("Choose a model.");
     const settings = IMAGE_EDIT_MODELS[model];
     const quality = form.get("quality");

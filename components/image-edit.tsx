@@ -14,7 +14,6 @@ import {
   ImageEditQuality,
   ImageEditResolution,
   ImageEditSize,
-  isImageEditModel,
   isImageEditQuality,
   isImageEditSize,
   QWEN21_FILES,
@@ -175,8 +174,7 @@ export function ImageEditForm({
   const [image, setImage] = useState<Asset | null>(null),
     [references, setReferences] = useState<(Asset | null)[]>([]),
     [prompt, setPrompt] = useSaved("clone.edit.prompt", DEFAULT_PROMPT),
-    [savedModel, setModel] = useSaved("clone.edit.model", "qwen-edit-2511"),
-    model: ImageEditModel = isImageEditModel(savedModel) ? savedModel : "qwen-edit-2511",
+    model: ImageEditModel = "qwen-image-2.1",
     settings = IMAGE_EDIT_MODELS[model],
     [savedQuality, setQuality] = useSaved("clone.edit.quality", "balanced"),
     quality: ImageEditQuality = isImageEditQuality(savedQuality) ? savedQuality : "balanced",
@@ -340,16 +338,6 @@ export function ImageEditForm({
         </div>
         <ComfyStatusLine status={status} checking={checking} model={model} place="below" />
       </div>
-      <Select
-        label="Model"
-        options={(Object.keys(IMAGE_EDIT_MODELS) as ImageEditModel[]).map((value) => ({
-          value,
-          label: IMAGE_EDIT_MODELS[value].label + (status?.ok && !status.models?.[value].ready ? " · not installed" : ""),
-        }))}
-        value={model}
-        onChange={setModel}
-        hint={settings.hint}
-      />
       <div className={`motion-image-input edit-image-inputs${references.length > 0 ? " is-paired" : ""}`}>
         <FilePicker
           label="Image to edit"
