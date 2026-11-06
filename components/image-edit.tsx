@@ -746,7 +746,7 @@ function ImageEditCard({
         </button>
       )}
       <div className="job-meta-row">
-        <button type="button" className="text-button edit-details-button" onClick={() => setShowDetails(true)}>
+        <button type="button" className="button secondary" onClick={() => setShowDetails(true)}>
           Show details
         </button>
       </div>

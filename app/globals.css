@@ -1280,6 +1280,12 @@ em {
   gap: 12px;
   margin-top: 12px;
 }
+.job-meta-row > .button {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
 .job-meta-row .job-prompt-details {
   flex: 1;
   min-width: 0;
@@ -2742,9 +2748,6 @@ body:has(.motion-submit-bar) .main-content {
   justify-content: flex-end;
   gap: 8px;
   margin-top: 12px;
-}
-.edit-details-button {
-  font-size: 13px;
 }
 .modal.edit-details-modal {
   width: min(880px, calc(100vw - 32px));
