@@ -388,7 +388,7 @@ export function ImageEditForm({
         ))}
         {references.length < IMAGE_EDIT_MAX_IMAGES - 1 && (
           <button type="button" className="text-button" onClick={() => changeReferences((list) => [...list, null])}>
-            + Add a reference image (outfit, product, background…)
+            + Add another image reference
           </button>
         )}
       </div>
