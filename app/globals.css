@@ -929,8 +929,9 @@ em {
 }
 .lora-checks {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 .check {
   display: flex;
