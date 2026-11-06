@@ -34,8 +34,6 @@ function fillPrompt(prompt: string, imageName: (n: number) => string) {
   return prompt.replace(/\{image(\d+)\}/g, (_, n: string) => imageName(Number(n)));
 }
 const pending: ImageEditJob["state"][] = ["submitting", "queued", "running"];
-const DEFAULT_PROMPT =
-  "Keep the person's face, identity, skin texture and the camera angle exactly the same. Change only: ";
 
 // Picked images live in the browser's IndexedDB asset library; their IDs are kept here.
 const EDIT_INPUTS_KEY = "clone.edit.inputs";
@@ -172,7 +170,7 @@ export function ImageEditForm({
 }) {
   const [image, setImage] = useState<Asset | null>(null),
     [references, setReferences] = useState<(Asset | null)[]>([]),
-    [prompt, setPrompt] = useSaved("clone.edit.prompt", DEFAULT_PROMPT),
+    [prompt, setPrompt] = useSaved("clone.edit.prompt", ""),
     model: ImageEditModel = "qwen-image-2.1",
     settings = IMAGE_EDIT_MODELS[model],
     [savedQuality, setQuality] = useSaved("clone.edit.quality", "fast"),
@@ -410,7 +408,6 @@ export function ImageEditForm({
         collapsible
         value={prompt}
         onChange={setPrompt}
-        onUseDefault={() => setPrompt(DEFAULT_PROMPT)}
         hint={`Refer to the pictures as ${imageName(1)} and ${imageName(2)}.`}
       />
       <div className="motion-model-row">
