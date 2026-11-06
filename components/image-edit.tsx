@@ -609,17 +609,6 @@ function ImageEditCard({
       setBusy(false);
     }
   }
-  async function remove() {
-    setBusy(true);
-    setError("");
-    try {
-      await call("/api/comfy/edit/" + job.id, "", { method: "DELETE" });
-      onChange();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not delete this edit.");
-      setBusy(false);
-    }
-  }
   return (
     <article className="job-card">
       <div className="between">
@@ -669,29 +658,22 @@ function ImageEditCard({
           {error}
         </p>
       )}
-      <div className="job-actions">
-        {(pending.includes(job.state) || (job.state === "success" && job.hasOutput)) && (
-          <>
-            {job.state === "success" && job.hasOutput ? (
-              <a className="button" href={`${image("output")}&download=1`} download>
-                Download image
-              </a>
-            ) : (
-              <button type="button" className="button" disabled>
-                Download image
-              </button>
-            )}
-            <Button secondary disabled={busy || pending.includes(job.state)} onClick={() => void editAgain()}>
-              Edit this result
-            </Button>
-          </>
-        )}
-        {job.state !== "queued" && job.state !== "running" && (
-          <button type="button" className="text-button" disabled={busy} onClick={() => void remove()}>
-            Delete
-          </button>
-        )}
-      </div>
+      {(pending.includes(job.state) || (job.state === "success" && job.hasOutput)) && (
+        <div className="job-actions">
+          {job.state === "success" && job.hasOutput ? (
+            <a className="button" href={`${image("output")}&download=1`} download>
+              Download image
+            </a>
+          ) : (
+            <button type="button" className="button" disabled>
+              Download image
+            </button>
+          )}
+          <Button secondary disabled={busy || pending.includes(job.state)} onClick={() => void editAgain()}>
+            Edit this result
+          </Button>
+        </div>
+      )}
       {showDetails && (
         <EditDetails
           job={job}
