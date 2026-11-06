@@ -401,25 +401,19 @@ export function ImageEditForm({
           value={size}
           onChange={setSize}
         />
-        <div className="field resolution-fixed">
-          <span className="between">
-            Resolution
-            <strong>1K</strong>
-          </span>
-        </div>
+        <Select
+          label="Quality"
+          options={(Object.keys(settings.quality) as ImageEditQuality[]).map((value) => ({
+            value,
+            label: settings.quality[value].label,
+            disabled: value === "fast" && fastMissing,
+          }))}
+          value={quality}
+          onChange={setQuality}
+          hint={fastMissing && quality === "fast" ? "Turbo model is not installed on this GPU." : settings.quality[quality].hint}
+        />
       </div>
       {size !== "auto" && <small>A different shape than image 1 makes the model extend or reframe the scene.</small>}
-      <Select
-        label="Quality"
-        options={(Object.keys(settings.quality) as ImageEditQuality[]).map((value) => ({
-          value,
-          label: settings.quality[value].label,
-          disabled: value === "fast" && fastMissing,
-        }))}
-        value={quality}
-        onChange={setQuality}
-        hint={fastMissing && quality === "fast" ? "Turbo model is not installed on this GPU." : settings.quality[quality].hint}
-      />
       {model === "qwen-image-2.1" && (
         <label className="check">
           <input
@@ -495,7 +489,7 @@ export function ImageEditForm({
                     ? "Edit image — consistency LoRA not installed"
                     : bfsMissing
                     ? "Edit image — BFS LoRA not installed"
-                    : `Edit image — ${preset.label}`}
+                    : `Edit image — ${preset.label} · 1K`}
           </Button>
         </div>
       </div>
