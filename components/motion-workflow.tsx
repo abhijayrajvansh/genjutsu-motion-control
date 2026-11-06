@@ -610,18 +610,6 @@ export function MotionWorkflow({
           </button>
         )}
       </div>
-      <Select
-        label="Resolution"
-        options={model.resolutions.map((value) => {
-          const locked = has480p && value !== "480p";
-          const price = pricing.card?.rates[value] !== undefined
-            ? `${formatMotionCredits(pricing.card.rates[value], pricing.card.currency, 4)}/s`
-            : pricing.card || pricing.error ? "Price unavailable" : "Loading price…";
-          return { value, label: `${value} · ${price}${locked ? " · Locked" : ""}`, disabled: locked };
-        })}
-        value={selectedResolution}
-        onChange={setResolution}
-      />
       <section className="motion-live-prompt" aria-label="Output prompt">{promptControl}</section>
       {(model.id === "wan" || apimartOnly(model.id)) && (
         <label className="field">
