@@ -335,30 +335,30 @@ export function ImageEditForm({
         <ComfyStatusLine status={status} checking={checking} model={model} place="below" />
       </div>
       {model === "qwen-image-2.1" && (
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={consistency}
-            onChange={(event) => setConsistency(event.target.checked ? "true" : "false")}
-          />
-          <span>
-            Use consistency LoRA
-            {loraMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
-          </span>
-        </label>
-      )}
-      {model === "qwen-image-2.1" && (
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={bfs}
-            onChange={(event) => setBfs(event.target.checked ? "true" : "false")}
-          />
-          <span>
-            Use BFS head swap
-            {bfsMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
-          </span>
-        </label>
+        <div className="lora-checks">
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={consistency}
+              onChange={(event) => setConsistency(event.target.checked ? "true" : "false")}
+            />
+            <span>
+              Use consistency LoRA
+              {loraMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
+            </span>
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={bfs}
+              onChange={(event) => setBfs(event.target.checked ? "true" : "false")}
+            />
+            <span>
+              Use BFS head swap
+              {bfsMissing && <small>Not installed on this GPU. Run setup-qwen-edit-vast.sh --model 2.1, then Check.</small>}
+            </span>
+          </label>
+        </div>
       )}
       <div className={`motion-image-input edit-image-inputs${references.length > 0 ? " is-paired" : ""}`}>
         <FilePicker

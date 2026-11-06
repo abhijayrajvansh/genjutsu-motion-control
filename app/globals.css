@@ -927,6 +927,11 @@ em {
   padding: 6px 12px;
   min-height: 36px;
 }
+.lora-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 .check {
   display: flex;
   align-items: flex-start;
