@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Manage the genjutsu `npm run dev` server inside a tmux session.
-# Install globally: ln -sf "$PWD/scripts/genjutsu-dev.sh" ~/.local/bin/genjutsu-dev
-#                   ln -sf "$PWD/scripts/genjutsu-dev.sh" ~/.local/bin/genjutsu-dev-stop
+# Install globally: ln -sf "$PWD/scripts/genjutsu-dev.sh" ~/.local/bin/genjutsu-start
+#                   ln -sf "$PWD/scripts/genjutsu-dev.sh" ~/.local/bin/genjutsu-stop
 set -euo pipefail
 
 SESSION="${GENJUTSU_TMUX_SESSION:-genjutsu-dev}"
@@ -11,7 +11,7 @@ REPO_DIR="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") <command>
+Usage: genjutsu-start <command>
 
   start     Start the dev server in tmux session '$SESSION' (default)
   attach    Reconnect to the live logs (detach with Ctrl-b d)
@@ -38,11 +38,11 @@ start() {
   tmux new-session -d -s "$SESSION" -c "$REPO_DIR" -n dev
   tmux send-keys -t "=$SESSION:dev" "npm run dev" C-m
   echo "Started in tmux session '$SESSION' → http://127.0.0.1:$PORT"
-  echo "Logs: $(basename "$0") attach"
+  echo "Logs: genjutsu-start attach"
 }
 
 attach() {
-  running || { echo "Not running. Start with: $(basename "$0") start" >&2; exit 1; }
+  running || { echo "Not running. Start with: genjutsu-start" >&2; exit 1; }
   if [[ -n "${TMUX:-}" ]]; then
     tmux switch-client -t "=$SESSION"
   else
@@ -78,7 +78,7 @@ status() {
 }
 
 require_tmux
-# Invoked via the `genjutsu-dev-stop` symlink → default to stop.
+# Invoked via the `genjutsu-stop` symlink → default to stop.
 DEFAULT_CMD=start
 [[ "$(basename "$0")" == *-stop ]] && DEFAULT_CMD=stop
 
