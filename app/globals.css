@@ -1721,9 +1721,9 @@ body {
   gap: 8px;
 }
 .image-link-row input {
+  width: 100%;
   height: 36px;
   min-width: 0;
-  flex: 1;
   border-radius: 6px;
   border: 1px solid var(--border-strong);
   background: transparent;
@@ -1734,11 +1734,8 @@ body {
 .image-link-row input::placeholder {
   color: var(--text-placeholder);
 }
-.image-link-row .button {
-  flex: none;
-  min-height: 36px;
-  padding: 6px 10px;
-  font-size: 12px;
+.image-link-row input:disabled {
+  opacity: 0.7;
 }
 .image-link-error {
   color: var(--error-text);

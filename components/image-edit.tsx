@@ -49,13 +49,30 @@ function readEditInputs(): SavedEditInputs {
     return {};
   }
 }
+function pastedImageLink(value: string): string | null {
+  const link = value.trim();
+  try {
+    const url = new URL(link);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (url.username || url.password) return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+}
 function ImageLink({ label, onPick }: { label: string; onPick: (asset: Asset) => void }) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  async function useLink() {
-    const link = url.trim();
-    if (!link || busy) return;
+  const request = useRef(0);
+  async function loadLink(raw: string) {
+    const link = pastedImageLink(raw);
+    if (!link) {
+      setError(raw.trim() ? "Paste an http or https image link." : "");
+      return;
+    }
+    const id = ++request.current;
+    setUrl(link);
     setBusy(true);
     setError("");
     try {
@@ -72,12 +89,14 @@ function ImageLink({ label, onPick }: { label: string; onPick: (asset: Asset) =>
       const name = decodeURIComponent(response.headers.get("x-image-name") || "image.jpg");
       const asset: Asset = { id: crypto.randomUUID(), name, type: blob.type || "image/jpeg", blob, created: Date.now() };
       await saveRecord("assets", asset);
+      if (request.current !== id) return;
       onPick(asset);
       setUrl("");
     } catch (e) {
+      if (request.current !== id) return;
       setError(e instanceof Error ? e.message : "That link could not be used.");
     } finally {
-      setBusy(false);
+      if (request.current === id) setBusy(false);
     }
   }
   return (
@@ -88,20 +107,27 @@ function ImageLink({ label, onPick }: { label: string; onPick: (asset: Asset) =>
           inputMode="url"
           placeholder="Paste an image link"
           aria-label={`${label} link`}
+          aria-busy={busy}
           value={url}
           spellCheck={false}
-          onChange={(event) => setUrl(event.target.value)}
+          disabled={busy}
+          onChange={(event) => {
+            setUrl(event.target.value);
+            if (error) setError("");
+          }}
+          onPaste={(event) => {
+            const text = event.clipboardData.getData("text");
+            if (pastedImageLink(text)) void loadLink(text);
+          }}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               event.preventDefault();
-              void useLink();
+              void loadLink(url);
             }
           }}
         />
-        <Button type="button" secondary disabled={busy || !url.trim()} onClick={() => void useLink()}>
-          {busy ? "Loading…" : "Use link"}
-        </Button>
       </div>
+      {busy && <small>Loading…</small>}
       {error && (
         <small className="image-link-error" role="alert">
           {error}
