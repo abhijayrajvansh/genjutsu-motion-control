@@ -10,6 +10,9 @@ import { ArchiveButton, FavoriteButton } from "./favorite-button";
 import { ThemeToggle } from "./theme-toggle";
 import { HideUiToggle } from "./hide-ui-toggle";
 import { COMFY_LINK_KEY, ImageEditForm, ImageEditHistory } from "./image-edit";
+import { H3SwapHistory } from "./h3-swap";
+import { MOTION_MODEL_EVENT, MOTION_MODEL_KEY } from "./motion-workflow";
+import { H3_MOTION_ID } from "@/lib/h3-swap";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
   ImageForm,
@@ -41,6 +44,17 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [editImage, setEditImage] = useState<{ asset: Asset; token: number } | null>(null),
     [ready, setReady] = useState(false);
   const [comfyLink, setComfyLink] = useSaved(COMFY_LINK_KEY, "");
+  // The Motion Control model decides which history the right column shows (Kie jobs or H3 ComfyUI jobs).
+  const [motionModelId, setMotionModelId] = useState("wan");
+  useEffect(() => {
+    // Hydrate the saved motion model after server rendering, then follow the picker.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMotionModelId(localStorage.getItem(MOTION_MODEL_KEY) || "wan");
+    const follow = (event: Event) => setMotionModelId(String((event as CustomEvent).detail));
+    window.addEventListener(MOTION_MODEL_EVENT, follow);
+    return () => window.removeEventListener(MOTION_MODEL_EVENT, follow);
+  }, []);
+  const h3Motion = tab === "Motion Control" && motionModelId === H3_MOTION_ID;
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
   const [generationsHidden, setGenerationsHidden] = useSaved("clone.generations.hidden", "false");
   const hideGenerations = generationsHidden === "true";
@@ -268,6 +282,8 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                       <MotionForm
                         {...props}
                         initialVideo={motionAsset}
+                        comfyLink={comfyLink}
+                        onComfyLink={setComfyLink}
                         key={motionAsset?.id ?? "motion"}
                         onEditReference={(asset) => {
                           setEditImage({ asset, token: Date.now() });
@@ -303,7 +319,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                 <div className="history-heading">
                   <div className="history-title">
                     <h2>Your generations</h2>
-                    {tab !== "Edit Image" && <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>}
+                    {tab !== "Edit Image" && !h3Motion && <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>}
                   </div>
                   <div className="tabs history-tabs" role="tablist" aria-label="Generation history"
                     onKeyDown={(event) => {
@@ -333,6 +349,21 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                       playCompletionSound(job.state === "success");
                       const name = (job.promptId || job.id).slice(0, 10);
                       setNotice(job.state === "success" ? `Image ready: ${name}` : `Edit failed: ${name}${job.error ? ` — ${job.error}` : ""}`);
+                    }}
+                  />
+                ) : h3Motion ? (
+                  <H3SwapHistory
+                    comfyLink={comfyLink}
+                    favorites={favoriteIds}
+                    archived={archiveIds}
+                    view={activeView}
+                    onToggleFavorite={toggleFavorite}
+                    onArchive={archiveGeneration}
+                    onJobFinished={(job) => {
+                      playCompletionSound(job.state === "success");
+                      const name = (job.promptId || job.id).slice(0, 10);
+                      const what = job.kind === "mask" ? "Mask check" : "H3 video";
+                      setNotice(job.state === "success" ? `${what} ready: ${name}` : `${what} failed: ${name}${job.error ? ` — ${job.error}` : ""}`);
                     }}
                   />
                 ) : (<>

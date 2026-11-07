@@ -23,6 +23,8 @@ import { VideoClipEditor } from "./video-clip-editor";
 import { VideoSelection, videoSelection } from "@/lib/video-selection";
 import { KieRequestError, useKie } from "./kie-connection";
 import { MOTION_PROMPT_LIMIT } from "@/lib/motion-sourcing";
+import { H3_MOTION_ID } from "@/lib/h3-swap";
+import { H3SwapForm } from "./h3-swap";
 function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
@@ -77,17 +79,23 @@ function readMotionInputs(): SavedMotionInputs {
 function writeMotionInputs(patch: SavedMotionInputs) {
   localStorage.setItem(MOTION_INPUTS_KEY, JSON.stringify({ ...readMotionInputs(), ...patch }));
 }
+export const MOTION_MODEL_KEY = "clone.motion.kie-model";
+export const MOTION_MODEL_EVENT = "motion-model-change";
 export function MotionWorkflow({
   initialVideo,
   onEditReference,
+  comfyLink = "",
+  onComfyLink,
 }: {
   initialVideo?: Asset | null;
   onEditReference?: (asset: Asset) => void;
+  comfyLink?: string;
+  onComfyLink?: (value: string) => void;
 }) {
   const kie = useKie();
   const providerName = kie.provider === "apimart" ? "APIMart" : "Kie";
   const modelChoices = MOTION_MODELS.filter((m) => m.id === "wan" || m.id === "wan22replace");
-  const [saved, setSaved] = useSaved("clone.motion.kie-model", "wan"),
+  const [saved, setSaved] = useSaved(MOTION_MODEL_KEY, "wan"),
     model = motionModel(
       modelChoices.some((m) => m.id === saved) && !(kie.provider === "apimart" && saved === "wan22replace")
         ? saved
@@ -290,6 +298,12 @@ export function MotionWorkflow({
   const insufficient =
     kie.provider === "kie" && cost !== null && kie.balance !== null && kie.balance < cost.total;
   function changeModel(id: string) {
+    window.dispatchEvent(new CustomEvent(MOTION_MODEL_EVENT, { detail: id }));
+    if (id === H3_MOTION_ID) {
+      setSaved(id);
+      setError("");
+      return;
+    }
     const next = motionModel(id);
     if (id === "wan22replace") kie.setProvider("kie");
     setSaved(id);
@@ -444,12 +458,24 @@ export function MotionWorkflow({
             : `Write the complete prompt here. Image1 @Image1 = reference image; Video1 @Video1 = driving video.${activeFace ? " Image2 = face reference; face-lock instructions are added automatically." : ""} Saved in this browser; input changes do not rewrite it. Use default restores the standalone prompt. ${prompt.length}/${promptLimit} characters.`}
     />
   );
+  const modelOptions = [
+    ...modelChoices.map((m) => ({ value: m.id, label: m.label })),
+    { value: H3_MOTION_ID, label: "MiniMax H3 · ComfyUI GPU" },
+  ];
+  if (saved === H3_MOTION_ID)
+    return (
+      <H3SwapForm
+        comfyLink={comfyLink}
+        onComfyLink={(value) => onComfyLink?.(value)}
+        modelPicker={<Select label="Model" options={modelOptions} value={H3_MOTION_ID} onChange={changeModel} />}
+      />
+    );
   return (
     <form className="generation-form" onSubmit={submit}>
       <div className="motion-model-row">
         <Select
           label="Model"
-          options={modelChoices.map((m) => ({ value: m.id, label: m.label }))}
+          options={modelOptions}
           value={model.id}
           onChange={changeModel}
         />

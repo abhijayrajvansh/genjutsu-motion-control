@@ -53,8 +53,8 @@ export function Retention({ image = false }: { image?: boolean }) {
     </small>
   );
 }
-export function MotionForm(p: FormProps & { initialVideo?: Asset | null; onEditReference?: (asset: Asset) => void }) {
-  return <MotionWorkflow initialVideo={p.initialVideo} onEditReference={p.onEditReference} />;
+export function MotionForm(p: FormProps & { initialVideo?: Asset | null; onEditReference?: (asset: Asset) => void; comfyLink?: string; onComfyLink?: (value: string) => void }) {
+  return <MotionWorkflow initialVideo={p.initialVideo} onEditReference={p.onEditReference} comfyLink={p.comfyLink} onComfyLink={p.onComfyLink} />;
 }
 export function VideoForm(p: FormProps) {
   const [model, setModel] = useSaved("clone.video.model", "Wan 3"),

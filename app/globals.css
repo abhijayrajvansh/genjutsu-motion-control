@@ -2978,3 +2978,64 @@ body:has(.motion-submit-bar) .main-content {
     background: transparent;
   }
 }
+
+/* MiniMax H3 (ComfyUI) motion transfer */
+.h3-advanced > .generation-form {
+  margin-top: 4px;
+}
+.h3-loras {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.h3-lora {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.h3-lora-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px auto;
+  gap: 8px;
+  align-items: end;
+}
+.h3-lora-row .text-button {
+  padding-bottom: 10px;
+}
+.h3-submit-row {
+  display: flex;
+  gap: 8px;
+}
+.h3-submit-row > .button:last-child {
+  flex: 1;
+}
+.h3-result video {
+  width: 100%;
+  display: block;
+}
+.h3-details-media video,
+.h3-details-media img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #000;
+}
+.h3-details-media > a,
+.h3-details-media > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+.h3-submit-row > .button:first-child {
+  width: auto;
+  flex: 0 0 auto;
+}
+.choices.h3-resolution-choices > div {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
