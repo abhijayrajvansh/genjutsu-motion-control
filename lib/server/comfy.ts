@@ -70,12 +70,23 @@ export async function comfyFetch(
   timeout = 30000,
 ): Promise<Response> {
   let response: Response;
+  // Cloudflare quick tunnels drop the odd request; read-only requests are retried once.
+  const idempotent = !init.method || init.method === "GET";
+  const send = async () => {
+    try {
+      return await rawFetch(server, path, init, timeout);
+    } catch (error) {
+      if (!idempotent || (error instanceof Error && error.name === "TimeoutError")) throw error;
+      await new Promise((done) => setTimeout(done, 500));
+      return rawFetch(server, path, init, timeout);
+    }
+  };
   try {
-    response = await rawFetch(server, path, init, timeout);
+    response = await send();
     if ((response.status === 401 || response.status === 403 || (response.status >= 300 && response.status < 400)) && server.token) {
       await response.body?.cancel();
       cookies.delete(server.origin);
-      if (await login(server)) response = await rawFetch(server, path, init, timeout);
+      if (await login(server)) response = await send();
     }
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -124,14 +135,11 @@ export type ObjectInfo = Record<
   { input?: { required?: Record<string, unknown[]>; optional?: Record<string, unknown[]> } }
 >;
 
+// One request for every node's info: dozens of parallel per-node requests lose some through Cloudflare quick tunnels.
 export async function objectInfo(server: ComfyServer, nodes: string[]): Promise<ObjectInfo> {
+  const all = await comfyJson<ObjectInfo>(server, "/object_info", {}, 90000);
   const result: ObjectInfo = {};
-  await Promise.all(
-    nodes.map(async (node) => {
-      const info = await comfyJson<ObjectInfo>(server, `/object_info/${encodeURIComponent(node)}`);
-      if (info[node]) result[node] = info[node];
-    }),
-  );
+  for (const node of nodes) if (all[node]) result[node] = all[node];
   return result;
 }
 
