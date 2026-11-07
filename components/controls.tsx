@@ -149,7 +149,7 @@ export function Select({
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </button>
         {open && !disabled && (
-          <div className="select-menu" id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`} ref={list}>
+          <div className="select-menu">
             {searchable && (
               <input
                 ref={searchInput}
@@ -186,6 +186,7 @@ export function Select({
                 }}
               />
             )}
+            <div className="select-options" id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`} ref={list}>
             {visible.length === 0 && <div className="select-empty">No matches</div>}
             {visible.map(({ option, index }) => (
               <div key={option.value} id={`${id}-option-${index}`} role="option" aria-selected={option.value === value}
@@ -195,6 +196,7 @@ export function Select({
                 <span>{option.label}</span><span aria-hidden="true">{option.value === value ? "✓" : ""}</span>
               </div>
             ))}
+            </div>
           </div>
         )}
       </div>
