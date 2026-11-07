@@ -393,9 +393,11 @@ export function ImageEditForm({
       {PROMPT_PRESETS.length > 0 && (
         <Select
           label="Saved prompts"
+          searchable
+          searchPlaceholder="Search prompts"
           options={[
             { value: "", label: "Choose a saved prompt…" },
-            ...PROMPT_PRESETS.map((preset, index) => ({ value: String(index), label: preset.label })),
+            ...PROMPT_PRESETS.map((preset, index) => ({ value: String(index), label: preset.label, keywords: preset.prompt })),
           ]}
           value={selectedPreset < 0 ? "" : String(selectedPreset)}
           onChange={(value) => {

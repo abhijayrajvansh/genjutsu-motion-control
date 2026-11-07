@@ -6,7 +6,7 @@ export const IMAGE_TYPES = "image/png,image/jpeg,image/webp";
 export const VIDEO_TYPES = "video/mp4,video/quicktime,video/webm";
 export type Option =
   | string
-  | { value: string; label: string; hint?: string; disabled?: boolean };
+  | { value: string; label: string; hint?: string; disabled?: boolean; keywords?: string };
 export function useSaved(
   key: string,
   initial: string,
@@ -48,6 +48,8 @@ export function Select({
   hint,
   hideLabel = false,
   disabled = false,
+  searchable = false,
+  searchPlaceholder = "Search",
   className = "",
 }: {
   label: string;
@@ -57,18 +59,30 @@ export function Select({
   hint?: React.ReactNode;
   hideLabel?: boolean;
   disabled?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
   className?: string;
 }) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const search = useRef({ text: "", time: 0 });
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [query, setQuery] = useState("");
   const items = options.map((option) => typeof option === "string" ? { value: option, label: option, disabled: false } : option);
   const selected = items.findIndex((option) => option.value === value);
-  const enabled = items.map((option, index) => option.disabled ? -1 : index).filter((index) => index >= 0);
+  const needle = query.trim().toLowerCase();
+  const visible = items
+    .map((option, index) => ({ option, index }))
+    .filter(({ option }) => {
+      if (!searchable || !needle) return true;
+      if (!option.value) return false;
+      return `${option.label} ${option.keywords ?? ""}`.toLowerCase().includes(needle);
+    });
+  const enabled = visible.map(({ option, index }) => option.disabled ? -1 : index).filter((index) => index >= 0);
   useEffect(() => {
     if (!open) return;
     function outside(event: PointerEvent) {
@@ -80,7 +94,11 @@ export function Select({
   useEffect(() => {
     if (open) list.current?.querySelector('[data-highlighted="true"]')?.scrollIntoView({ block: "nearest" });
   }, [open, active]);
+  useEffect(() => {
+    if (open && searchable) searchInput.current?.focus();
+  }, [open, searchable]);
   function show() {
+    setQuery("");
     setActive(enabled.includes(selected) ? selected : (enabled[0] ?? 0));
     setOpen(true);
   }
@@ -106,6 +124,7 @@ export function Select({
       if (next !== undefined) setActive(next);
       return;
     }
+    if (searchable) return;
     if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       event.preventDefault();
       const now = Date.now();
@@ -131,7 +150,44 @@ export function Select({
         </button>
         {open && !disabled && (
           <div className="select-menu" id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`} ref={list}>
-            {items.map((option, index) => (
+            {searchable && (
+              <input
+                ref={searchInput}
+                className="select-search"
+                type="search"
+                value={query}
+                placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setQuery(next);
+                  const term = next.trim().toLowerCase();
+                  const match = items.findIndex((option) => option.value && `${option.label} ${option.keywords ?? ""}`.toLowerCase().includes(term));
+                  if (match >= 0) setActive(match);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    setOpen(false);
+                    trigger.current?.focus();
+                    return;
+                  }
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    if (!enabled.length) return;
+                    choose(enabled.includes(active) ? active : enabled[0]);
+                    return;
+                  }
+                  if (event.key !== "ArrowDown" && event.key !== "ArrowUp" || !enabled.length) return;
+                  event.preventDefault();
+                  const position = enabled.indexOf(active);
+                  const next = enabled[(position + (event.key === "ArrowDown" ? 1 : -1) + enabled.length) % enabled.length];
+                  if (next !== undefined) setActive(next);
+                }}
+              />
+            )}
+            {visible.length === 0 && <div className="select-empty">No matches</div>}
+            {visible.map(({ option, index }) => (
               <div key={option.value} id={`${id}-option-${index}`} role="option" aria-selected={option.value === value}
                 aria-disabled={option.disabled || undefined} data-highlighted={index === active}
                 onPointerDown={(event) => event.preventDefault()}
