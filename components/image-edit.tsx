@@ -164,9 +164,11 @@ async function call<T>(url: string, link: string, init: RequestInit = {}): Promi
 export function ImageEditForm({
   comfyLink,
   onComfyLink,
+  incomingImage,
 }: {
   comfyLink: string;
   onComfyLink: (value: string) => void;
+  incomingImage?: { asset: Asset; token: number } | null;
 }) {
   const [image, setImage] = useState<Asset | null>(null),
     [references, setReferences] = useState<(Asset | null)[]>([]),
@@ -190,8 +192,15 @@ export function ImageEditForm({
     [error, setError] = useState(""),
     [stage, setStage] = useState(""),
     [draftLink, setDraftLink] = useState(comfyLink),
-    linkId = useId();
+    linkId = useId(),
+    sentFromMotion = useRef(false);
 
+  useEffect(() => {
+    if (!incomingImage) return;
+    sentFromMotion.current = true;
+    setImage(incomingImage.asset);
+    writeEditInputs({ imageId: incomingImage.asset.id });
+  }, [incomingImage]);
   useEffect(() => {
     let live = true;
     async function restore() {
@@ -200,7 +209,7 @@ export function ImageEditForm({
         if (!saved.imageId && !saved.referenceIds?.length) return;
         const byId = new Map((await records<Asset>("assets")).map((asset) => [asset.id, asset]));
         if (!live) return;
-        setImage(saved.imageId ? byId.get(saved.imageId) ?? null : null);
+        if (!sentFromMotion.current) setImage(saved.imageId ? byId.get(saved.imageId) ?? null : null);
         setReferences((saved.referenceIds ?? []).map((id) => (id ? byId.get(id) ?? null : null)));
       } catch {
         // Browser storage is unavailable; start with empty inputs.

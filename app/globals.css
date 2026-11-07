@@ -856,6 +856,12 @@ em {
 .file-label small {
   font-weight: 400;
 }
+.file-heading > .file-edit {
+  color: var(--foreground);
+}
+.file-heading > .file-edit:hover {
+  color: var(--foreground);
+}
 .file-heading > .file-capture {
   display: inline-flex;
   align-items: center;

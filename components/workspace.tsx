@@ -38,6 +38,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
     [notice, setNotice] = useState(""),
     [preview, setPreview] = useState<Asset | null>(null),
     [motionAsset, setMotionAsset] = useState<Asset | null>(null),
+    [editImage, setEditImage] = useState<{ asset: Asset; token: number } | null>(null),
     [ready, setReady] = useState(false);
   const [comfyLink, setComfyLink] = useSaved(COMFY_LINK_KEY, "");
   const [historyView, setHistoryView] = useSaved("clone.generations.view", "all");
@@ -268,11 +269,16 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                         {...props}
                         initialVideo={motionAsset}
                         key={motionAsset?.id ?? "motion"}
+                        onEditReference={(asset) => {
+                          setEditImage({ asset, token: Date.now() });
+                          setTab("Edit Image");
+                        }}
                       />
                     ) : t === "Edit Image" ? (
                       <ImageEditForm
                         comfyLink={comfyLink}
                         onComfyLink={setComfyLink}
+                        incomingImage={editImage}
                       />
                     ) : t === "Video Gen" ? (
                       <VideoForm {...props} />
