@@ -48,6 +48,10 @@ The installed preset was opened from the browser’s Workflows sidebar and seria
 
 This measurement applies to the short clip and resolution above. Longer videos and larger frames need their own memory and speed measurements. CPU caching consumes system RAM. The verification manifest records the ComfyUI revision and installed library versions.
 
+Output quality was not scored: no notes were taken on facial likeness or motion accuracy.
+
+To raise the 480 × 832 output to about 1080p, see the SeedVR2 video upscale notes in [`docs/image-upscale-workflow`](../../../docs/image-upscale-workflow/README.md#video-upscale). That step has not been installed or tested on this preset.
+
 ## Private Vast deployment
 
 From a copy of this repository on a fresh Ubuntu 24.04 / CUDA 13 rental, run:

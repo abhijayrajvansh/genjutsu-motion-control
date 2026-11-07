@@ -82,6 +82,34 @@ No independent, number-based quality benchmark was found. Two pages could not be
 | ESRGAN models (4x-UltraSharp, RealESRGAN) | Fast and about 4 GB, but they only sharpen and do not add real detail. |
 | Hosted (Magnific, Topaz, HitPaw, WaveSpeed SeedVR2) | Paid partner nodes. ComfyUI recommends Magnific Skin Enhancer for plastic-looking skin. |
 
+## Video upscale
+
+Researched on 2026-11-07. SeedVR2 was built for video restoration, so the same model can upscale video.
+
+**There is no "SeedVR 2.5" model.** ByteDance has only released SeedVR2, in 3B and 7B sizes, under Apache-2.0. The "2.5" people mention is the version of the numz custom node pack (v2.5.24), not a new model. Seedance 2.5 is a different product: ByteDance's video generator, not an upscaler.
+
+Official ComfyUI video templates:
+
+| Template | Nodes | Model |
+| --- | --- | --- |
+| `utility_seedvr2_3b_int8_upscale_video.json` | Built into ComfyUI | SeedVR2 3B INT8 |
+| `utility_seedvr2_video_upscale.json` | numz custom nodes (v2.5) | Can run 7B |
+
+There is also a built-in subgraph blueprint, `upscale_video_seedvr2_3b_int8.json`.
+
+Cost and limits:
+
+- The Comfy blog reports about **312 s** to upscale a 10 s 720p clip to 1080p on an RTX 5090. FlashVSR, by comparison, took about 41 s.
+- Users report it struggling on 16 GB cards, even with the smallest FP8 model. Plan on 24 GB or more.
+- One reviewer says it can oversharpen video.
+- Batch size must follow 4n+1: 5, 9, 13, 17, 21 and so on.
+- The target `resolution` is the short edge: 720, 1080 or 2160.
+- Color correction options are `wavelet`, `adain`, `hsv` or `none`.
+
+**Use with Wan-Animate-2 output.** The Wan-Animate-2 BF16 preset renders 480 × 832 ([`artifacts/comfyui/wan-animate-2-bf16`](../../artifacts/comfyui/wan-animate-2-bf16/README.md)). The easiest starting point looks like the 3B INT8 video template, with the short edge set to 1080. That is a judgement call. No source tested it on Wan output.
+
+Nothing for SeedVR2 is installed or wired up in this repo yet.
+
 ## Next step
 
 Before shipping this, test it on the GPU: run the SeedVR2 7B int8 template next to SUPIR on two or three of our own photos, and check skin, eyes, and hair at 100% zoom.
@@ -95,5 +123,10 @@ Before shipping this, test it on the GPU: run the SeedVR2 7B int8 template next 
 - [numz/ComfyUI-SeedVR2_VideoUpscaler](https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler)
 - [MyAIForce: SeedVR2 + SRPO upscaling](https://myaiforce.com/seedvr2-srpo-upscaling/)
 - [aiofm: AI Image Upscaling in 2026](https://aiofm.info/en/guides/ai-image-upscaling)
+- [ComfyUI docs: SeedVR2](https://docs.comfy.org/tutorials/utility/seedvr2)
+- [RunComfy: SeedVR2 V2.5 in ComfyUI](https://www.runcomfy.com/comfyui-workflows/seedvr2-v2-5-in-comfyui-high-fidelity-video-upscaler)
+- [comfy.icu: SeedVR2 Video Upscaler v2.5.24](https://comfy.icu/node/SeedVR2VideoUpscaler)
+- [weirdwonderfulai: SeedVR2 for video and images](https://weirdwonderfulai.art/resources/seedvr2-upscaler-for-video-and-images/)
+- [HitPaw: SeedVR2 review](https://www.hitpaw.com/ai-video-enhancer-tips/seedvr2-video-upscaler.html)
 - [seedvr2.net comparison (could not be read)](https://seedvr2.net/blog/tutorials/seedvr2-upscalers-battle-comparison-2026)
 - [Civitai 2994006 (could not be read)](https://civitai.com/models/2994006)
