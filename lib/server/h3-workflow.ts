@@ -2,7 +2,7 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { H3_ACCELERATIONS, H3_DEFAULT_MODEL, H3_MARGINS, H3_MOTION_SIZES, hasSpeedLora } from "@/lib/h3-swap";
-import type { H3Margin, H3ModelSettings, H3MotionSize, H3Resolution, H3Section, H3Size, H3SwapSettings } from "@/lib/h3-swap";
+import type { H3ColorSettings, H3FaceSettings, H3Margin, H3ModelSettings, H3MotionSize, H3Resolution, H3Section, H3Size, H3SwapSettings } from "@/lib/h3-swap";
 import { comboOptions, type ObjectInfo } from "./comfy";
 
 // Openjutsu's Simple motion transfer (MIT, D3voz), adapted from its lib/simple.ts, lib/model.ts and lib/comfy.ts.
@@ -10,7 +10,7 @@ import { comboOptions, type ObjectInfo } from "./comfy";
 
 export type ApiNode = { class_type: string; inputs: Record<string, unknown>; _meta?: { title?: string } };
 export type ApiGraph = Record<string, ApiNode>;
-export type H3Workflow = "simple" | "mask";
+export type H3Workflow = "simple" | "mask" | "face" | "color";
 
 // Node ids in simple.api.json.
 export const NODES = {
@@ -172,8 +172,9 @@ function applyModel(graph: ApiGraph, settings: H3ModelSettings) {
   ] as const)
     graph[nodeByTitle(graph, title)].inputs[input] = value;
   const plans = Object.values(graph).filter((node) => node.class_type === "H3OneClickSwapPlan");
-  if (plans.length !== 1) throw new Error(`Expected one Swap Plan node in the workflow, found ${plans.length}.`);
-  plans[0].inputs.steps = settings.steps;
+  if (plans.length > 1) throw new Error(`Expected one Swap Plan node in the workflow, found ${plans.length}.`);
+  // Fix faces has no Swap Plan; its sampler steps sit on the "Schedule" node.
+  (plans[0] ?? graph[nodeByTitle(graph, "Schedule")]).inputs.steps = settings.steps;
   const unet = nodeByTitle(graph, "H3 Diffusion Model");
   const lora = nodeByTitle(graph, "DMAD LoRA");
   graph[unet].inputs.unet_name = settings.model;
@@ -205,7 +206,7 @@ function applyModel(graph: ApiGraph, settings: H3ModelSettings) {
       ...(value.describer && value.describer !== H3_DEFAULT_MODEL.describer ? [value.describer] : []),
     ]);
   const key = componentKey(settings);
-  if (key !== componentKey(H3_DEFAULT_MODEL)) {
+  if (key !== componentKey(H3_DEFAULT_MODEL) && Object.values(graph).some((node) => node.class_type === "MiniMaxH3ChainPlanModern")) {
     let hash = BigInt("14695981039346656037");
     for (const char of key) hash = BigInt.asUintN(64, (hash ^ BigInt(char.codePointAt(0)!)) * BigInt("1099511628211"));
     suffixRunName(graph, "model_run_name", `_model${hash.toString(16)}`, "Run name for these model components");
@@ -270,27 +271,112 @@ export function maskGraph(
   return graph;
 }
 
-// Node types both workflows use, plus the ones requests may add.
-export async function requiredNodes(): Promise<string[]> {
+// Combo values the exports were saved with that a server may list differently: FaceRefine's detectors are Windows
+// paths in face.api.json ("bbox\\face_yolov8m.pt"), and the colour preset is named after the export ("Openjutsu").
+function resolveCombos(graph: ApiGraph, info: ObjectInfo) {
+  const base = (name: string) => name.split(/[\\/]/).pop()!;
+  for (const node of Object.values(graph)) {
+    if (node.class_type === "H3FaceTrackCrop") {
+      for (const input of ["detector", "fallback_detector"]) {
+        const value = node.inputs[input];
+        if (typeof value !== "string" || value === "none") continue;
+        const options = comboOptions(info, node.class_type, input);
+        if (options.includes(value)) continue;
+        const match = options.find((option) => option.replace(/\\/g, "/") === value.replace(/\\/g, "/")) ?? options.find((option) => base(option) === base(value));
+        if (match) node.inputs[input] = match;
+      }
+    }
+  }
+}
+
+// Node types a group of workflows uses, plus the ones requests may add.
+const GROUPS = { swap: ["simple", "mask"], face: ["face"], color: ["color"] } as const;
+export type H3Group = keyof typeof GROUPS;
+
+export async function requiredNodes(groups: H3Group[] = ["swap", "face", "color"]): Promise<string[]> {
   const types = new Set<string>(["H3SoundtrackOrSilence", "StringConcatenate", "ImageScale"]);
-  for (const kind of ["simple", "mask"] as const) for (const node of Object.values(await loadGraph(kind))) types.add(node.class_type);
+  for (const group of groups) for (const kind of GROUPS[group]) for (const node of Object.values(await loadGraph(kind))) types.add(node.class_type);
   return [...types].sort();
 }
 
 // Missing node types and model files (every combo value the default graphs use that ComfyUI does not list).
-export async function inspectReadiness(info: ObjectInfo) {
-  const nodes = await requiredNodes();
+export async function inspectReadiness(info: ObjectInfo, group: H3Group = "swap") {
+  const nodes = await requiredNodes([group]);
   const missingNodes = nodes.filter((node) => !info[node]);
   const missingModels = new Set<string>();
-  for (const kind of ["simple", "mask"] as const) {
-    for (const node of Object.values(await loadGraph(kind))) {
+  for (const kind of GROUPS[group]) {
+    const graph = await loadGraph(kind);
+    resolveCombos(graph, info);
+    for (const node of Object.values(graph)) {
       if (!info[node.class_type]) continue;
       for (const [input, value] of Object.entries(node.inputs)) {
-        if (typeof value !== "string" || !value || !/\.(safetensors|pt|pth|bin|ckpt|gguf)$/i.test(value)) continue;
+        if (typeof value !== "string" || !value || value === "none" || !/\.(safetensors|pt|pth|bin|ckpt|gguf)$/i.test(value)) continue;
         const options = comboOptions(info, node.class_type, input);
-        if (options.length && !options.includes(value)) missingModels.add(value);
+        if (options.length && !options.includes(value)) missingModels.add(value.replace(/^.*[\\/]/, ""));
       }
     }
   }
   return { ready: !missingNodes.length && !missingModels.size, missingNodes, missingModels: [...missingModels] };
+}
+
+export const FACE_VIDEO = "Video to fix";
+export const FACE_PICTURE = "Picture 1";
+export const COLOR_VIDEO = "Video to fix";
+
+// Fix faces: the face of the person in the picture is regenerated in overlapping chunks and pasted back.
+export function faceGraph(
+  source: ApiGraph,
+  info: ObjectInfo,
+  o: { video: string; picture: string; section: H3Section; settings: H3FaceSettings; model: H3ModelSettings; outputName: string },
+): ApiGraph {
+  const graph: ApiGraph = structuredClone(source);
+  const id = (title: string) => nodeByTitle(graph, title);
+  const chunks = graph[id("Face Fix Chunks")].inputs;
+  // Match the photo: no blurred face to follow, so H3 draws the expressions and mouth anew from the picture.
+  if (o.settings.style === "photo") {
+    delete graph[id("Blurred face (follow the mouth)")];
+    delete chunks.follow_mouth;
+    delete graph[id("Reference Conditioning")].inputs["ref_videos.ref_video_0"];
+  }
+  chunks.chunk_seconds = o.settings.chunkSeconds;
+  graph[id("Seed")].inputs.noise_seed = o.settings.seed;
+  applyModel(graph, o.model);
+  setSection(graph, id(FACE_VIDEO), o.section);
+  graph[id(FACE_VIDEO)].inputs.video = o.video;
+  graph[id(FACE_PICTURE)].inputs.image = o.picture;
+  graph[id("Fixed video")].inputs.filename_prefix = o.outputName;
+  resolveCombos(graph, info);
+  checkLinks(graph);
+  return graph;
+}
+
+// Fix colours: Image Detail Contrast, then Orion4D's DCTL Tone Mapper. A step that is off is dropped.
+export function colorGraph(
+  source: ApiGraph,
+  info: ObjectInfo,
+  o: { video: string; section: H3Section; settings: H3ColorSettings; outputName: string },
+): ApiGraph {
+  const graph: ApiGraph = structuredClone(source);
+  const detail = nodeByTitle(graph, "Detail contrast");
+  const tone = nodeByTitle(graph, "Tone mapper");
+  if (o.settings.detail === null) {
+    graph[tone].inputs.image = graph[detail].inputs.image;
+    delete graph[detail];
+  } else graph[detail].inputs.detail_contrast = o.settings.detail;
+  if (o.settings.tone === null) {
+    graph[nodeByTitle(graph, "Fixed video")].inputs.images = graph[tone].inputs.image;
+    delete graph[tone];
+  } else {
+    // Orion uses raw_settings over its preset files when the preset names match; any preset it lists will do.
+    const node = graph[tone].inputs;
+    const presets = comboOptions(info, "Orion4D_FXMax_DCTLToneMapper", "preset");
+    if (presets.length && !presets.includes(String(node.preset)))
+      node.preset = o.settings.preset && presets.includes(o.settings.preset) ? o.settings.preset : presets[0];
+    node.raw_settings = JSON.stringify({ node_type: "color_fx_dctl_tone_mapper", preset: node.preset, settings: { ...o.settings.tone, preserve_luminosity: false, clamp_output: true } });
+  }
+  setSection(graph, nodeByTitle(graph, COLOR_VIDEO), o.section);
+  graph[nodeByTitle(graph, COLOR_VIDEO)].inputs.video = o.video;
+  graph[nodeByTitle(graph, "Fixed video")].inputs.filename_prefix = o.outputName;
+  checkLinks(graph);
+  return graph;
 }

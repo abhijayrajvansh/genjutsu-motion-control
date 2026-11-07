@@ -22,7 +22,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     };
     if (query.get("download") === "1") {
       const extension = file.name.split(".").pop();
-      const base = job.kind === "mask" ? "h3-mask" : "h3-swap";
+      const base = `h3-${job.kind}`;
       headers["Content-Disposition"] = `attachment; filename="${base}-${id.slice(0, 8)}${which === "output" ? "" : `-${which}`}.${extension}"`;
     }
     const range = req.headers.get("range")?.match(/^bytes=(\d*)-(\d*)$/);

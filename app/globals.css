@@ -3039,3 +3039,8 @@ body:has(.motion-submit-bar) .main-content {
 .choices.h3-resolution-choices > div {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+.h3-tone-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}

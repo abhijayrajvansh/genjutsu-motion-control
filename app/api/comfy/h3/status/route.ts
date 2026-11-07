@@ -1,4 +1,5 @@
-import { H3Status } from "@/lib/h3-swap";
+import { H3Status, H3TonePreset } from "@/lib/h3-swap";
+import type { ComfyServer } from "@/lib/server/comfy";
 import { comboOptions, comfyJson, comfyServer, objectInfo } from "@/lib/server/comfy";
 import { inspectReadiness, requiredNodes } from "@/lib/server/h3-workflow";
 import { ApiError, json } from "@/lib/server/kie";
@@ -11,7 +12,28 @@ type SystemStats = {
 };
 type Queue = { queue_running?: unknown[]; queue_pending?: unknown[] };
 
-const LOADERS =["UNETLoader", "LoraLoaderModelOnly", "CLIPLoader", "VAELoader"];
+const LOADERS = ["UNETLoader", "LoraLoaderModelOnly", "CLIPLoader", "VAELoader"];
+
+// Orion4D's saved DCTL Tone Mapper presets; empty when the pack does not answer.
+async function tonePresets(server: ComfyServer): Promise<H3TonePreset[]> {
+  try {
+    const { presets } = await comfyJson<{ presets?: string[] }>(server, "/orion4d_fxmax/presets/color_fx_dctl_tone_mapper");
+    if (!Array.isArray(presets)) return [];
+    const loaded = await Promise.all(
+      presets.slice(0, 50).map(async (name) => {
+        try {
+          const data = await comfyJson<{ settings?: Record<string, unknown> }>(server, `/orion4d_fxmax/preset/color_fx_dctl_tone_mapper/${encodeURIComponent(name)}`);
+          return data.settings && typeof data.settings === "object" ? { name, settings: data.settings } : null;
+        } catch {
+          return null;
+        }
+      }),
+    );
+    return loaded.filter((item): item is H3TonePreset => !!item);
+  } catch {
+    return [];
+  }
+}
 
 // Check the ComfyUI link: GPU, whether the H3 swap can run, and the model files the pickers offer.
 export async function GET(req: Request) {
@@ -29,7 +51,10 @@ export async function GET(req: Request) {
       gpu: gpu?.name?.replace(/^cuda:\d+\s*/, "").replace(/\s*:\s*cudaMallocAsync$/, ""),
       vramGB: gpu?.vram_total ? Math.round(gpu.vram_total / 1024 ** 3) : undefined,
       comfyVersion: stats.system?.comfyui_version,
-      readiness: await inspectReadiness(info),
+      readiness: await inspectReadiness(info, "swap"),
+      face: await inspectReadiness(info, "face"),
+      color: await inspectReadiness(info, "color"),
+      presets: new URL(req.url).searchParams.get("presets") === "1" ? await tonePresets(server) : undefined,
       files: {
         models: comboOptions(info, "UNETLoader", "unet_name"),
         loras: comboOptions(info, "LoraLoaderModelOnly", "lora_name"),

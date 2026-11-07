@@ -17,6 +17,9 @@ import {
   H3Acceleration,
   H3Job,
   H3Lora,
+  H3Readiness,
+  H3_TONE_RANGES,
+  H3ToneValue,
   H3Margin,
   H3MotionSize,
   H3Resolution,
@@ -115,7 +118,7 @@ function writeInputs(patch: SavedInputs) {
   }
 }
 
-function randomSeed() {
+export function randomSeed() {
   const bytes = new Uint32Array(1);
   crypto.getRandomValues(bytes);
   return bytes[0] % (H3_MAX_SEED + 1);
@@ -125,7 +128,7 @@ function comfyHeaders(link: string): Record<string, string> {
   return link.trim() ? { "x-comfy-url": link.trim() } : {};
 }
 
-async function call<T>(url: string, link: string, init: RequestInit = {}): Promise<T> {
+export async function call<T>(url: string, link: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(url, {
     ...init,
     headers: { ...comfyHeaders(link), ...(init.headers as Record<string, string> | undefined) },
@@ -137,7 +140,7 @@ async function call<T>(url: string, link: string, init: RequestInit = {}): Promi
 }
 
 // Duration and frame size of a picked video.
-function useVideoInfo(asset: Asset | null) {
+export function useVideoInfo(asset: Asset | null) {
   const [info, setInfo] = useState<{ id: string; seconds: number; width: number; height: number; error?: string } | null>(null);
   useEffect(() => {
     if (!asset) return;
@@ -165,7 +168,7 @@ function useVideoInfo(asset: Asset | null) {
   return asset && info?.id === asset.id ? info : null;
 }
 
-function fileOptions(files: string[] | undefined, current: string) {
+export function fileOptions(files: string[] | undefined, current: string) {
   const list = files?.length ? files : [];
   const options = list.map((name) => ({ value: name, label: name }));
   if (current && !list.includes(current)) options.unshift({ value: current, label: files ? `${current} (not on this GPU)` : current });
@@ -188,13 +191,10 @@ export function H3SwapForm({
     [previewHost, setPreviewHost] = useState<HTMLDivElement | null>(null),
     [seed, setSeed] = useState(""),
     [plannedSeed, setPlannedSeed] = useState<number | null>(null),
-    [status, setStatus] = useState<H3Status | null>(null),
-    [checking, setChecking] = useState(false),
-    [draftLink, setDraftLink] = useState(comfyLink),
+    { status, checking, check } = useH3Status(comfyLink),
     [busy, setBusy] = useState<"" | "swap" | "mask">(""),
     [error, setError] = useState(""),
-    [stage, setStage] = useState(""),
-    linkId = useId();
+    [stage, setStage] = useState("");
 
   useEffect(() => {
     // Hydrate saved settings, the seed preview and picked inputs after server rendering.
@@ -235,38 +235,6 @@ export function H3SwapForm({
     setVideo(asset);
     writeInputs({ videoId: asset?.id ?? null, clip: null });
     setClipDraft(null);
-  }
-
-  useEffect(() => {
-    // Follow the saved link once it hydrates from browser storage.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDraftLink(comfyLink);
-  }, [comfyLink]);
-  const check = useCallback(async (link: string) => {
-    if (!link.trim()) {
-      setStatus(null);
-      return;
-    }
-    setChecking(true);
-    try {
-      const response = await fetch("/api/comfy/h3/status", { headers: comfyHeaders(link), cache: "no-store" });
-      const data = (await response.json().catch(() => ({}))) as { status?: H3Status; error?: string };
-      setStatus(data.status ?? { ok: false, error: data.error || "ComfyUI could not be checked." });
-    } catch {
-      setStatus({ ok: false, error: "ComfyUI could not be checked." });
-    } finally {
-      setChecking(false);
-    }
-  }, []);
-  useEffect(() => {
-    // Check the saved ComfyUI link when the form loads.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void check(comfyLink);
-  }, [comfyLink, check]);
-  function connect() {
-    const link = draftLink.trim();
-    onComfyLink(link);
-    void check(link);
   }
 
   const info = useVideoInfo(video);
@@ -350,62 +318,11 @@ export function H3SwapForm({
     }
   }
 
-  const statusDetails = status?.ok
-    ? [
-        status.gpu && `${status.gpu.replace(/^NVIDIA\s+(GeForce\s+)?/i, "")}${status.vramGB ? ` · ${status.vramGB} GB` : ""}`,
-        status.queue && status.queue.running + status.queue.pending > 0 && `${status.queue.running + status.queue.pending} queued`,
-      ].filter(Boolean)
-    : [];
-
   return (
     <form className="generation-form" onSubmit={(event) => { event.preventDefault(); void submit("swap"); }}>
       <div className="h3-model-row">{modelPicker}</div>
 
-      <div className="field comfy-connection">
-        <div className="comfy-link-heading">
-          <label htmlFor={linkId}>ComfyUI link</label>
-          {readiness?.ready && (
-            <small className="comfy-status-ok" role="status" title={status?.comfyVersion ? `ComfyUI ${status.comfyVersion}` : undefined}>
-              ✓ H3 ready{statusDetails.length ? ` · ${statusDetails.join(" · ")}` : ""}
-            </small>
-          )}
-        </div>
-        <div className="comfy-connection-row">
-          <input
-            id={linkId}
-            type="url"
-            placeholder="Paste the link from rent-gpu"
-            title="rent-gpu's ComfyUI link, or http://127.0.0.1:8188 through an SSH tunnel"
-            autoComplete="off"
-            spellCheck={false}
-            value={draftLink}
-            onChange={(event) => setDraftLink(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                connect();
-              }
-            }}
-          />
-          <Button type="button" secondary disabled={checking || !draftLink.trim()} onClick={connect}>
-            {checking ? "Checking…" : draftLink.trim() === comfyLink && status ? "Check" : "Connect"}
-          </Button>
-        </div>
-        {!readiness?.ready &&
-          (checking && !status ? (
-            <small role="status">Checking ComfyUI…</small>
-          ) : !status ? (
-            <small>Not connected.</small>
-          ) : !status.ok ? (
-            <small className="error" role="alert">{status.error || "ComfyUI could not be checked."}</small>
-          ) : (
-            <div className="error comfy-status-missing" role="alert">
-              <span>Connected{statusDetails.length ? ` (${statusDetails.join(" · ")})` : ""}, but the H3 swap is not fully set up.</span>
-              {!!readiness?.missingNodes.length && <span>Missing nodes — install the Openjutsu custom nodes and restart ComfyUI: {readiness.missingNodes.join(", ")}</span>}
-              {!!readiness?.missingModels.length && <span>Default models missing (pick others under Advanced, or download them): {readiness.missingModels.join(", ")}</span>}
-            </div>
-          ))}
-      </div>
+      <H3LinkField comfyLink={comfyLink} onComfyLink={onComfyLink} status={status} checking={checking} check={check} readiness={readiness} what="H3 swap" />
 
       <div className="motion-input-grid">
         <div className="motion-image-input">
@@ -573,6 +490,74 @@ export function H3SwapForm({
             onChange={(value) => update({ motion: Number(value) as H3MotionSize })}
           />
           <small>Size of the grey figures H3 copies the motion from. Bigger follows the poses a bit more closely; sampling takes about a third longer at 768 px and about 2.4× as long at 1376 px.</small>
+          <H3ModelFields settings={settings} update={update} files={files} />
+          <Button type="button" secondary onClick={() => update({ ...DEFAULTS, role: settings.role, target: settings.target })}>
+            Restore default settings
+          </Button>
+        </div>
+      </details>
+
+      <div className="motion-submit-bar">
+        <div className="motion-submit-inner h3-submit-row">
+          <Button type="button" secondary disabled={!canMask} onClick={() => void submit("mask")}>
+            {busy === "mask" ? "Uploading…" : "Check mask"}
+          </Button>
+          <Button disabled={!canGenerate}>
+            {busy === "swap"
+              ? "Uploading / submitting…"
+              : !status?.ok
+                ? "Generate — connect ComfyUI first"
+                : !nodesReady
+                  ? "Generate — H3 nodes not installed"
+                  : !picture
+                    ? "Generate — add a character photo"
+                    : !video
+                      ? "Generate — add a driving video"
+                      : `Generate${partSeconds ? ` ${partSeconds.toFixed(1)}s` : ""}${clips ? ` · ${clips > 1 ? "about " : ""}${clips} clip${clips > 1 ? "s" : ""}` : ""}${canvas ? ` · ${canvas[0]}×${canvas[1]}` : ` · ${resolutionLabel(resolution)}`}`}
+          </Button>
+        </div>
+      </div>
+      {stage && (
+        <p className="motion-stage" role="status">
+          {stage}
+        </p>
+      )}
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+    </form>
+  );
+}
+
+export type H3ModelFieldSettings = {
+  steps: number;
+  model: string;
+  describer: string;
+  textEncoder: string;
+  videoVae: string;
+  audioVae: string;
+  useLoras: boolean;
+  loras: H3Lora[];
+  acceleration: H3Acceleration;
+};
+
+// Steps, model components, LoRAs and acceleration, shared by the swap and Fix faces.
+export function H3ModelFields({
+  settings,
+  update,
+  files,
+}: {
+  settings: H3ModelFieldSettings;
+  update: (patch: Partial<H3ModelFieldSettings>) => void;
+  files: H3Status["files"];
+}) {
+  const activeLoras = settings.useLoras ? settings.loras.filter((lora) => lora.enabled !== false) : [];
+  const speedLora = hasSpeedLora(activeLoras);
+  const acceleration = speedLora ? "none" : settings.acceleration;
+  return (
+    <>
           <TextField
             label="Steps"
             type="number"
@@ -651,43 +636,122 @@ export function H3SwapForm({
             onChange={(value) => update({ acceleration: value as H3Acceleration })}
             hint={speedLora ? "Turn off the speed LoRA to use Spectrum." : "Spectrum skips some H3 evaluations and can change the result. Needs ComfyUI-Spectrum-MiniMax-H3; use 20 or more steps."}
           />
-          <Button type="button" secondary onClick={() => update({ ...DEFAULTS, role: settings.role, target: settings.target })}>
-            Restore default settings
-          </Button>
-        </div>
-      </details>
+    </>
+  );
+}
 
-      <div className="motion-submit-bar">
-        <div className="motion-submit-inner h3-submit-row">
-          <Button type="button" secondary disabled={!canMask} onClick={() => void submit("mask")}>
-            {busy === "mask" ? "Uploading…" : "Check mask"}
-          </Button>
-          <Button disabled={!canGenerate}>
-            {busy === "swap"
-              ? "Uploading / submitting…"
-              : !status?.ok
-                ? "Generate — connect ComfyUI first"
-                : !nodesReady
-                  ? "Generate — H3 nodes not installed"
-                  : !picture
-                    ? "Generate — add a character photo"
-                    : !video
-                      ? "Generate — add a driving video"
-                      : `Generate${partSeconds ? ` ${partSeconds.toFixed(1)}s` : ""}${clips ? ` · ${clips > 1 ? "about " : ""}${clips} clip${clips > 1 ? "s" : ""}` : ""}${canvas ? ` · ${canvas[0]}×${canvas[1]}` : ` · ${resolutionLabel(resolution)}`}`}
-          </Button>
-        </div>
+// The ComfyUI link field with its readiness line, shared by Motion Control's H3 model and Post-processing.
+export function useH3Status(comfyLink: string, presets = false) {
+  const [status, setStatus] = useState<H3Status | null>(null),
+    [checking, setChecking] = useState(false);
+  const check = useCallback(
+    async (link: string) => {
+      if (!link.trim()) {
+        setStatus(null);
+        return;
+      }
+      setChecking(true);
+      try {
+        const response = await fetch(`/api/comfy/h3/status${presets ? "?presets=1" : ""}`, { headers: comfyHeaders(link), cache: "no-store" });
+        const data = (await response.json().catch(() => ({}))) as { status?: H3Status; error?: string };
+        setStatus(data.status ?? { ok: false, error: data.error || "ComfyUI could not be checked." });
+      } catch {
+        setStatus({ ok: false, error: "ComfyUI could not be checked." });
+      } finally {
+        setChecking(false);
+      }
+    },
+    [presets],
+  );
+  useEffect(() => {
+    // Check the saved ComfyUI link when the form loads.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void check(comfyLink);
+  }, [comfyLink, check]);
+  return { status, checking, check };
+}
+
+export function H3LinkField({
+  comfyLink,
+  onComfyLink,
+  status,
+  checking,
+  check,
+  readiness,
+  what,
+}: {
+  comfyLink: string;
+  onComfyLink: (value: string) => void;
+  status: H3Status | null;
+  checking: boolean;
+  check: (link: string) => Promise<void>;
+  readiness: H3Readiness | undefined;
+  what: string;
+}) {
+  const [draftLink, setDraftLink] = useState(comfyLink),
+    linkId = useId();
+  useEffect(() => {
+    // Follow the saved link once it hydrates from browser storage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraftLink(comfyLink);
+  }, [comfyLink]);
+  function connect() {
+    const link = draftLink.trim();
+    onComfyLink(link);
+    void check(link);
+  }
+  const statusDetails = status?.ok
+    ? [
+        status.gpu && `${status.gpu.replace(/^NVIDIA\s+(GeForce\s+)?/i, "")}${status.vramGB ? ` · ${status.vramGB} GB` : ""}`,
+        status.queue && status.queue.running + status.queue.pending > 0 && `${status.queue.running + status.queue.pending} queued`,
+      ].filter(Boolean)
+    : [];
+  return (
+    <div className="field comfy-connection">
+      <div className="comfy-link-heading">
+        <label htmlFor={linkId}>ComfyUI link</label>
+        {readiness?.ready && (
+          <small className="comfy-status-ok" role="status" title={status?.comfyVersion ? `ComfyUI ${status.comfyVersion}` : undefined}>
+            ✓ {what} ready{statusDetails.length ? ` · ${statusDetails.join(" · ")}` : ""}
+          </small>
+        )}
       </div>
-      {stage && (
-        <p className="motion-stage" role="status">
-          {stage}
-        </p>
-      )}
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-    </form>
+      <div className="comfy-connection-row">
+        <input
+          id={linkId}
+          type="url"
+          placeholder="Paste the link from rent-gpu"
+          title="rent-gpu's ComfyUI link, or http://127.0.0.1:8188 through an SSH tunnel"
+          autoComplete="off"
+          spellCheck={false}
+          value={draftLink}
+          onChange={(event) => setDraftLink(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              connect();
+            }
+          }}
+        />
+        <Button type="button" secondary disabled={checking || !draftLink.trim()} onClick={connect}>
+          {checking ? "Checking…" : draftLink.trim() === comfyLink && status ? "Check" : "Connect"}
+        </Button>
+      </div>
+      {!readiness?.ready &&
+        (checking && !status ? (
+          <small role="status">Checking ComfyUI…</small>
+        ) : !status ? (
+          <small>Not connected.</small>
+        ) : !status.ok ? (
+          <small className="error" role="alert">{status.error || "ComfyUI could not be checked."}</small>
+        ) : (
+          <div className="error comfy-status-missing" role="alert">
+            <span>Connected{statusDetails.length ? ` (${statusDetails.join(" · ")})` : ""}, but {what} is not fully set up.</span>
+            {!!readiness?.missingNodes.length && <span>Missing nodes — install the Openjutsu custom nodes and restart ComfyUI: {readiness.missingNodes.join(", ")}</span>}
+            {!!readiness?.missingModels.length && <span>Models missing on the GPU: {readiness.missingModels.join(", ")}</span>}
+          </div>
+        ))}
+    </div>
   );
 }
 
@@ -695,6 +759,7 @@ const LABELS: Record<H3Job["state"], string> = { submitting: "Submitting", queue
 
 export function H3SwapHistory({
   comfyLink,
+  kinds,
   favorites,
   archived,
   view,
@@ -703,6 +768,7 @@ export function H3SwapHistory({
   onJobFinished,
 }: {
   comfyLink: string;
+  kinds: H3Job["kind"][];
   favorites: string[];
   archived: string[];
   view: "all" | "favorites" | "archives";
@@ -710,6 +776,7 @@ export function H3SwapHistory({
   onArchive: (id: string) => void;
   onJobFinished?: (job: H3Job) => void;
 }) {
+  const kindKey = kinds.join(",");
   const [jobs, setJobs] = useState<H3Job[] | null>(null),
     [error, setError] = useState(""),
     [warning, setWarning] = useState(""),
@@ -734,7 +801,8 @@ export function H3SwapHistory({
         const data = await call<{ jobs: H3Job[] }>("/api/comfy/h3", comfyLink);
         let note = "";
         const updated: H3Job[] = [];
-        for (const job of data.jobs) {
+        const wanted = kindKey.split(",");
+        for (const job of data.jobs.filter((item) => wanted.includes(item.kind ?? "swap"))) {
           if (H3_PENDING.includes(job.state) && comfyLink) {
             try {
               const result = await call<{ job: H3Job; warning?: string }>(`/api/comfy/h3/${job.id}`, comfyLink);
@@ -768,8 +836,9 @@ export function H3SwapHistory({
       active = false;
       clearInterval(timer);
     };
-  }, [comfyLink, refresh]);
+  }, [comfyLink, refresh, kindKey]);
 
+  const post = kinds.includes("face") || kinds.includes("color");
   const visible = (jobs ?? []).filter((job) => {
     const isArchived = archived.includes(job.id);
     if (view === "archives") return isArchived;
@@ -781,10 +850,12 @@ export function H3SwapHistory({
       {jobs && !visible.length && (
         <div className="empty-history">
           {view === "favorites"
-            ? "No favorite H3 videos yet. Use the star on a video to save it here."
+            ? "No favorite videos here yet. Use the star on a video to save it here."
             : view === "archives"
-              ? "No archived H3 videos yet."
-              : "No H3 videos yet. Connect your ComfyUI GPU, add a character photo and a driving video."}
+              ? "No archived videos here yet."
+              : post
+                ? "No post-processed videos yet. Connect your ComfyUI GPU and add a finished video."
+                : "No H3 videos yet. Connect your ComfyUI GPU, add a character photo and a driving video."}
         </div>
       )}
       {error && <div className="error" role="alert">{error}</div>}
@@ -832,7 +903,7 @@ function H3Card({
     [cardError, setCardError] = useState("");
   const media = (which: string) => `/api/comfy/h3/${job.id}/media?which=${which}`;
   const pending = H3_PENDING.includes(job.state);
-  const title = job.kind === "mask" ? "Mask check" : "H3 swap";
+  const title = { swap: "H3 swap", mask: "Mask check", face: "Fix faces", color: "Fix colours" }[job.kind ?? "swap"];
   async function cancel() {
     setCancelling(true);
     setCardError("");
@@ -964,7 +1035,49 @@ function H3Details({ job, media, onClose }: { job: H3Job; media: (which: string)
   } catch {
     // Keep the stored value.
   }
-  const rows: [string, React.ReactNode][] = s
+  const modelRows: [string, React.ReactNode][] = m
+    ? [
+        ["Steps", String(m.steps)],
+        ["Acceleration", m.acceleration === "spectrum" ? "Spectrum" : "Off"],
+        [
+          "Weights",
+          <span key="weights" className="edit-details-files">
+            {[m.model, m.textEncoder, m.describer, m.videoVae, m.audioVae].filter(Boolean).map((file) => <code key={file}>{file}</code>)}
+          </span>,
+        ],
+        [
+          "LoRAs",
+          m.loras.length ? (
+            <span key="loras" className="edit-details-files">
+              {m.loras.map((lora) => <code key={lora.name}>{`${lora.name} · ${lora.strength}`}</code>)}
+            </span>
+          ) : (
+            "None"
+          ),
+        ],
+      ]
+    : [];
+  const seedRow = (seed: number): [string, React.ReactNode] => ["Seed", <span key="seed" className="edit-details-inline"><code>{seed}</code><CopyButton value={String(seed)} label="seed" /></span>];
+  const f = job.face;
+  const c = job.color;
+  const rows: [string, React.ReactNode][] = f
+    ? [
+        ["Part of video", part],
+        ["Style", f.style === "mouth" ? "Follow the mouth" : "Match the photo"],
+        seedRow(f.seed),
+        ["Chunk length", `${f.chunkSeconds.toFixed(1)} s${job.clips ? ` · up to ${job.clips} chunk${job.clips > 1 ? "s" : ""}` : ""}`],
+        ...modelRows,
+      ]
+    : c
+      ? [
+          ["Part of video", part],
+          ["Detail contrast", c.detail === null ? "Off" : c.detail.toFixed(2)],
+          ["Tone mapper", c.tone ? `${c.preset || "Custom"} · ${c.tone.mode}` : "Off"],
+          ...(c.tone
+            ? (Object.keys(H3_TONE_RANGES) as H3ToneValue[]).map((key): [string, React.ReactNode] => [H3_TONE_RANGES[key].label, c.tone![key].toFixed(2)])
+            : []),
+        ]
+      : s
     ? [
         ["Resolution", `${resolutionLabel(s.resolution)}${canvas ? ` · ${canvas[0]}×${canvas[1]}` : ""}`],
         ["Part of video", part],
@@ -973,31 +1086,10 @@ function H3Details({ job, media, onClose }: { job: H3Job; media: (which: string)
         ["Hat fix", s.hatFix ? "On" : "Off"],
         ["No lip-sync", s.noLipSync ? "On" : "Off"],
         ["Mask margin", s.margin],
-        ["Seed", <span key="seed" className="edit-details-inline"><code>{s.seed}</code><CopyButton value={String(s.seed)} label="seed" /></span>],
+        seedRow(s.seed),
         ["Clip length", `${s.clipSeconds.toFixed(1)} s${job.clips ? ` · ${job.clips} clip${job.clips > 1 ? "s" : ""} planned` : ""}`],
         ["Motion reference", `${s.motion} px`],
-        ...(m
-          ? ([
-              ["Steps", String(m.steps)],
-              ["Acceleration", m.acceleration === "spectrum" ? "Spectrum" : "Off"],
-              [
-                "Weights",
-                <span key="weights" className="edit-details-files">
-                  {[m.model, m.textEncoder, m.describer, m.videoVae, m.audioVae].filter(Boolean).map((file) => <code key={file}>{file}</code>)}
-                </span>,
-              ],
-              [
-                "LoRAs",
-                m.loras.length ? (
-                  <span key="loras" className="edit-details-files">
-                    {m.loras.map((lora) => <code key={lora.name}>{`${lora.name} · ${lora.strength}`}</code>)}
-                  </span>
-                ) : (
-                  "None"
-                ),
-              ],
-            ] as [string, React.ReactNode][])
-          : []),
+        ...modelRows,
       ]
     : [
         ["Part of video", part],
@@ -1021,19 +1113,19 @@ function H3Details({ job, media, onClose }: { job: H3Job; media: (which: string)
       <div className="edit-details">
         <div className="edit-details-summary">
           <span className={`job-status ${stateClass}`}>{LABELS[job.state]}</span>
-          <strong>{job.kind === "mask" ? "MiniMax H3 · Mask check" : "MiniMax H3 · Simple motion transfer"}</strong>
+          <strong>{{ swap: "MiniMax H3 · Simple motion transfer", mask: "MiniMax H3 · Mask check", face: "MiniMax H3 · Fix faces", color: "Fix colours" }[job.kind ?? "swap"]}</strong>
           {s && <span>{resolutionLabel(s.resolution)}</span>}
         </div>
         <div className="edit-details-media h3-details-media">
           {job.pictureName && (
             <a href={media("picture")} target="_blank" rel="noreferrer" title="Open the character photo">
               <img src={media("picture")} alt="Character photo" />
-              <span>Character photo</span>
+              <span>{job.kind === "face" ? "Photo of the person" : "Character photo"}</span>
             </a>
           )}
           <div>
             <video src={media("video")} controls muted playsInline preload="metadata" />
-            <span>Driving video · {job.videoName}</span>
+            <span>{job.kind === "face" || job.kind === "color" ? "Video to fix" : "Driving video"} · {job.videoName}</span>
           </div>
           {job.state === "success" && job.hasOutput && (
             <div className="edit-details-result">

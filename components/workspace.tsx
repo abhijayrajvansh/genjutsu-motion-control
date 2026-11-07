@@ -11,8 +11,9 @@ import { ThemeToggle } from "./theme-toggle";
 import { HideUiToggle } from "./hide-ui-toggle";
 import { COMFY_LINK_KEY, ImageEditForm, ImageEditHistory } from "./image-edit";
 import { H3SwapHistory } from "./h3-swap";
+import { H3PostForm } from "./h3-post";
 import { MOTION_MODEL_EVENT, MOTION_MODEL_KEY } from "./motion-workflow";
-import { H3_MOTION_ID } from "@/lib/h3-swap";
+import { H3_MOTION_ID, H3_MOTION_KINDS, H3_POST_KINDS } from "@/lib/h3-swap";
 import { AssetPreview, Button, Modal, useSaved } from "./controls";
 import {
   ImageForm,
@@ -21,7 +22,7 @@ import {
   ToolsForm,
   VideoForm,
 } from "./forms";
-const tabs = ["Motion Control", "Edit Image"];
+const tabs = ["Motion Control", "Edit Image", "Post-processing"];
 export function Workspace({ section = "generations" }: { section?: string }) {
   return (
     <KieProvider>
@@ -296,6 +297,8 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                         onComfyLink={setComfyLink}
                         incomingImage={editImage}
                       />
+                    ) : t === "Post-processing" ? (
+                      <H3PostForm comfyLink={comfyLink} onComfyLink={setComfyLink} />
                     ) : t === "Video Gen" ? (
                       <VideoForm {...props} />
                     ) : t === "Images" ? (
@@ -319,7 +322,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                 <div className="history-heading">
                   <div className="history-title">
                     <h2>Your generations</h2>
-                    {tab !== "Edit Image" && !h3Motion && <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>}
+                    {tab === "Motion Control" && !h3Motion && <a href={provider === "apimart" ? "https://apimart.ai" : "https://kie.ai/logs"} target="_blank" rel="noreferrer">{provider === "apimart" ? "APIMart tasks" : "Kie logs"}</a>}
                   </div>
                   <div className="tabs history-tabs" role="tablist" aria-label="Generation history"
                     onKeyDown={(event) => {
@@ -351,9 +354,10 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                       setNotice(job.state === "success" ? `Image ready: ${name}` : `Edit failed: ${name}${job.error ? ` — ${job.error}` : ""}`);
                     }}
                   />
-                ) : h3Motion ? (
+                ) : h3Motion || tab === "Post-processing" ? (
                   <H3SwapHistory
                     comfyLink={comfyLink}
+                    kinds={tab === "Post-processing" ? H3_POST_KINDS : H3_MOTION_KINDS}
                     favorites={favoriteIds}
                     archived={archiveIds}
                     view={activeView}
@@ -362,7 +366,7 @@ function WorkspaceContent({ section = "generations" }: { section?: string }) {
                     onJobFinished={(job) => {
                       playCompletionSound(job.state === "success");
                       const name = (job.promptId || job.id).slice(0, 10);
-                      const what = job.kind === "mask" ? "Mask check" : "H3 video";
+                      const what = { swap: "H3 video", mask: "Mask check", face: "Fixed faces", color: "Fixed colours" }[job.kind];
                       setNotice(job.state === "success" ? `${what} ready: ${name}` : `${what} failed: ${name}${job.error ? ` — ${job.error}` : ""}`);
                     }}
                   />

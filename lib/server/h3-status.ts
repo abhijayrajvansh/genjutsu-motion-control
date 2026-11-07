@@ -4,6 +4,9 @@ import { ComfyServer, comfyFetch, comfyJson, redactComfy } from "./comfy";
 import { saveH3Stream, updateH3Job } from "./h3-store";
 import { MASK_NODES, NODES } from "./h3-workflow";
 
+// Output node of each workflow (the face and colour exports save from their "Fixed video" node).
+const OUTPUT_NODE: Record<H3Job["kind"], string> = { swap: NODES.final, mask: MASK_NODES.combine, face: "30", color: "4" };
+
 type HistoryFile = { filename?: string; subfolder?: string; type?: string };
 type HistoryEntry = {
   status?: { status_str?: string; completed?: boolean; messages?: [string, Record<string, unknown>][] };
@@ -34,7 +37,7 @@ const isVideo = (file: HistoryFile) => (file.type === "output" || file.type === 
 // The swap's Final Video node, or the mask check's preview video; any saved video as a fallback.
 function outputVideo(job: H3Job, entry: HistoryEntry) {
   const files = (id: string) => [...(entry.outputs?.[id]?.images ?? []), ...(entry.outputs?.[id]?.gifs ?? []), ...(entry.outputs?.[id]?.videos ?? [])];
-  const preferred = files(job.kind === "swap" ? NODES.final : MASK_NODES.combine).find(isVideo);
+  const preferred = files(OUTPUT_NODE[job.kind]).find(isVideo);
   return preferred ?? Object.keys(entry.outputs ?? {}).flatMap(files).find(isVideo);
 }
 

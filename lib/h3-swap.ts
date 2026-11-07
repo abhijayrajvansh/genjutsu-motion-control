@@ -105,7 +105,9 @@ export type H3SwapSettings = {
 // Part of the source video to use, in seconds; length 0 runs to the end.
 export type H3Section = { start: number; length: number };
 
-export type H3Kind = "swap" | "mask";
+export type H3Kind = "swap" | "mask" | "face" | "color";
+export const H3_MOTION_KINDS: H3Kind[] = ["swap", "mask"];
+export const H3_POST_KINDS: H3Kind[] = ["face", "color"];
 export type H3State = "submitting" | "queued" | "running" | "success" | "fail";
 export const H3_PENDING: H3State[] = ["submitting", "queued", "running"];
 
@@ -126,6 +128,9 @@ export type H3Job = {
   model?: H3ModelSettings;
   // Mask check only.
   mask?: { hatFix: boolean; margin: H3Margin; target: string };
+  // Fix faces / Fix colours only.
+  face?: H3FaceSettings;
+  color?: H3ColorSettings;
   clips?: number;
   videoName: string;
   pictureName?: string;
@@ -146,6 +151,10 @@ export type H3Status = {
   vramGB?: number;
   comfyVersion?: string;
   readiness?: H3Readiness;
+  // Post-processing workflows.
+  face?: H3Readiness;
+  color?: H3Readiness;
+  presets?: H3TonePreset[];
   files?: H3ModelFiles;
   queue?: { running: number; pending: number };
   error?: string;
@@ -154,3 +163,57 @@ export type H3Status = {
 export const H3_MAX_VIDEO_MB = 500;
 export const H3_TUNNEL_MAX_MB = 100;
 export const H3_MAX_IMAGE_MB = 30;
+
+// ---- Post-processing: Fix faces and Fix colours (Openjutsu's face and color workflows) ----
+
+export const H3_FACE_STYLES = ["photo", "mouth"] as const;
+export type H3FaceStyle = (typeof H3_FACE_STYLES)[number];
+export type H3FaceSettings = { style: H3FaceStyle; seed: number; chunkSeconds: number };
+export const H3_CHUNK_SECONDS = { min: 2.5, max: 15, default: 6.5 };
+
+// Mirrors H3FaceChunks in the swap pack, before chunks with only close-ups are dropped.
+export function h3FaceChunkCount(durationSeconds: number, chunkSeconds: number) {
+  const total = Math.floor(durationSeconds * FPS);
+  const length = Math.floor((Math.floor(chunkSeconds * FPS) - 5) / 17) * 17 + 5;
+  return total <= length ? 1 : Math.ceil((total - 24) / (length - 24));
+}
+
+export const H3_TONE_MODES = ["Filmic Soft", "Filmic Strong", "ACES Approx", "Reinhard", "Cineon-ish"] as const;
+export type H3ToneMode = (typeof H3_TONE_MODES)[number];
+export type H3ToneSettings = {
+  mode: H3ToneMode; exposure: number; contrast: number; pivot: number; highlight_rolloff: number;
+  shadow_lift: number; black_floor: number; saturation: number; strength: number;
+};
+export type H3ToneValue = Exclude<keyof H3ToneSettings, "mode">;
+// Orion's own ranges for each value.
+export const H3_TONE_RANGES: Record<H3ToneValue, { label: string; min: number; max: number; step: number }> = {
+  exposure: { label: "Exposure", min: -5, max: 5, step: 0.01 },
+  contrast: { label: "Contrast", min: 0, max: 3, step: 0.01 },
+  pivot: { label: "Pivot", min: 0.01, max: 1, step: 0.01 },
+  highlight_rolloff: { label: "Highlight rolloff", min: 0, max: 2, step: 0.01 },
+  shadow_lift: { label: "Shadow lift", min: -1, max: 1, step: 0.01 },
+  black_floor: { label: "Black floor", min: 0, max: 0.25, step: 0.01 },
+  saturation: { label: "Saturation", min: 0, max: 3, step: 0.01 },
+  strength: { label: "Strength", min: 0, max: 2, step: 0.01 },
+};
+export const H3_DEFAULT_PRESET = "H3 soft";
+// zuanfilm's H3 preset, lighter: softer contrast and highlights, blacks kept.
+export const H3_DEFAULT_TONE: H3ToneSettings = {
+  mode: "Reinhard", exposure: 0.09, contrast: 0.84, pivot: 0.69, highlight_rolloff: 0.27,
+  shadow_lift: 0.15, black_floor: 0.03, saturation: 1.05, strength: 0.2,
+};
+export const H3_DETAIL = { min: -1, max: 1, default: -0.2 };
+// null turns a step off.
+export type H3ColorSettings = { detail: number | null; tone: H3ToneSettings | null; preset?: string };
+export type H3TonePreset = { name: string; settings: Record<string, unknown> };
+
+// An Orion preset as ComfyUI returns it, keeping only the values the page shows.
+export function toneFromPreset(settings: Record<string, unknown>): H3ToneSettings {
+  const tone = { ...H3_DEFAULT_TONE };
+  if (H3_TONE_MODES.includes(settings.mode as H3ToneMode)) tone.mode = settings.mode as H3ToneMode;
+  for (const key of Object.keys(H3_TONE_RANGES) as H3ToneValue[]) {
+    const value = settings[key];
+    if (typeof value === "number") tone[key] = value;
+  }
+  return tone;
+}

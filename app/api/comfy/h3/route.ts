@@ -14,6 +14,19 @@ import {
   H3_STEPS,
   H3_STRENGTH,
   H3_TUNNEL_MAX_MB,
+  H3_CHUNK_SECONDS,
+  H3_DETAIL,
+  H3_FACE_STYLES,
+  H3_TONE_MODES,
+  H3_TONE_RANGES,
+  H3_DEFAULT_TONE,
+  H3ColorSettings,
+  H3FaceSettings,
+  H3FaceStyle,
+  H3ToneMode,
+  H3ToneSettings,
+  H3ToneValue,
+  h3FaceChunkCount,
   H3Acceleration,
   H3Job,
   H3Kind,
@@ -28,7 +41,7 @@ import {
 } from "@/lib/h3-swap";
 import { ComfyServer, comboOptions, comfyErrorMessage, comfyFetch, comfyServer, objectInfo, redactComfy } from "@/lib/server/comfy";
 import { createH3Job, listH3Jobs, readH3Job, saveH3File, sniffVideo, updateH3Job } from "@/lib/server/h3-store";
-import { checkAcceleration, inspectReadiness, loadGraph, maskGraph, requiredNodes, swapGraph } from "@/lib/server/h3-workflow";
+import { H3Group, checkAcceleration, colorGraph, faceGraph, inspectReadiness, loadGraph, maskGraph, requiredNodes, swapGraph } from "@/lib/server/h3-workflow";
 import { IMAGE_TYPES, sniffImage } from "@/lib/server/image-edit-store";
 import { ApiError, errorResponse, json, sameOrigin } from "@/lib/server/kie";
 import { validId } from "@/lib/server/motion-store";
@@ -131,6 +144,39 @@ function parseModel(form: FormData, files: { models: string[]; loras: string[]; 
   return selected;
 }
 
+function parseFace(form: FormData): H3FaceSettings {
+  const style = text(form, "style");
+  if (!H3_FACE_STYLES.includes(style as H3FaceStyle)) throw new ApiError("Choose Match the photo or Follow the mouth.");
+  const seed = Number(form.get("seed"));
+  if (!Number.isInteger(seed) || seed < 0 || seed > H3_MAX_SEED) throw new ApiError(`Seed must be a whole number from 0 to ${H3_MAX_SEED}.`);
+  const chunkSeconds = Number(form.get("chunk_seconds"));
+  if (!(chunkSeconds >= H3_CHUNK_SECONDS.min && chunkSeconds <= H3_CHUNK_SECONDS.max))
+    throw new ApiError(`Chunk length must be ${H3_CHUNK_SECONDS.min}–${H3_CHUNK_SECONDS.max} s.`);
+  return { style: style as H3FaceStyle, seed, chunkSeconds };
+}
+
+// A step without its fields is turned off.
+function parseColor(form: FormData): H3ColorSettings {
+  const detailEntry = form.get("detail");
+  const detail = detailEntry === null ? null : Number(detailEntry);
+  if (detail !== null && !(detail >= H3_DETAIL.min && detail <= H3_DETAIL.max)) throw new ApiError(`Detail contrast must be ${H3_DETAIL.min} to ${H3_DETAIL.max}.`);
+  const mode = form.get("tone_mode");
+  let tone: H3ToneSettings | null = null;
+  if (mode !== null) {
+    if (!H3_TONE_MODES.includes(mode as H3ToneMode)) throw new ApiError("Choose a supported tone mapper mode.");
+    tone = { ...H3_DEFAULT_TONE, mode: mode as H3ToneMode };
+    for (const key of Object.keys(H3_TONE_RANGES) as H3ToneValue[]) {
+      const range = H3_TONE_RANGES[key];
+      const value = Number(form.get(`tone_${key}`));
+      if (!(value >= range.min && value <= range.max)) throw new ApiError(`${range.label} must be ${range.min} to ${range.max}.`);
+      tone[key] = value;
+    }
+  }
+  if (detail === null && tone === null) throw new ApiError("Turn on detail contrast, the tone mapper or both.");
+  const preset = text(form, "preset").slice(0, 100);
+  return { detail, tone, ...(preset ? { preset } : {}) };
+}
+
 async function upload(server: ComfyServer, name: string, bytes: Uint8Array, type: string, timeout: number) {
   const form = new FormData();
   form.set("image", new Blob([bytes as Uint8Array<ArrayBuffer>], { type }), name);
@@ -164,7 +210,10 @@ export async function POST(req: Request) {
       if (!(error instanceof ApiError) || error.status !== 404) throw error;
     }
     const kind = text(form, "kind") as H3Kind;
-    if (kind !== "swap" && kind !== "mask") throw new ApiError("Unknown generation type.");
+    if (!["swap", "mask", "face", "color"].includes(kind)) throw new ApiError("Unknown generation type.");
+    const group: H3Group = kind === "swap" || kind === "mask" ? "swap" : kind;
+    const needsPicture = kind === "swap" || kind === "face";
+    const needsModel = kind === "swap" || kind === "face";
 
     const videoFile = form.get("video");
     if (!(videoFile instanceof File) || !videoFile.size) throw new ApiError("Add a driving video.");
@@ -182,9 +231,9 @@ export async function POST(req: Request) {
     if (!videoExtension) throw new ApiError("Use an MP4, MOV or WebM video.", 415);
 
     let picture: { bytes: Uint8Array; type: string } | undefined;
-    if (kind === "swap") {
+    if (needsPicture) {
       const pictureFile = form.get("picture");
-      if (!(pictureFile instanceof File) || !pictureFile.size) throw new ApiError("Add the character photo.");
+      if (!(pictureFile instanceof File) || !pictureFile.size) throw new ApiError(kind === "face" ? "Add the photo of the person whose face to fix." : "Add the character photo.");
       if (pictureFile.size > H3_MAX_IMAGE_MB * 1024 * 1024) throw new ApiError(`The photo must be ${H3_MAX_IMAGE_MB} MB or smaller.`, 413);
       const bytes = new Uint8Array(await pictureFile.arrayBuffer());
       const type = sniffImage(bytes);
@@ -200,15 +249,19 @@ export async function POST(req: Request) {
     const section = parseSection(form, sourceSeconds);
 
     // Confirm the server can run the workflow before saving anything.
-    const info = await objectInfo(server, [...new Set([...(await requiredNodes()), "UNETLoader", "LoraLoaderModelOnly", "CLIPLoader", "VAELoader"])]);
-    const readiness = await inspectReadiness(info);
+    const info = await objectInfo(server, [...new Set([...(await requiredNodes([group])), "UNETLoader", "LoraLoaderModelOnly", "CLIPLoader", "VAELoader"])]);
+    const readiness = await inspectReadiness(info, group);
     if (readiness.missingNodes.length)
       throw new ApiError(`This ComfyUI is missing nodes: ${readiness.missingNodes.join(", ")}. Install the Openjutsu custom nodes and restart ComfyUI.`, 409);
+    if (group !== "swap" && readiness.missingModels.length)
+      throw new ApiError(`Models not on the GPU: ${readiness.missingModels.join(", ")}.`, 409);
 
     const settings = kind === "swap" ? parseSettings(form) : undefined;
     const mask = kind === "mask" ? parseMask(form) : undefined;
+    const face = kind === "face" ? parseFace(form) : undefined;
+    const color = kind === "color" ? parseColor(form) : undefined;
     const model =
-      kind === "swap"
+      needsModel
         ? parseModel(form, {
             models: comboOptions(info, "UNETLoader", "unet_name"),
             loras: comboOptions(info, "LoraLoaderModelOnly", "lora_name"),
@@ -232,6 +285,8 @@ export async function POST(req: Request) {
       ...(settings ? { settings, clips: length ? h3ClipCount(length, settings.clipSeconds) : undefined } : {}),
       ...(model ? { model } : {}),
       ...(mask ? { mask } : {}),
+      ...(face ? { face, clips: length ? h3FaceChunkCount(length, face.chunkSeconds) : undefined } : {}),
+      ...(color ? { color } : {}),
       videoName: (videoFile.name || "video").slice(0, 200),
       ...(picture && form.get("picture") instanceof File ? { pictureName: ((form.get("picture") as File).name || "photo").slice(0, 200) } : {}),
       server: server.origin,
@@ -247,7 +302,11 @@ export async function POST(req: Request) {
     const graph =
       kind === "swap"
         ? swapGraph(await loadGraph("simple"), { video: videoName, picture: pictureName, section, settings: settings!, model: model!, outputName: `genjutsu_h3_${short}` })
-        : maskGraph(await loadGraph("mask"), { video: videoName, section, ...mask!, outputName: `genjutsu/h3-mask-${short}` });
+        : kind === "mask"
+          ? maskGraph(await loadGraph("mask"), { video: videoName, section, ...mask!, outputName: `genjutsu/h3-mask-${short}` })
+          : kind === "face"
+            ? faceGraph(await loadGraph("face"), info, { video: videoName, picture: pictureName, section, settings: face!, model: model!, outputName: `genjutsu/h3-face-${short}` })
+            : colorGraph(await loadGraph("color"), info, { video: videoName, section, settings: color!, outputName: `genjutsu/h3-color-${short}` });
     const response = await comfyFetch(
       server,
       "/prompt",
